@@ -1,0 +1,17 @@
+# Local operating-system files
+.DS_Store
+Thumbs.db
+
+# Secrets and local runtime configuration
+.env
+.env.*
+!.env.example
+secrets/
+credentials/
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Local logs
+*.log

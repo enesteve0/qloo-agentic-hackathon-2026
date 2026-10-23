@@ -1,0 +1,23 @@
+# Working instructions
+
+This is the private preparation workspace for Qloo Agentic Hackathon 2026. Read README.md, docs/RESEARCH.md, docs/SUBMISSION.md and docs/PROVENANCE.md before changing the project.
+
+## Event-specific boundary
+
+Qloo API access has not been verified. An externally hosted public demo and public source are submission requirements; this foundation remains private until a separate publication instruction.
+
+## Development
+
+- Confirm the current official rules and eligible work dates before implementation. Preserve unresolved facts instead of inventing requirements.
+- Follow the selected product and stack once the owner chooses them; this foundation makes neither choice.
+- Keep each hackathon's source and provenance separate. Never infer cross-event reuse permission.
+- Keep repository visibility private unless the owner explicitly instructs otherwise. A documented public-submission requirement is not permission to publish immediately.
+- Never commit credentials, real customer data, or private account details. Use placeholder-only configuration examples when configuration actually exists.
+- Preserve third-party license notices and check model/API terms separately.
+- Document real setup, tests, required integration evidence and demo behavior as implementation is added. Do not claim an untested integration or mark checklist items complete without evidence.
+- Run checks appropriate to the change. For this foundation, review Markdown links and whitespace; add runtime checks and CI with the actual implementation.
+- Record baseline imports, material decisions and submission revisions in docs/PROVENANCE.md. Respect any submission freeze.
+
+## Repository conventions
+
+Use focused branches, descriptive conventional commits, and the pull-request template for reviewable changes. Keep documentation in English. Repository-local Git identity is configured; do not change global Git settings.
