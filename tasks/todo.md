@@ -23,7 +23,7 @@ correction in `tasks/lessons.md`.
       typecheck, lint, tests green locally and in CI
 - [x] 2. `scripts/build-geo.ts` + committed data + night-mode kiosk map — verify: 2,183 ± 5 kiosks,
       every kiosk in a 2020 NTA, WKT ≤ 4,000 chars encoded, map renders
-- [ ] 3. Qloo client + mock transport + synthetic fixtures + contract tests + smoke dry-run —
+- [x] 3. Qloo client + mock transport + synthetic fixtures + contract tests + smoke dry-run —
       verify: unit/contract tests; `pnpm qloo:smoke --dry-run` prints the call plan
 - [x] 4. Lift engine + kiosk/NTA scoring + flags — verify: planted-bump recovery precision@5 ≥ 0.6
       (raw affinity ≤ 0.3); default-map / density-only / thin detection tests
@@ -33,7 +33,7 @@ correction in `tasks/lessons.md`.
       verify: mock integration test; e2e (new brief streams; picker resumes)
 - [x] 7. Evidence + creative + validator + screen mockups — verify: validator tests (≥25 cases);
       grounded variants in a mock run
-- [ ] 8. Optimizer + PLAN table + CSV + print/PDF + email draft — verify: optimizer tests; e2e CSV
+- [x] 8. Optimizer + PLAN table + CSV + print/PDF + email draft — verify: optimizer tests; e2e CSV
 - [x] 9. Per-run PROOF (LLM-only comparison) — verify: integration asserts proof fields
 - [ ] 10. Guards (WAF rule, limits, slots, single-flight, banners) — verify: e2e rate-limit →
       banner + recorded run; manual WAF test
