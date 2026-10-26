@@ -53,7 +53,7 @@ correction in `tasks/lessons.md`.
 - [ ] Business's own Qloo entity as an anchor + one-call `filter.results.entities` anchor check
 - [ ] Anchor swap on DENSITY_ONLY flag
 - [ ] Evidence + creative for 5 NTAs
-- [ ] LinkLocal "best 6 free screens" mode (verify program wording first)
+- [x] LinkLocal "best 6 free screens" mode (wording verified 2026-10-26; picks + PLAN card + tests)
 - [ ] "+$1k" next-best suggestion · distance-from-business slider
 - [ ] LLM arm in the backtest · PNG export of mockups · grid toggle
 
