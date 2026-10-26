@@ -1,0 +1,69 @@
+{
+  "_synthetic": true,
+  "generator": "scripts/gen-fixtures.ts",
+  "description": "Place search near NYC (filter.radius is in miles)",
+  "request": {
+    "method": "GET",
+    "path": "/search",
+    "query": "query=Brooklyn+Museum&types=urn%3Aentity%3Aplace&take=5&filter.location=40.7128%2C-74.0060&filter.radius=25"
+  },
+  "status": 200,
+  "headers": {
+    "content-type": "application/json",
+    "x-month-ratelimit-limit": "10000",
+    "x-month-ratelimit-remaining": "9996",
+    "x-month-ratelimit-reset": "2592000",
+    "x-qloo-request-id": "synthetic-4",
+    "x-second-ratelimit-limit": "5",
+    "x-second-ratelimit-remaining": "4",
+    "x-second-ratelimit-reset": "1"
+  },
+  "body": {
+    "results": [
+      {
+        "name": "Brooklyn Museum",
+        "entity_id": "5157E7C0-0000-4000-8000-E6AA659D2A01",
+        "types": [
+          "urn:entity:place"
+        ],
+        "popularity": 0.7765,
+        "properties": {
+          "address": "480 Synthetic Ave, New York, NY"
+        },
+        "tags": [
+          {
+            "id": "synthetic_genre_restaurant",
+            "name": "Restaurant",
+            "type": "urn:tag:genre:place"
+          }
+        ],
+        "location": {
+          "lat": 40.70591,
+          "lon": -74.03002
+        }
+      },
+      {
+        "name": "Brooklyn Museum Annex",
+        "entity_id": "5157E7C0-0000-4000-8000-709D5B2DDA69",
+        "types": [
+          "urn:entity:place"
+        ],
+        "popularity": 0.3942,
+        "properties": {
+          "address": "690 Synthetic Ave, New York, NY"
+        },
+        "tags": [
+          {
+            "id": "synthetic_genre_jazz_club",
+            "name": "Jazz Club",
+            "type": "urn:tag:genre:place"
+          }
+        ],
+        "location": {
+          "lat": 40.71344,
+          "lon": -74.01078
+        }
+      }
+    ]
+  }
+}

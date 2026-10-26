@@ -1,0 +1,63 @@
+{
+  "_synthetic": true,
+  "generator": "scripts/gen-fixtures.ts",
+  "description": "Planted ambiguity: two films called Solaris",
+  "request": {
+    "method": "GET",
+    "path": "/search",
+    "query": "query=Solaris&types=urn%3Aentity%3Amovie&take=5"
+  },
+  "status": 200,
+  "headers": {
+    "content-type": "application/json",
+    "x-month-ratelimit-limit": "10000",
+    "x-month-ratelimit-remaining": "9998",
+    "x-month-ratelimit-reset": "2592000",
+    "x-qloo-request-id": "synthetic-2",
+    "x-second-ratelimit-limit": "5",
+    "x-second-ratelimit-remaining": "4",
+    "x-second-ratelimit-reset": "1"
+  },
+  "body": {
+    "results": [
+      {
+        "name": "Solaris",
+        "entity_id": "5157E7C0-0000-4000-8000-51D184A1DBDD",
+        "types": [
+          "urn:entity:movie"
+        ],
+        "popularity": 0.71,
+        "properties": {
+          "release_year": 1972
+        },
+        "tags": [
+          {
+            "id": "synthetic_genre_animation",
+            "name": "Animation",
+            "type": "urn:tag:genre:movie"
+          }
+        ],
+        "disambiguation": "Film · 1972 · Andrei Tarkovsky"
+      },
+      {
+        "name": "Solaris",
+        "entity_id": "5157E7C0-0000-4000-8000-F50A90D894EF",
+        "types": [
+          "urn:entity:movie"
+        ],
+        "popularity": 0.68,
+        "properties": {
+          "release_year": 2002
+        },
+        "tags": [
+          {
+            "id": "synthetic_genre_animation",
+            "name": "Animation",
+            "type": "urn:tag:genre:movie"
+          }
+        ],
+        "disambiguation": "Film · 2002 · Steven Soderbergh"
+      }
+    ]
+  }
+}

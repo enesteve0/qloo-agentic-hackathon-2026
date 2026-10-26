@@ -1,0 +1,519 @@
+{
+  "_synthetic": true,
+  "generator": "scripts/gen-fixtures.ts",
+  "description": "Place insights inside a neighborhood polygon with explainability",
+  "request": {
+    "method": "GET",
+    "path": "/v2/insights",
+    "query": "filter.type=urn%3Aentity%3Aplace&filter.location=POLYGON%28%28-73.97+40.70%2C+-73.94+40.70%2C+-73.94+40.73%2C+-73.97+40.73%2C+-73.97+40.70%29%29&signal.interests.entities=5157E7C0-0000-4000-8000-51D184A1DBDD%2C5157E7C0-0000-4000-8000-F50A90D894EF&take=8&feature.explainability=true"
+  },
+  "status": 200,
+  "headers": {
+    "content-type": "application/json",
+    "x-month-ratelimit-limit": "10000",
+    "x-month-ratelimit-remaining": "9991",
+    "x-month-ratelimit-reset": "2592000",
+    "x-qloo-request-id": "synthetic-9",
+    "x-second-ratelimit-limit": "5",
+    "x-second-ratelimit-remaining": "4",
+    "x-second-ratelimit-reset": "1"
+  },
+  "body": {
+    "success": true,
+    "results": {
+      "entities": [
+        {
+          "name": "Tin Records",
+          "entity_id": "synthetic_place_38c270b4",
+          "type": "urn:entity",
+          "subtype": "urn:entity:place",
+          "popularity": 0.6939,
+          "location": {
+            "lat": 40.708045,
+            "lon": -73.946719,
+            "geohash": "dr5rt69"
+          },
+          "properties": {
+            "address": "474 Synthetic Ave, New York, NY",
+            "price_level": 1,
+            "business_rating": 4.6,
+            "keywords": []
+          },
+          "tags": [
+            {
+              "id": "synthetic_category_cocktail_bar",
+              "name": "Cocktail Bar",
+              "type": "urn:tag:category:place"
+            },
+            {
+              "id": "synthetic_cuisine_natural_wine",
+              "name": "Natural Wine",
+              "type": "urn:tag:cuisine:qloo"
+            },
+            {
+              "id": "synthetic_ambience_dimly_lit",
+              "name": "Dimly Lit",
+              "type": "urn:tag:ambience:qloo"
+            },
+            {
+              "id": "synthetic_good_for_live_music",
+              "name": "Live Music",
+              "type": "urn:tag:good_for:qloo"
+            },
+            {
+              "id": "synthetic_time_of_day_fit_late_night",
+              "name": "Late Night",
+              "type": "urn:tag:time_of_day_fit:qloo"
+            }
+          ],
+          "query": {
+            "affinity": 0.97,
+            "explainability": {
+              "signal.interests.entities": [
+                {
+                  "entity_id": "5157E7C0-0000-4000-8000-51D184A1DBDD",
+                  "score": 0.368
+                },
+                {
+                  "entity_id": "5157E7C0-0000-4000-8000-F50A90D894EF",
+                  "score": 0.49
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Stoop Records",
+          "entity_id": "synthetic_place_f48b86a4",
+          "type": "urn:entity",
+          "subtype": "urn:entity:place",
+          "popularity": 0.6665,
+          "location": {
+            "lat": 40.729178,
+            "lon": -73.947164,
+            "geohash": "dr5rtq9"
+          },
+          "properties": {
+            "address": "673 Synthetic Ave, New York, NY",
+            "price_level": 4,
+            "business_rating": 4.8,
+            "keywords": []
+          },
+          "tags": [
+            {
+              "id": "synthetic_category_music_venue",
+              "name": "Music Venue",
+              "type": "urn:tag:category:place"
+            },
+            {
+              "id": "synthetic_cuisine_small_plates",
+              "name": "Small Plates",
+              "type": "urn:tag:cuisine:qloo"
+            },
+            {
+              "id": "synthetic_ambience_dimly_lit",
+              "name": "Dimly Lit",
+              "type": "urn:tag:ambience:qloo"
+            },
+            {
+              "id": "synthetic_good_for_live_music",
+              "name": "Live Music",
+              "type": "urn:tag:good_for:qloo"
+            },
+            {
+              "id": "synthetic_time_of_day_fit_evening",
+              "name": "Evening",
+              "type": "urn:tag:time_of_day_fit:qloo"
+            }
+          ],
+          "query": {
+            "affinity": 0.9338,
+            "explainability": {
+              "signal.interests.entities": [
+                {
+                  "entity_id": "5157E7C0-0000-4000-8000-51D184A1DBDD",
+                  "score": 0.323
+                },
+                {
+                  "entity_id": "5157E7C0-0000-4000-8000-F50A90D894EF",
+                  "score": 0.487
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Fig Records",
+          "entity_id": "synthetic_place_f3bb7c3f",
+          "type": "urn:entity",
+          "subtype": "urn:entity:place",
+          "popularity": 0.3858,
+          "location": {
+            "lat": 40.715955,
+            "lon": -73.965993,
+            "geohash": "dr5rsu5"
+          },
+          "properties": {
+            "address": "29 Synthetic Ave, New York, NY",
+            "price_level": 4,
+            "business_rating": 4.6,
+            "keywords": []
+          },
+          "tags": [
+            {
+              "id": "synthetic_category_bar",
+              "name": "Bar",
+              "type": "urn:tag:category:place"
+            },
+            {
+              "id": "synthetic_cuisine_natural_wine",
+              "name": "Natural Wine",
+              "type": "urn:tag:cuisine:qloo"
+            },
+            {
+              "id": "synthetic_ambience_lively",
+              "name": "Lively",
+              "type": "urn:tag:ambience:qloo"
+            },
+            {
+              "id": "synthetic_good_for_live_music",
+              "name": "Live Music",
+              "type": "urn:tag:good_for:qloo"
+            },
+            {
+              "id": "synthetic_time_of_day_fit_evening",
+              "name": "Evening",
+              "type": "urn:tag:time_of_day_fit:qloo"
+            }
+          ],
+          "query": {
+            "affinity": 0.9155,
+            "explainability": {
+              "signal.interests.entities": [
+                {
+                  "entity_id": "5157E7C0-0000-4000-8000-51D184A1DBDD",
+                  "score": 0.517
+                },
+                {
+                  "entity_id": "5157E7C0-0000-4000-8000-F50A90D894EF",
+                  "score": 0.355
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Late Works",
+          "entity_id": "synthetic_place_03d4ff3e",
+          "type": "urn:entity",
+          "subtype": "urn:entity:place",
+          "popularity": 0.6942,
+          "location": {
+            "lat": 40.729134,
+            "lon": -73.94026,
+            "geohash": "dr5rtqw"
+          },
+          "properties": {
+            "address": "104 Synthetic Ave, New York, NY",
+            "price_level": 4,
+            "business_rating": 4.7,
+            "keywords": []
+          },
+          "tags": [
+            {
+              "id": "synthetic_category_cocktail_bar",
+              "name": "Cocktail Bar",
+              "type": "urn:tag:category:place"
+            },
+            {
+              "id": "synthetic_cuisine_small_plates",
+              "name": "Small Plates",
+              "type": "urn:tag:cuisine:qloo"
+            },
+            {
+              "id": "synthetic_ambience_dimly_lit",
+              "name": "Dimly Lit",
+              "type": "urn:tag:ambience:qloo"
+            },
+            {
+              "id": "synthetic_good_for_late_night",
+              "name": "Late Night",
+              "type": "urn:tag:good_for:qloo"
+            },
+            {
+              "id": "synthetic_time_of_day_fit_late_night",
+              "name": "Late Night",
+              "type": "urn:tag:time_of_day_fit:qloo"
+            },
+            {
+              "id": "synthetic_payments_credit_cards",
+              "name": "Credit Cards",
+              "type": "urn:tag:payments:qloo"
+            }
+          ],
+          "query": {
+            "affinity": 0.8771,
+            "explainability": {
+              "signal.interests.entities": [
+                {
+                  "entity_id": "5157E7C0-0000-4000-8000-51D184A1DBDD",
+                  "score": 0.522
+                },
+                {
+                  "entity_id": "5157E7C0-0000-4000-8000-F50A90D894EF",
+                  "score": 0.715
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Late Supply",
+          "entity_id": "synthetic_place_553e8c87",
+          "type": "urn:entity",
+          "subtype": "urn:entity:place",
+          "popularity": 0.3248,
+          "location": {
+            "lat": 40.715465,
+            "lon": -73.96241,
+            "geohash": "dr5rsun"
+          },
+          "properties": {
+            "address": "671 Synthetic Ave, New York, NY",
+            "price_level": 1,
+            "business_rating": 4.5,
+            "keywords": []
+          },
+          "tags": [
+            {
+              "id": "synthetic_category_cocktail_bar",
+              "name": "Cocktail Bar",
+              "type": "urn:tag:category:place"
+            },
+            {
+              "id": "synthetic_cuisine_natural_wine",
+              "name": "Natural Wine",
+              "type": "urn:tag:cuisine:qloo"
+            },
+            {
+              "id": "synthetic_ambience_dimly_lit",
+              "name": "Dimly Lit",
+              "type": "urn:tag:ambience:qloo"
+            },
+            {
+              "id": "synthetic_good_for_late_night",
+              "name": "Late Night",
+              "type": "urn:tag:good_for:qloo"
+            },
+            {
+              "id": "synthetic_time_of_day_fit_late_night",
+              "name": "Late Night",
+              "type": "urn:tag:time_of_day_fit:qloo"
+            }
+          ],
+          "query": {
+            "affinity": 0.8735,
+            "explainability": {
+              "signal.interests.entities": [
+                {
+                  "entity_id": "5157E7C0-0000-4000-8000-51D184A1DBDD",
+                  "score": 0.669
+                },
+                {
+                  "entity_id": "5157E7C0-0000-4000-8000-F50A90D894EF",
+                  "score": 0.619
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Lantern House",
+          "entity_id": "synthetic_place_c453dffd",
+          "type": "urn:entity",
+          "subtype": "urn:entity:place",
+          "popularity": 0.6233,
+          "location": {
+            "lat": 40.716972,
+            "lon": -73.964064,
+            "geohash": "dr5rsum"
+          },
+          "properties": {
+            "address": "802 Synthetic Ave, New York, NY",
+            "price_level": 3,
+            "business_rating": 4.6,
+            "keywords": []
+          },
+          "tags": [
+            {
+              "id": "synthetic_category_music_venue",
+              "name": "Music Venue",
+              "type": "urn:tag:category:place"
+            },
+            {
+              "id": "synthetic_cuisine_natural_wine",
+              "name": "Natural Wine",
+              "type": "urn:tag:cuisine:qloo"
+            },
+            {
+              "id": "synthetic_ambience_lively",
+              "name": "Lively",
+              "type": "urn:tag:ambience:qloo"
+            },
+            {
+              "id": "synthetic_good_for_late_night",
+              "name": "Late Night",
+              "type": "urn:tag:good_for:qloo"
+            },
+            {
+              "id": "synthetic_time_of_day_fit_late_night",
+              "name": "Late Night",
+              "type": "urn:tag:time_of_day_fit:qloo"
+            }
+          ],
+          "query": {
+            "affinity": 0.8458,
+            "explainability": {
+              "signal.interests.entities": [
+                {
+                  "entity_id": "5157E7C0-0000-4000-8000-51D184A1DBDD",
+                  "score": 0.53
+                },
+                {
+                  "entity_id": "5157E7C0-0000-4000-8000-F50A90D894EF",
+                  "score": 0.483
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Juniper Kitchen",
+          "entity_id": "synthetic_place_9632c1a9",
+          "type": "urn:entity",
+          "subtype": "urn:entity:place",
+          "popularity": 0.677,
+          "location": {
+            "lat": 40.712591,
+            "lon": -73.949015,
+            "geohash": "dr5rt5x"
+          },
+          "properties": {
+            "address": "407 Synthetic Ave, New York, NY",
+            "price_level": 3,
+            "business_rating": 4.8,
+            "keywords": []
+          },
+          "tags": [
+            {
+              "id": "synthetic_category_music_venue",
+              "name": "Music Venue",
+              "type": "urn:tag:category:place"
+            },
+            {
+              "id": "synthetic_cuisine_small_plates",
+              "name": "Small Plates",
+              "type": "urn:tag:cuisine:qloo"
+            },
+            {
+              "id": "synthetic_ambience_lively",
+              "name": "Lively",
+              "type": "urn:tag:ambience:qloo"
+            },
+            {
+              "id": "synthetic_good_for_late_night",
+              "name": "Late Night",
+              "type": "urn:tag:good_for:qloo"
+            },
+            {
+              "id": "synthetic_time_of_day_fit_late_night",
+              "name": "Late Night",
+              "type": "urn:tag:time_of_day_fit:qloo"
+            },
+            {
+              "id": "synthetic_accessibility_wheelchair_accessible",
+              "name": "Wheelchair Accessible",
+              "type": "urn:tag:accessibility:qloo"
+            }
+          ],
+          "query": {
+            "affinity": 0.8178,
+            "explainability": {
+              "signal.interests.entities": [
+                {
+                  "entity_id": "5157E7C0-0000-4000-8000-51D184A1DBDD",
+                  "score": 0.523
+                },
+                {
+                  "entity_id": "5157E7C0-0000-4000-8000-F50A90D894EF",
+                  "score": 0.628
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Juniper Social No. 30",
+          "entity_id": "synthetic_place_ed1ba8ea",
+          "type": "urn:entity",
+          "subtype": "urn:entity:place",
+          "popularity": 0.8405,
+          "location": {
+            "lat": 40.729516,
+            "lon": -73.957244,
+            "geohash": "dr5rtn9"
+          },
+          "properties": {
+            "address": "140 Synthetic Ave, New York, NY",
+            "price_level": 2,
+            "business_rating": 4.3,
+            "keywords": []
+          },
+          "tags": [
+            {
+              "id": "synthetic_category_bar",
+              "name": "Bar",
+              "type": "urn:tag:category:place"
+            },
+            {
+              "id": "synthetic_cuisine_natural_wine",
+              "name": "Natural Wine",
+              "type": "urn:tag:cuisine:qloo"
+            },
+            {
+              "id": "synthetic_ambience_dimly_lit",
+              "name": "Dimly Lit",
+              "type": "urn:tag:ambience:qloo"
+            },
+            {
+              "id": "synthetic_good_for_late_night",
+              "name": "Late Night",
+              "type": "urn:tag:good_for:qloo"
+            },
+            {
+              "id": "synthetic_time_of_day_fit_late_night",
+              "name": "Late Night",
+              "type": "urn:tag:time_of_day_fit:qloo"
+            }
+          ],
+          "query": {
+            "affinity": 0.8177,
+            "explainability": {
+              "signal.interests.entities": [
+                {
+                  "entity_id": "5157E7C0-0000-4000-8000-51D184A1DBDD",
+                  "score": 0.425
+                },
+                {
+                  "entity_id": "5157E7C0-0000-4000-8000-F50A90D894EF",
+                  "score": 0.425
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "duration": 250
+  }
+}

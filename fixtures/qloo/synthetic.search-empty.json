@@ -1,0 +1,24 @@
+{
+  "_synthetic": true,
+  "generator": "scripts/gen-fixtures.ts",
+  "description": "No candidates",
+  "request": {
+    "method": "GET",
+    "path": "/search",
+    "query": "query=zzzz&types=urn%3Aentity%3Aartist&take=5"
+  },
+  "status": 200,
+  "headers": {
+    "content-type": "application/json",
+    "x-month-ratelimit-limit": "10000",
+    "x-month-ratelimit-remaining": "9995",
+    "x-month-ratelimit-reset": "2592000",
+    "x-qloo-request-id": "synthetic-5",
+    "x-second-ratelimit-limit": "5",
+    "x-second-ratelimit-remaining": "4",
+    "x-second-ratelimit-reset": "1"
+  },
+  "body": {
+    "results": []
+  }
+}

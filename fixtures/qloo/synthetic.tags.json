@@ -1,0 +1,69 @@
+{
+  "_synthetic": true,
+  "generator": "scripts/gen-fixtures.ts",
+  "description": "Tag insights with signal.location",
+  "request": {
+    "method": "GET",
+    "path": "/v2/insights",
+    "query": "filter.type=urn%3Atag&filter.tag.types=urn%3Atag%3Agenre%3Amusic&signal.location=POLYGON%28%28-73.97+40.70%2C+-73.94+40.70%2C+-73.94+40.73%2C+-73.97+40.73%2C+-73.97+40.70%29%29&signal.interests.entities=5157E7C0-0000-4000-8000-F50A90D894EF&take=5"
+  },
+  "status": 200,
+  "headers": {
+    "content-type": "application/json",
+    "x-month-ratelimit-limit": "10000",
+    "x-month-ratelimit-remaining": "9990",
+    "x-month-ratelimit-reset": "2592000",
+    "x-qloo-request-id": "synthetic-10",
+    "x-second-ratelimit-limit": "5",
+    "x-second-ratelimit-remaining": "4",
+    "x-second-ratelimit-reset": "1"
+  },
+  "body": {
+    "success": true,
+    "results": {
+      "tags": [
+        {
+          "id": "synthetic_genre_music_hip_hop",
+          "name": "Hip-Hop",
+          "type": "urn:tag:genre:music",
+          "query": {
+            "affinity": 0.9387
+          }
+        },
+        {
+          "id": "synthetic_genre_music_latin_pop",
+          "name": "Latin Pop",
+          "type": "urn:tag:genre:music",
+          "query": {
+            "affinity": 0.8817
+          }
+        },
+        {
+          "id": "synthetic_genre_music_salsa",
+          "name": "Salsa",
+          "type": "urn:tag:genre:music",
+          "query": {
+            "affinity": 0.8467
+          }
+        },
+        {
+          "id": "synthetic_genre_music_r_b",
+          "name": "R&B",
+          "type": "urn:tag:genre:music",
+          "query": {
+            "affinity": 0.7278
+          }
+        },
+        {
+          "id": "synthetic_genre_music_neo_soul",
+          "name": "Neo-Soul",
+          "type": "urn:tag:genre:music",
+          "query": {
+            "affinity": 0.6925
+          }
+        }
+      ]
+    },
+    "duration": 200
+  }
+}

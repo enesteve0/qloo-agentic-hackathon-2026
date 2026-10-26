@@ -1,0 +1,24 @@
+{
+  "_synthetic": true,
+  "generator": "scripts/gen-fixtures.ts",
+  "description": "403 for an entity type the key cannot use (not an auth failure)",
+  "request": {
+    "method": "GET",
+    "path": "/search",
+    "query": "query=Synthetic+Quest&types=urn%3Aentity%3Avideogame"
+  },
+  "status": 403,
+  "headers": {
+    "content-type": "application/json",
+    "x-month-ratelimit-limit": "10000",
+    "x-month-ratelimit-remaining": "9987",
+    "x-month-ratelimit-reset": "2592000",
+    "x-qloo-request-id": "synthetic-13",
+    "x-second-ratelimit-limit": "5",
+    "x-second-ratelimit-remaining": "4",
+    "x-second-ratelimit-reset": "1"
+  },
+  "body": {
+    "message": "You do not have permission to access urn:entity:videogame"
+  }
+}

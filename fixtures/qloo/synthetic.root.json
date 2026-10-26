@@ -1,0 +1,26 @@
+{
+  "_synthetic": true,
+  "generator": "scripts/gen-fixtures.ts",
+  "description": "GET / (version info and rate-limit headers)",
+  "request": {
+    "method": "GET",
+    "path": "/",
+    "query": ""
+  },
+  "status": 200,
+  "headers": {
+    "content-type": "application/json",
+    "x-month-ratelimit-limit": "10000",
+    "x-month-ratelimit-remaining": "9999",
+    "x-month-ratelimit-reset": "2592000",
+    "x-qloo-request-id": "synthetic-1",
+    "x-second-ratelimit-limit": "5",
+    "x-second-ratelimit-remaining": "4",
+    "x-second-ratelimit-reset": "1"
+  },
+  "body": {
+    "name": "Synthetic Qloo transport",
+    "version": "synthetic-1",
+    "_synthetic": true
+  }
+}

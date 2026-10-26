@@ -1,0 +1,23 @@
+{
+  "_synthetic": true,
+  "generator": "scripts/gen-fixtures.ts",
+  "description": "Per-second limit: 429 {error_msg} with the second window at 0 and month quota left (hand-written)",
+  "request": {
+    "method": "GET",
+    "path": "/search",
+    "query": "query=Synthetic&types=urn%3Aentity%3Abrand&take=5"
+  },
+  "status": 429,
+  "headers": {
+    "content-type": "application/json",
+    "x-month-ratelimit-limit": "10000",
+    "x-month-ratelimit-remaining": "9000",
+    "x-month-ratelimit-reset": "2000000",
+    "x-second-ratelimit-limit": "5",
+    "x-second-ratelimit-remaining": "0",
+    "x-second-ratelimit-reset": "1"
+  },
+  "body": {
+    "error_msg": "Rate limit exceeded"
+  }
+}

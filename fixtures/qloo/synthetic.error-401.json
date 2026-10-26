@@ -1,0 +1,17 @@
+{
+  "_synthetic": true,
+  "generator": "scripts/gen-fixtures.ts",
+  "description": "Wrong host, header or key (hand-written)",
+  "request": {
+    "method": "GET",
+    "path": "/search",
+    "query": "query=Synthetic&types=urn%3Aentity%3Abrand&take=5"
+  },
+  "status": 401,
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": {
+    "message": "Unauthorized"
+  }
+}

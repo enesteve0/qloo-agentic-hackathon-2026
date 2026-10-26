@@ -1,0 +1,31 @@
+{
+  "_synthetic": true,
+  "generator": "scripts/gen-fixtures.ts",
+  "description": "400 with errors[] (unsupported filter.type)",
+  "request": {
+    "method": "GET",
+    "path": "/v2/insights",
+    "query": "filter.type=urn%3Abogus"
+  },
+  "status": 400,
+  "headers": {
+    "content-type": "application/json",
+    "x-month-ratelimit-limit": "10000",
+    "x-month-ratelimit-remaining": "9988",
+    "x-month-ratelimit-reset": "2592000",
+    "x-qloo-request-id": "synthetic-12",
+    "x-second-ratelimit-limit": "5",
+    "x-second-ratelimit-remaining": "4",
+    "x-second-ratelimit-reset": "1"
+  },
+  "body": {
+    "errors": [
+      {
+        "message": "Unsupported filter.type urn:bogus",
+        "path": [
+          "filter.type"
+        ]
+      }
+    ]
+  }
+}

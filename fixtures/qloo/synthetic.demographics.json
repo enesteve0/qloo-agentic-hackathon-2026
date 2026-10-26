@@ -1,0 +1,45 @@
+{
+  "_synthetic": true,
+  "generator": "scripts/gen-fixtures.ts",
+  "description": "Demographics insights",
+  "request": {
+    "method": "GET",
+    "path": "/v2/insights",
+    "query": "filter.type=urn%3Ademographics&signal.interests.entities=5157E7C0-0000-4000-8000-F50A90D894EF"
+  },
+  "status": 200,
+  "headers": {
+    "content-type": "application/json",
+    "x-month-ratelimit-limit": "10000",
+    "x-month-ratelimit-remaining": "9989",
+    "x-month-ratelimit-reset": "2592000",
+    "x-qloo-request-id": "synthetic-11",
+    "x-second-ratelimit-limit": "5",
+    "x-second-ratelimit-remaining": "4",
+    "x-second-ratelimit-reset": "1"
+  },
+  "body": {
+    "success": true,
+    "results": {
+      "demographics": [
+        {
+          "entity_id": "5157E7C0-0000-4000-8000-F50A90D894EF",
+          "query": {
+            "age": {
+              "24_and_younger": -0.131,
+              "25_to_29": -0.07,
+              "30_to_34": 0.411,
+              "35_to_44": -0.169,
+              "45_to_54": -0.349,
+              "55_and_older": -0.058
+            },
+            "gender": {
+              "male": -0.062,
+              "female": 0.145
+            }
+          }
+        }
+      ]
+    }
+  }
+}

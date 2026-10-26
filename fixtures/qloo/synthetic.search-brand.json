@@ -1,0 +1,57 @@
+{
+  "_synthetic": true,
+  "generator": "scripts/gen-fixtures.ts",
+  "description": "Unknown-ish query: exact candidate plus a close variant",
+  "request": {
+    "method": "GET",
+    "path": "/search",
+    "query": "query=Sweetgreen&types=urn%3Aentity%3Abrand&take=5"
+  },
+  "status": 200,
+  "headers": {
+    "content-type": "application/json",
+    "x-month-ratelimit-limit": "10000",
+    "x-month-ratelimit-remaining": "9997",
+    "x-month-ratelimit-reset": "2592000",
+    "x-qloo-request-id": "synthetic-3",
+    "x-second-ratelimit-limit": "5",
+    "x-second-ratelimit-remaining": "4",
+    "x-second-ratelimit-reset": "1"
+  },
+  "body": {
+    "results": [
+      {
+        "name": "Sweetgreen",
+        "entity_id": "5157E7C0-0000-4000-8000-89797454680D",
+        "types": [
+          "urn:entity:brand"
+        ],
+        "popularity": 0.8051,
+        "properties": {},
+        "tags": [
+          {
+            "id": "synthetic_genre_fast_casual",
+            "name": "Fast Casual",
+            "type": "urn:tag:genre:brand"
+          }
+        ]
+      },
+      {
+        "name": "Sweetgreen Kitchen",
+        "entity_id": "5157E7C0-0000-4000-8000-D66301736BC0",
+        "types": [
+          "urn:entity:brand"
+        ],
+        "popularity": 0.2431,
+        "properties": {},
+        "tags": [
+          {
+            "id": "synthetic_genre_coffee",
+            "name": "Coffee",
+            "type": "urn:tag:genre:brand"
+          }
+        ]
+      }
+    ]
+  }
+}
