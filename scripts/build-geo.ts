@@ -434,6 +434,8 @@ function main() {
   fs.writeFileSync(path.join(OUT_DATA, 'grid-gh6.json'), JSON.stringify({ precision: 6, cells, ntaWeights, kioskCell }));
   fs.writeFileSync(path.join(OUT_DATA, 'nyc-study.wkt'), study + '\n');
   fs.writeFileSync(path.join(OUT_DATA, 'nyc-hull.wkt'), hull + '\n');
+  // JSON copy so server code can import the study area without runtime file reads.
+  fs.writeFileSync(path.join(OUT_DATA, 'study.json'), JSON.stringify({ study, hull }) + '\n');
   fs.writeFileSync(
     path.join(OUT_PUBLIC, 'kiosks.min.json'),
     JSON.stringify({ v: 1, retrievedAt, k: kiosks.map((k) => [k.lon, k.lat, k.type === 'LINK5G_AD' ? 1 : 0]) }),
