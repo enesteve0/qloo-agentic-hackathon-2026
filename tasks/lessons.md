@@ -17,3 +17,6 @@ rule that prevents it, and how to check.
   2026-10-26, overriding the repo's earlier "focused branches" convention). Rule: commit directly on
   `master`; never run `git checkout -b`/`git switch -c`; check `git branch --show-current` before
   committing.
+- **Commits: no `Co-Authored-By` or "Generated with" trailers** (owner instruction, 2026-10-26).
+  Committing and pushing to `master` is pre-approved. Rule: plain conventional-commit messages;
+  before every push, `git log --format=%B origin/master..HEAD | grep -i co-authored` must be empty.
