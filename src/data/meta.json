@@ -1,0 +1,17 @@
+{
+  "retrievedAt": "2026-10-26T16:36:50Z",
+  "sources": {
+    "kiosks": "NYC Open Data s4kf-3yrf (LinkNYC Locations)",
+    "ntas": "NYC Open Data 9nt8-h7nd (2020 Neighborhood Tabulation Areas)",
+    "boroughs": "NYC Open Data gthc-hcne (Borough Boundaries, water excluded)"
+  },
+  "counts": {
+    "kiosks": 2183,
+    "kiosksReassigned": 6,
+    "link5gAd": 151,
+    "ntas": 262,
+    "residentialNtas": 197,
+    "eligibleNtas": 106,
+    "gridCells": 1680
+  }
+}
