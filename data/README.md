@@ -36,6 +36,17 @@ curl -A "stoop-data-build" "https://data.cityofnewyork.us/resource/gthc-hcne.geo
 - **Study area** (`src/data/nyc-study.wkt`, `src/data/nyc-hull.wkt`): the largest part of each
   borough simplified to ≤24 vertices (MULTIPOLYGON), plus a convex-hull fallback polygon.
 
+## Validation data (OpenStreetMap, not committed)
+
+The validation backtest (`scripts/backtest/`, `pnpm backtest:osm`) reads chain store locations and a
+point-of-interest density count from OpenStreetMap through the Overpass API
+(`https://overpass-api.de/api/interpreter`, descriptive User-Agent, one query at a time). Snapshot:
+2026-10-26, 19:10–19:36 UTC. Brand identifiers are Wikidata QIDs (CC0), verified against Wikidata. Raw
+responses and the derived per-neighborhood targets stay in git-ignored `data/raw/osm/`. Only summary
+statistics (`src/content/validation.json`, written by a live run) and the scripts are published, with
+the notice: "Contains information from OpenStreetMap, which is made available here under the Open
+Database License (ODbL)."
+
 ## Terms
 
 NYC Open Data has no use restrictions; the City asks users to identify the source and version and to

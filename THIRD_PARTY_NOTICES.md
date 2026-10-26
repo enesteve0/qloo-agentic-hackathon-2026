@@ -11,7 +11,8 @@ data and services below, which keep their own licenses and terms. Nothing here r
 | NYC Open Data — LinkNYC Locations (`s4kf-3yrf`), 2020 Neighborhood Tabulation Areas (`9nt8-h7nd`), Borough Boundaries (`gthc-hcne`) | Street-screen inventory, neighborhoods, study area | NYC Open Data: no use restrictions; source, version and modifications are documented in [data/README.md](data/README.md). Not affiliated with or endorsed by the City of New York, LinkNYC, Intersection or CityBridge |
 | [OpenFreeMap](https://openfreemap.org) tiles and styles | Basemap | OpenFreeMap terms; attribution shown on the map |
 | [OpenMapTiles](https://openmaptiles.org) schema | Basemap vector schema | BSD-3-Clause (code) / CC-BY 4.0 (design); attribution shown on the map |
-| [OpenStreetMap](https://www.openstreetmap.org/copyright) data | Basemap features; offline validation of brand store locations | ODbL 1.0. "© OpenStreetMap contributors". Validation publishes only summary statistics and the extraction script |
+| [OpenStreetMap](https://www.openstreetmap.org/copyright) data | Basemap features; offline validation of brand store locations (Overpass API snapshot of 2026-10-26) | ODbL 1.0. "© OpenStreetMap contributors". Raw extracts stay out of the repository; validation publishes only summary statistics and the extraction scripts |
+| [Wikidata](https://www.wikidata.org) | Verifying the brand identifiers (QIDs) used to find chain stores in OpenStreetMap | CC0 1.0 |
 
 ## Fonts
 

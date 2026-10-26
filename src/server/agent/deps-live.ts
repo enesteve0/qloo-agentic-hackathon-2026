@@ -29,6 +29,7 @@ import {
   type QlooClient,
   type QlooFailure,
   type QlooMode,
+  type WktLocation,
 } from '@/server/qloo';
 import type { FallbackReason, StoopDataParts } from '@/shared/stream';
 import type { LiftConfig, ResolutionOutcome } from '@/shared/types';
@@ -106,6 +107,15 @@ export async function loadCalibration(now = Date.now()): Promise<CalibrationReco
   }
   calibrationCache = { at: now, value };
   return value;
+}
+
+/**
+ * Where heatmaps are requested for a calibration record: the NYC study polygon, or the named-locality query
+ * calibration measured (`filter.location.query=NYC`; never "New York", which Qloo resolves to the state).
+ * Shared with the validation backtest so both use exactly the production request.
+ */
+export function heatmapLocation(cal: Pick<CalibrationRecord, 'location'>, studyWkt: string = nycStudyWkt): WktLocation | { query: string } {
+  return cal.location === 'query' ? { query: 'NYC' } : { wkt: studyWkt, label: 'NYC study area' };
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -234,8 +244,7 @@ export function createRunDeps(o: DepsOptions): RunDeps {
       const started = Date.now();
       const first = q.ctx.requests.length;
       const cal = await loadCalibration();
-      // The query form must match what calibration measured (`filter.location.query=NYC`); never "New York" (the state).
-      const location = cal.location === 'query' ? { query: 'NYC' } : { wkt: nycStudyWkt, label: 'NYC study area' };
+      const location = heatmapLocation(cal);
       const usesBaselineMaps = cal.config.baseline === 'B1' || cal.config.baseline === 'B2' || cal.config.baseline === 'B3';
       const [anchorMaps, baselineMaps, fingerprint] = await Promise.all([
         Promise.all(anchors.map((a) => q.heatmap({ signals: { entities: [a.id] }, location, purpose: 'heatmap' }))),

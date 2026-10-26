@@ -373,14 +373,35 @@ If every combination has FACE ≤ 0.2, ship the most distinctive one labelled "e
 
 ## 18. Validation backtest (P1, `scripts/backtest/`)
 
-20–30 chains with ≥15 NYC OpenStreetMap locations (Wikidata QIDs verified) → Overpass
-`nwr["brand:wikidata"="<Q>"](area NYC)` with a descriptive User-Agent, one query at a time, cached
-in git-ignored `data/raw/osm/` → density-adjusted target per neighborhood → each brand's Qloo NYC
-heatmap through the production lift engine → Spearman ρ per brand, permutation null (shuffle within
-borough, 1,000×), bootstrap CI of the median, count of brands with ρ > 0. Publish summary statistics
-only (`src/content/validation.json`) plus the extraction script, with the ODbL notice ("Contains
-information from OpenStreetMap, which is made available here under the Open Database License").
-Publish whatever the result is, including failures.
+**Question.** Do a chain's Qloo taste maps say where its real stores over-index, beyond what overall
+density explains? The test is independent of Qloo, unlike the per-run PROOF.
+
+**OSM arm (run 2026-10-26, snapshot 19:10–19:36Z).** 27 candidate chains with Wikidata QIDs verified
+against Wikidata and matching name-suggestion-index tagging. Overpass
+(`area["wikidata"="Q60"]; nwr["brand:wikidata"="<Q>"](area); out center;`) with a descriptive User-Agent,
+one query at a time, cached in git-ignored `data/raw/osm/`. Closed (`disused:*`) stores, ATMs and outlines
+duplicating a mapped point are removed. **22 chains** have ≥ 15 active NYC stores (Dunkin' 409 … Joe &
+The Juice 16). One POI-density query (42,794 restaurants, cafés, bars and shops) gives the expected count.
+The target per neighborhood is an empirical-Bayes smoothed over-index of the chain's stores against POI
+density. The prior variance is floored at 0.25; without the floor, half of the chains with 20–30 stores
+collapse to a constant target. This was decided on OSM data alone, before any Qloo data exists.
+
+**Qloo arm (needs the key; 44 calls).** Per chain: `/search` (brand) and one NYC heatmap through the
+production client and lift engine (`computeWhere` with the calibrated configuration, the same location
+form via `heatmapLocation`). Sequential, no retries, hard stop 50, stops on any 401/429; `--dry-run`
+prints the plan, `--mock` rehearses on synthetic data.
+
+**Statistics (pre-declared).** Spearman ρ per chain over the 106 neighborhoods the app ranks (secondary:
+all 197 residential neighborhoods). The headline is the median ρ with a bootstrap CI, together with a
+**placebo test**: does a chain's own map predict its stores better than the other chains' maps do? The
+within-borough shuffle null is reported too, but it is optimistic. On synthetic maps that know nothing
+about stores it flagged 12.8% of pairs at p < 0.05, because neighboring neighborhoods aren't independent.
+
+**Publishing.** Summary statistics only (`src/content/validation.json`: per-chain ρ, n, baselines;
+no Qloo values, no OSM coordinates), the scripts, the caveats (volunteer-mapped OSM, one snapshot, store
+networks reflect rent and strategy as well as taste, spatial autocorrelation, chains chosen not sampled,
+stores are not audiences) and the ODbL notice ("Contains information from OpenStreetMap, which is made
+available here under the Open Database License"). Publish whatever the result is, including failures.
 
 ## 19. Routes
 

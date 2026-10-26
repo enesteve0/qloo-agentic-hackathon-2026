@@ -21,7 +21,9 @@
     "geo:build": "tsx scripts/build-geo.ts",
     "fixtures:gen": "tsx scripts/gen-fixtures.ts",
     "qloo:smoke": "tsx scripts/qloo-smoke.ts",
-    "audit:public": "tsx scripts/audit-public.ts"
+    "audit:public": "tsx scripts/audit-public.ts",
+    "backtest:osm": "tsx scripts/backtest/osm-extract.ts",
+    "backtest:run": "tsx --conditions=react-server scripts/backtest/run.ts"
   },
   "dependencies": {
     "@ai-sdk/google": "4.0.105",

@@ -58,6 +58,10 @@
 - **Share page cut.** `/plan/<id>` links serve as share links (unguessable ids, noindex, excluded in
   robots.txt, expiring with the event data); a separate derived-only share snapshot was dropped to keep
   scope.
+- **Validation backtest pre-declared (before any Qloo data).** 22 chains from an OpenStreetMap snapshot
+  of 2026-10-26; the target's prior variance floored at 0.25; the headline is the median ρ with a placebo
+  test (own map vs other chains' maps), because the within-borough shuffle null proved optimistic on
+  synthetic data. Main analysis on the 106 neighborhoods the app ranks, secondary on all 197 residential.
 - **Model-output caching** dropped from the plan: identical briefs are served from the saved run, so
   separate planner and creative caches add complexity without saving calls.
 
