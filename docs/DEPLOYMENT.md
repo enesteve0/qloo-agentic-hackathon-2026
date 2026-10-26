@@ -68,6 +68,9 @@ limits sit behind this and always fall back to a recorded result instead of an e
    the matched anchors, the top neighborhoods and the calls used; check each anchor's top neighborhoods by
    eye before keeping a recording. `GET /api/admin/health` (same header) shows every preset's state.
 6. Open `/p/halfnote`: the badge should read RECORDED.
+7. Run the validation backtest once (44 calls, sequential, stops on any 401/429):
+   `pnpm backtest:run --dry-run`, then `QLOO_MODE=live pnpm backtest:run --confirm`. It writes summary
+   statistics only to `src/content/validation.json`; commit that file. Publish the result whatever it is.
 
 ## 6. After the event
 

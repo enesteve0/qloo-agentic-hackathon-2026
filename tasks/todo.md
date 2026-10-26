@@ -48,7 +48,7 @@ correction in `tasks/lessons.md`.
 
 ## P1 — in order, only after P0 is safe
 
-- [ ] OSM validation backtest + `/proof` page (summary stats only, ODbL notice, failures shown)
+- [ ] OSM validation backtest + `/proof` page (summary stats only, ODbL notice, failures shown) — OSM arm done 2026-10-26 (22 chains); Qloo arm ready (44 calls), runs on key day; `/proof` page after results
 - [ ] Tag evidence per NTA (only if calibration shows tags vary by location)
 - [ ] Business's own Qloo entity as an anchor + one-call `filter.results.entities` anchor check
 - [ ] Anchor swap on DENSITY_ONLY flag
