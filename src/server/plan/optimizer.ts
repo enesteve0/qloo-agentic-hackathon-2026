@@ -90,7 +90,9 @@ export function buildMediaPlan(input: MediaPlanInput): MediaPlan {
       ntaRank,
       fit,
       weeklyImpressions,
-      costCents: Math.round(price * weeks * 100),
+      // Price to whole cents first, then the flight: $10.29 × 1.5 weeks is 1,543.5 cents → 1,544
+      // (multiplying in floating point first gives 1,543.4999… → 1,543).
+      costCents: Math.round(Math.round(price * 100) * weeks),
       value: (weeklyImpressions * weeks * fit) / 100,
     });
   }

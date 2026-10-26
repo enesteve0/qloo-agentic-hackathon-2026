@@ -89,9 +89,18 @@ function businessForms(name: string | null): string[][] {
 }
 
 /**
- * Check one ad variant against the deterministic copy rules. Every failed rule is returned once,
- * with short human-readable details. `replacedByTemplate` is always false here; `finalizeCreative`
- * sets it when it swaps in a template.
+ * Check one ad variant against the deterministic copy rules (PRODUCT §5, ARCHITECTURE §8). Every
+ * failed rule is returned once, with short human-readable details. `replacedByTemplate` is always
+ * false here; `finalizeCreative` sets it when it swaps in a template.
+ *
+ * Choices beyond the letter of the spec, all in the direction of fewer false alarms on grounded copy:
+ * - Mid-sentence capitalized words may also come from the brief (the owner's own words), from this
+ *   pack's evidence labels, or appear elsewhere in the same copy in lower case. Third-party names
+ *   (`blockedNames`) and the pack's place names are reported even at a sentence start.
+ * - Digits may also come from `brief.business` and from this pack's evidence labels ("24 Hour Diner").
+ * - The business name counts as present when written in full, without "The"/"LLC"-style affixes, or
+ *   by one distinctive word ("Halfnote" for "Halfnote Supper Club"). Its words never count as
+ *   another neighborhood or a targeting term ("Astoria Bagel Co." may advertise in Bed-Stuy).
  */
 export function validateVariant(variant: AdVariant, ctx: CreativeContext): GroundingResult {
   const { pack, nta, brief, lexicon } = ctx;
@@ -101,8 +110,7 @@ export function validateVariant(variant: AdVariant, ctx: CreativeContext): Groun
 
   const bizForms = businessForms(businessName);
   const bizTokens = new Set(bizForms[0] ?? []);
-  const labelSeqs = pack.items.map((item) => words(item.label)).filter((seq) => seq.length > 0);
-  const labelTokens = new Set(labelSeqs.flat());
+  const labelTokens = new Set(pack.items.flatMap((item) => words(item.label)));
   const ownTokens = lexicon.ntaTokens(nta.code);
 
   const fields: FieldText[] = FIELDS.map((field) => {
