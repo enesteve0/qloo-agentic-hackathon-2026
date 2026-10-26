@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { PRESETS } from '@/content/presets';
 import { MemoryKV, setKvForTests } from '@/server/kv';
-import { briefHash, parseBrief, sanitizeText } from '@/server/guard/brief';
+import { briefHash, parseBrief, restrictedCategory, sanitizeText } from '@/server/guard/brief';
 import { admitLiveRun } from '@/server/guard/limits';
 import { newSession, readSession } from '@/server/guard/session';
 import { claimBrief, completeBrief } from '@/server/guard/singleflight';
@@ -39,6 +40,43 @@ describe('brief', () => {
     const b = parseBrief({ business: 'HALFNOTE ', description: 'jazz supper club in bed-stuy', budgetUsd: 2000, weeks: 3 });
     if (!a.ok || !b.ok) throw new Error('parse failed');
     expect(await briefHash(a.brief)).toBe(await briefHash(b.brief));
+  });
+});
+
+describe('restricted categories', () => {
+  const b = (description: string, offer: string | null = null) => ({ business: 'Test Co', description, offer });
+
+  it('refuses briefs Stoop will not plan, with a reason', () => {
+    expect(restrictedCategory(b('Vote for Dana Lee in the city council election'))?.category).toBe('political');
+    expect(restrictedCategory(b('Two-bedroom apartments for rent in a new building'))?.category).toBe('housing');
+    expect(restrictedCategory(b('We are a cafe and we’re hiring baristas'))?.category).toBe('employment');
+    expect(restrictedCategory(b('Fast payday loans with no credit check'))?.category).toBe('credit');
+    expect(restrictedCategory(b('Our tea is a natural cure for anxiety'))?.category).toBe('health');
+    expect(restrictedCategory(b('A new vape lounge'))?.category).toBe('tobacco');
+    expect(restrictedCategory(b('Sports betting app launch'))?.category).toBe('gambling');
+    expect(restrictedCategory(b('Real estate open house this weekend'))?.message).toMatch(/fair-housing/);
+    expect(restrictedCategory(b('Vote YES on Proposition 2'))?.category).toBe('political');
+    expect(restrictedCategory(b('Rally to re-elect the mayor'))?.category).toBe('political');
+  });
+
+  it('lets ordinary small-business briefs through', () => {
+    for (const ok of [
+      b('A 48-seat jazz supper club with Tuesday jam nights and a soul-food menu', 'Free first set on Tuesdays'),
+      b('Neighborhood bakery with sweet treats and a happy hour on day-old bread'),
+      b('A St. Louis-style barbecue pop-up for two weekends: ribs, burnt ends and sides'),
+      b('A fictional promoter selling an 1,800-capacity Brooklyn show; 10-day presale'),
+      b('A six-week exhibition of hand-drawn animation', 'Members get in free'),
+      b('A 7-day sneaker collab drop for a streetwear shop'),
+      b('Comedy club with a cocktail bar and late shows'),
+      b('A political satire comedy night for fans of The Cure and Guns N’ Roses'),
+      b('Limited time slots for our book-lending library; paintings on loan from a private collection'),
+      b('Sneaker raffle and lottery entries open all week', 'Members vote on the next colorway'),
+      b('Vote for your favorite cupcake flavor every Friday'),
+      b('A wine bar where bartenders cure their own olives'),
+      ...PRESETS.map((p) => p.brief),
+    ]) {
+      expect(restrictedCategory(ok)).toBeNull();
+    }
   });
 });
 
