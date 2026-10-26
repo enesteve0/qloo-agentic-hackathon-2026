@@ -68,6 +68,7 @@ export function TasteLegend({ showLlm, selectedCount, className }: { showLlm: bo
 export function WhereView({ state, onOpenAds, className }: WhereViewProps) {
   const where = state.where;
   const [focusNta, setFocusNta] = useState<string | null>(null);
+  const [hoverNta, setHoverNta] = useState<string | null>(null);
   const [showLlm, setShowLlm] = useState(false);
   const [mobileMode, setMobileMode] = useState<'map' | 'list'>('map');
   const [listEl, setListEl] = useState<HTMLDivElement | null>(null);
@@ -144,6 +145,7 @@ export function WhereView({ state, onOpenAds, className }: WhereViewProps) {
               selected={selected}
               llmPicks={llmPicks}
               focusNta={focusNta}
+              highlightNta={hoverNta}
               onNtaClick={setFocusNta}
               ariaLabel={`Night map of New York: taste signal by neighborhood and the plan’s ${fmtInt(screens)} street screens. The neighborhood list has the same information.`}
             />
@@ -190,6 +192,7 @@ export function WhereView({ state, onOpenAds, className }: WhereViewProps) {
               evidence={state.evidence}
               focused={focusNta}
               onFocus={(code) => setFocusNta((cur) => (cur === code ? null : code))}
+              onHover={setHoverNta}
               onOpenAds={onOpenAds}
               scrollRoot={listEl}
             />

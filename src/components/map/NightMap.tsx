@@ -24,6 +24,8 @@ export interface NightMapProps {
   selected?: SelectedScreen[];
   llmPicks?: string[];
   focusNta?: string | null;
+  /** Outlines a neighborhood without moving the map (e.g. while its list row is hovered). */
+  highlightNta?: string | null;
   onNtaClick?: (code: string) => void;
   showAllKiosks?: boolean;
   className?: string;
@@ -112,6 +114,7 @@ export default function NightMap({
   selected = [],
   llmPicks = [],
   focusNta = null,
+  highlightNta = null,
   onNtaClick,
   showAllKiosks = true,
   className,
@@ -227,6 +230,12 @@ export default function NightMap({
     restyleBasemap(map);
     if (!map.hasImage('kiosk')) map.addImage('kiosk', squareImage(6, 'rgba(166,169,174,0.75)', null));
     if (!map.hasImage('kiosk-selected')) map.addImage('kiosk-selected', squareImage(14, '#ffb547', '#0e0f11'));
+    // On phones the expanded attribution covers the bottom of the map. Collapse it to its (i) button once the
+    // map has rendered; the full credit stays one tap away and in every page footer.
+    map.once('idle', () => {
+      if (map.getContainer().clientWidth >= 640) return;
+      map.getContainer().querySelector('.maplibregl-ctrl-attrib.maplibregl-compact-show')?.classList.remove('maplibregl-compact-show');
+    });
     setReady(true);
   }, []);
 
@@ -300,6 +309,12 @@ export default function NightMap({
               type="line"
               filter={llmFilter}
               paint={{ 'line-color': '#f2f0ea', 'line-width': 1.5, 'line-dasharray': [2, 2] }}
+            />
+            <Layer
+              id="nta-hover"
+              type="line"
+              filter={['==', ['get', 'code'], highlightNta ?? '']}
+              paint={{ 'line-color': '#f2f0ea', 'line-width': 2 }}
             />
             <Layer
               id="nta-focus"
