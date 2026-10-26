@@ -1,9 +1,11 @@
 import 'server-only';
 import { customAlphabet } from 'nanoid';
 import type { RunState } from '@/shared/types';
+import { getEnv } from '../env';
 import { kv } from '../kv';
 
 const RUN_TTL_MS = 14 * 24 * 60 * 60 * 1000;
+const MIN_TTL_MS = 60 * 60 * 1000;
 const RUN_ID = /^[a-z0-9]{12}$/;
 const PRESET_SLUG = /^[a-z0-9-]{2,40}$/;
 
@@ -13,8 +15,17 @@ export const newRunId = customAlphabet('abcdefghjkmnpqrstuvwxyz23456789', 12);
 export const isRunId = (id: string) => RUN_ID.test(id);
 export const isPresetSlug = (slug: string) => PRESET_SLUG.test(slug);
 
+/**
+ * Runs and presets carry Qloo-derived results, so they never outlive the event's data window
+ * (EVENT_DATA_EXPIRES_AT). Synthetic runs made after it keep a short life of their own.
+ */
+function ttlMs(max: number, now = Date.now()): number {
+  const untilExpiry = Date.parse(getEnv().EVENT_DATA_EXPIRES_AT) - now;
+  return Math.max(MIN_TTL_MS, Math.min(max, untilExpiry));
+}
+
 export async function saveRun(state: RunState): Promise<void> {
-  await kv().set(`run:${state.id}`, state, { px: RUN_TTL_MS });
+  await kv().set(`run:${state.id}`, state, { px: ttlMs(RUN_TTL_MS) });
 }
 
 export async function loadRun(id: string): Promise<RunState | null> {
@@ -25,7 +36,7 @@ export async function loadRun(id: string): Promise<RunState | null> {
 /** Presets are recorded live runs kept only in the private store (never in the repository). */
 export async function savePreset(slug: string, state: RunState): Promise<void> {
   if (!isPresetSlug(slug)) throw new Error(`invalid preset slug: ${slug}`);
-  await kv().set(`preset:${slug}`, state);
+  await kv().set(`preset:${slug}`, state, { px: ttlMs(Number.POSITIVE_INFINITY) });
 }
 
 export async function loadPreset(slug: string): Promise<RunState | null> {
