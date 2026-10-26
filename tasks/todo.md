@@ -60,7 +60,7 @@ correction in `tasks/lessons.md`.
 ## Gates (Istanbul time)
 
 - [ ] G0 Mon 01:00 — real-kiosk map on Vercel; CI green
-- [ ] G1 Tue 23:00 — browser end-to-end on mocks (SYNTHETIC badge)
+- [x] G1 Tue 23:00 — browser end-to-end on mocks (SYNTHETIC badge) — met Mon 26 evening: 28 Playwright specs (live run, reload, CSV/PNG, limits → sample plan, picker, axe on 11 pages) pass in CI on the production build
 - [ ] G2 Wed 23:00 — live end-to-end with ≥ 3 presets (or escalate per contingencies)
 - [ ] G3 Thu 23:00 — feature freeze (prompts + dependencies frozen 18:00)
 - [ ] G4 Fri 18:00 — submitted; tag `v1.0.0-submission`
@@ -73,6 +73,11 @@ correction in `tasks/lessons.md`.
   and render through the shared RunScreen (checked in a production build with a headless browser).
   Still open for G1: `/how-it-works`, `/judges`, landing preset cards, Playwright e2e specs. Blocked on
   owner: Vercel import (G0), Qloo key, model keys.
+
+- 2026-10-26 late: UI complete on mocks (landing, /how-it-works, /judges, all seven stations, PNG ads,
+  LinkLocal free option); an independent review of the run API found ten issues, all fixed with
+  regression tests (606 unit/integration tests). Remaining blockers are owner actions: Vercel + Upstash
+  (G0), the Qloo key (calibration, recorded presets), model keys (live copy).
 
 ## Review
 
