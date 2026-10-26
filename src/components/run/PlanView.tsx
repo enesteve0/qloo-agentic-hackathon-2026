@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { ChevronDown, Info, Minus, Plus } from 'lucide-react';
 import { Fragment, useId, useState } from 'react';
 import type { MediaPlan, PlannedScreen, RunState } from '@/shared/types';
@@ -251,9 +252,9 @@ export function PlanView({ state, places = {}, onChangeBudget, onChangeWeeks, re
                   Edit the brief
                 </button>
               ) : (
-                <a href="/plan/demo" className="font-display text-lg font-bold tracking-[0.04em] uppercase underline-offset-4 hover:underline">
+                <Link href="/p/halfnote" className="font-display text-lg font-bold tracking-[0.04em] uppercase underline-offset-4 hover:underline">
                   Open a sample plan
-                </a>
+                </Link>
               )}
             </li>
           </ul>
