@@ -1,34 +1,104 @@
 # Qloo Agentic Hackathon 2026: research
 
-Checked: **2026-10-23**. Sources below are official organizer/sponsor pages for the 2026 event. This report summarizes them; it is not a replacement for the official rules.
+First checked **2026-10-23**; rechecked and extended **2026-10-26**. Sources are official
+organizer/sponsor pages unless marked. This report summarizes them; it does not replace the official
+rules. **Confirmed** = stated in a cited source; **Unverified** = not tested by us; **Unresolved** =
+sources conflict.
 
-**Confirmed** means stated in a cited source. **Unverified** means personal access/status was not tested. **Unresolved** means sources conflict or do not settle the point. Private development is a workflow choice, not a claim that final submissions may stay private.
+## Event and schedule (confirmed 2026-10-26)
 
-## Event and schedule
+- Registration and submission period: Sep 30 2026 09:00 ET – **Oct 30 2026 23:45 ET** (Oct 31 06:45
+  Istanbul). The schedule page shows submissions opening at 09:30 EDT; the deadline agrees.
+  [Rules §1](https://qloo.devpost.com/rules), [schedule](https://qloo.devpost.com/details/dates)
+- Judging: Nov 2 12:00 ET – Nov 5 23:45 ET (rules); the schedule page shows judging ending Nov 5
+  09:00 EST. Plan availability through the later time. Winners "on or around Nov 5 3:00 pm ET".
+  US daylight saving time ends Nov 1, so 3:00 pm EST = 23:00 Istanbul.
+- **Finale:** the top 3 finalists appear live on air on Nov 5 with Jason Calacanis, Cedric the
+  Entertainer and Alex Elias, who pick the winner; finalists must be available to appear and to
+  prepare. [Update](https://qloo.devpost.com/updates/47166-top-3-finalists-to-appear-live-for-final-judging)
+- Prizes: $15,000 / $6,000 / $4,000; one prize per project. Jason Calacanis will personally invest an
+  additional $25,000 in his favorite entry (overview page).
 
-Submission closes October 30 at 23:45 EDT, which is October 31 at 06:45 in Istanbul. The schedule lists submissions opening September 30 at 09:30 EDT; the rules instead say 09:00 Eastern. The deadline agrees. The schedule announces winners November 5 at 15:00 EST (23:00 Istanbul). [Schedule](https://qloo.devpost.com/details/dates), [rules](https://qloo.devpost.com/rules)
+## What must be built and submitted (confirmed)
 
-## Required integration and submission
+- A working software application that integrates the Qloo API and either functions as an agentic
+  tool, is built with an agent framework, or integrates Qloo into an existing agent. "If your
+  submission would work the same without Qloo, you're building the wrong thing." [Overview](https://qloo.devpost.com/)
+- Submit: a link to a functional demo that judges can use end to end; a public GitHub/GitLab/Bitbucket
+  repository with all source, assets and instructions and an open-source licence detectable in the
+  repository's About section; an English text description. A video is optional.
+- The demo must be externally hosted; local-only or private-access-only demos do not qualify. The
+  project must stay free and unrestricted for judges until judging ends. Organizer reply (Oct 26,
+  forum topic 45690): "Judges must be able to use the submission as a live tool/app."
+- Judges may judge from the text, images and video alone; judging may use expert panels, peer review
+  or automated AI-driven analysis. [Rules §4, §6](https://qloo.devpost.com/rules)
 
-Build a working agentic tool, an agent-framework application or an integration into an existing agent using the Qloo API. Cultural intelligence should materially improve the result. No particular agent framework is mandatory. Submit an externally hosted, fully published working app, public source repository, feature description, and a detectable open-source license. A local-only or private-access-only demonstration does not meet the overview's conditions. A demo video is not required. [Requirements](https://qloo.devpost.com/)
+## Judging (confirmed)
 
-MIT is this workspace's application-license choice, not an organizer mandate. Include all needed source, assets and reproducible setup instructions when the application exists. The root license does not relicense third-party code, datasets or API outputs. [Rules, section 4](https://qloo.devpost.com/rules)
+Stage 1 pass/fail: fits the theme and reasonably applies the Qloo API. Stage 2, equally weighted:
+Technological Implementation (how thoroughly and skillfully the project uses Qloo; non-trivial
+working code), Design (complete, coherent product experience), Potential Impact (credible, specific
+case for a real problem and audience, addressed by what is demonstrated), Quality of the Idea
+(creative, non-obvious use of Qloo; genuine understanding of the problem space). Ties are broken in
+that criteria order. Listed judges: Jason Calacanis, Mike Diolosa (Qloo CTO), Nicole Seligman, Todd
+Boehly, Cedric the Entertainer, Michael Abrams.
 
-## Access and evidence
+## Eligibility and existing work (confirmed)
 
-Request the event API key early; approval may take several business days. The sponsor guide describes the hackathon API host and key authentication. Keep actual keys server-side and outside Git. Record the eventual integration with redacted requests/results and a concise explanation of how Qloo changes the outcome. Access is **not verified** in this workspace. [Qloo developer guide](https://docs.qloo.com/reference/qloo-llm-hackathon-developer-guide), [sponsor submission guide](https://github.com/qloo/qloo-hackathon-kit/blob/main/docs/SUBMISSION.md)
+Individuals above the local age of majority, teams and organizations; standard exclusions
+(including comprehensively sanctioned countries). Existing projects must be significantly updated
+with Qloo during the submission period (the clause's wording is partly corrupted on the page).
+Multiple submissions must be substantially different. [Rules §3–4](https://qloo.devpost.com/rules)
 
-## Work eligibility, judging, and availability
+## Qloo access (confirmed unless marked)
 
-Four criteria are equally weighted: Technological Implementation, Design, Potential Impact, and Quality of the Idea (25% each), after eligibility screening. Teams, individuals and organizations are allowed; no numeric team maximum was found. Local majority age, sanctions and conflict rules apply; Turkey is not explicitly excluded by name. [Rules, sections 3 and 6](https://qloo.devpost.com/rules)
+- API key via the Google form linked from the
+  [developer guide](https://docs.qloo.com/reference/qloo-llm-hackathon-developer-guide) (same form as
+  the Devpost Resources page). Keys are issued manually by email from hackathon@qloo.com, usually
+  within a few business days; check spam; resubmit if nothing arrives.
+- Base URL `https://hackathon.api.qloo.com`; header `X-Api-Key`; `GET /v2/insights` (query-string
+  parameters, `filter.type` required), `/search`, `/v2/tags`, entity endpoints. Invalid parameters are
+  silently ignored. Keys have rate and monthly quotas (raise via Discord #api-help); keys stay active
+  through judging and are deactivated afterwards. Private server-side caching is allowed with no time
+  limit; Qloo response data must not be stored in a public repository.
+- Observed by other participants (unverified by us): 5 requests/second and 10,000 requests per 30-day
+  window from first use (some newer keys 10/s and 50,000); errors count against the quota.
+- Official kit: [qloo-hackathon-kit](https://github.com/qloo/qloo-hackathon-kit) with the
+  `@qloo/qloo-harness` package (`qloo explore | exec | api | mcp`). `qloo mcp` is a local stdio server;
+  "Serverless functions are not a supported route." Hosted Qloo API MCP endpoints are excluded.
+- Safe use: results describe aggregate affinities; never send personal data to Qloo; do not infer
+  identity, health, finances or politics; show source and limits.
+  [SAFE_USE](https://github.com/qloo/qloo-hackathon-kit/blob/main/docs/SAFE_USE.md)
 
-Existing agents are contemplated, but the rules' existing-project clause contains corrupted wording. Record any baseline and event-specific changes; exact reuse eligibility remains unresolved. The reviewed rules do not establish cross-hackathon reuse permission. Judging ends November 5 at 09:00 EST on the schedule, versus 23:45 Eastern in the rules; plan demo availability through the later time (November 6, 07:45 Istanbul). The generic rules discuss test credentials, but the overview requires a public demo; use a publicly accessible core journey. [Rules](https://qloo.devpost.com/rules), [schedule](https://qloo.devpost.com/details/dates)
+## Public data used by the project (confirmed 2026-10-26)
 
-## First actions
+- LinkNYC kiosk locations, NYC Open Data [`s4kf-3yrf`](https://data.cityofnewyork.us/d/s4kf-3yrf)
+  (updated 2026-04-02): 2,255 rows; 2,183 live, ad-capable kiosks (Link1.0 and Link5G_Ad). Its
+  neighborhood field uses 2010 names.
+- 2020 Neighborhood Tabulation Areas [`9nt8-h7nd`](https://data.cityofnewyork.us/d/9nt8-h7nd)
+  (262 areas) and borough boundaries [`gthc-hcne`](https://data.cityofnewyork.us/d/gthc-hcne).
+- NYC Open Data terms: no use restrictions; identify source and version and describe modifications;
+  no warranty; do not imply city endorsement. [FAQ](https://www.nyc.gov/opendata/get-started/FAQs)
+- OpenStreetMap (validation only): ODbL — publish attribution and the extraction method.
+  [Licence](https://opendatacommons.org/licenses/odbl/1-0/)
 
-Confirm API access, resolve any planned reuse with the organizer if needed, select a real audience and agent workflow, then document the required integration and hosting plan. No product or framework has been selected.
+## Market context (confirmed 2026-10-26)
 
+- US out-of-home advertising revenue: $9.46B in 2025, 19 straight growth quarters; digital
+  out-of-home 36.3% of 2025 revenue. [OAAA, Mar 17 2026](https://oaaa.org/news/out-of-home-advertising-revenue-reaches-record-9-46-billion/)
+- Q2 2026: $3.16B (+10.7%); digital 38.4% of the quarter (+18.5%). [OAAA, Aug 18 2026](https://oaaa.org/news/from-coca-cola-to-openai-brands-are-betting-bigger-on-ooh/)
+- 36.2M US small businesses. [SBA Office of Advocacy, Feb 3 2026](https://advocacy.sba.gov/2026/02/03/advocacy-releases-frequently-asked-questions-about-small-businesses-2026/)
+- Qloo and JCDecaux have used Qloo taste data for hyper-localized out-of-home campaigns since 2020.
+  [PR Newswire, Apr 3 2025](https://www.prnewswire.com/news-releases/qloo-and-jcdecaux-use-ai-powered-taste-data-to-deliver-hyper-localized-dooh-campaigns-302419224.html)
+- LinkNYC advertising is sold by Intersection, including the LinkDirect self-serve portal and the
+  free LinkLocal program for eligible community groups and small businesses. (Program details to be
+  re-verified before being described in the product.)
+- FTC orders against location-data brokers 2024–2026 (X-Mode/Outlogic, InMarket, Gravy
+  Analytics/Venntel, Mobilewalla, Kochava). [FTC](https://www.ftc.gov/news-events/news/press-releases/2025/01/ftc-finalizes-order-prohibiting-gravy-analytics-venntel-selling-sensitive-location-data)
 
 ## Maintenance
 
-Recheck official updates before development and again before submission. Record changes with source URL and check date. Keep application claims tied to actual evidence, and update the [submission checklist](SUBMISSION.md) when rules change. Track decisions and reused material in [provenance](PROVENANCE.md).
+Recheck official updates before submission (Fri Oct 30 morning). Record changes with source URL and
+check date. Keep application claims tied to actual evidence and update the
+[submission checklist](SUBMISSION.md). Track decisions and reused material in
+[provenance](PROVENANCE.md).

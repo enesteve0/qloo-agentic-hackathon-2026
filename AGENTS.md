@@ -20,4 +20,4 @@ Qloo API access has not been verified. An externally hosted public demo and publ
 
 ## Repository conventions
 
-Use focused branches, descriptive conventional commits, and the pull-request template for reviewable changes. Keep documentation in English. Repository-local Git identity is configured; do not change global Git settings.
+Work directly on `master` only — do not create other branches or pull requests (owner instruction, 2026-10-26). Use descriptive conventional commits. Keep documentation in English. Repository-local Git identity is configured; do not change global Git settings.
