@@ -105,3 +105,120 @@ a {
     scroll-behavior: auto !important;
   }
 }
+
+/* ------------------------------------------------------------------------------------------------
+ * Signage utilities for the run screen and site chrome (appended; the tokens above are unchanged).
+ * Defined with @utility so Tailwind variants (motion-safe:, lg:, …) apply to them.
+ * --------------------------------------------------------------------------------------------- */
+
+/* A green rim outside the plate's white rule, so the rule sits inset like a real NYC street sign. */
+@utility sign-plate-rim {
+  box-shadow: 0 0 0 2px var(--sign);
+}
+
+/* Construction-hazard stripes: marks synthetic, not-real data. */
+@utility hazard {
+  background-image: repeating-linear-gradient(135deg, #ffb547 0 4px, #0e0f11 4px 8px);
+}
+
+/* Countdown-clock LED panel. Always dark (it is a physical sign), so its colors are fixed. */
+@utility led-panel {
+  background-color: #0a0a0b;
+  background-image: radial-gradient(rgba(255, 181, 71, 0.09) 0.9px, transparent 1.2px);
+  background-size: 4px 4px;
+  color: #ffb547;
+}
+
+@utility led-glow {
+  text-shadow: 0 0 10px rgba(255, 181, 71, 0.38);
+}
+
+@keyframes stoop-led-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
+@utility led-pulse {
+  animation: stoop-led-pulse 1.4s steps(2, jump-none) infinite;
+}
+
+@keyframes stoop-ticker-roll {
+  from {
+    transform: translateY(55%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@utility ticker-roll {
+  animation: stoop-ticker-roll 240ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+@keyframes stoop-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@utility fade-in {
+  animation: stoop-fade-in 240ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+@keyframes stoop-drawer-in {
+  from {
+    transform: translateX(32px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@keyframes stoop-sheet-up {
+  from {
+    transform: translateY(48px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@utility drawer-in {
+  animation: stoop-drawer-in 240ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+@utility sheet-up {
+  animation: stoop-sheet-up 240ms cubic-bezier(0.2, 0, 0, 1) both;
+}
+
+/* Wet asphalt under a sodium lamp: a faint glow for hero areas. */
+@utility asphalt {
+  background-image:
+    radial-gradient(60% 55% at 88% 0%, rgba(255, 181, 71, 0.075), transparent 70%),
+    radial-gradient(45% 45% at 0% 100%, rgba(0, 128, 79, 0.07), transparent 70%);
+}
+
+/* Keep focused controls clear of the sticky mobile call to action (WCAG 2.4.11). */
+html:has(.sticky-cta) {
+  scroll-padding-bottom: 6rem;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
