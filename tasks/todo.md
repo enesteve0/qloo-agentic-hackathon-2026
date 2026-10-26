@@ -29,7 +29,7 @@ correction in `tasks/lessons.md`.
       (raw affinity ≤ 0.3); default-map / density-only / thin detection tests
 - [ ] 5. LLM chain + planner/creative schemas + fallbacks — verify: live Groq call returns valid
       JSON; disabling slots walks the chain; all disabled → templates
-- [ ] 6. Orchestrator + stream + run store + needs_input resume + labels + provenance drawer —
+- [x] 6. Orchestrator + stream + run store + needs_input resume + labels + provenance drawer —
       verify: mock integration test; e2e (new brief streams; picker resumes)
 - [x] 7. Evidence + creative + validator + screen mockups — verify: validator tests (≥25 cases);
       grounded variants in a mock run
