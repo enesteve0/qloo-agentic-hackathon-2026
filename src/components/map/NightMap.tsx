@@ -283,6 +283,13 @@ export default function NightMap({
         />
         <NavigationControl position="top-right" showCompass={false} />
 
+        {ready && (
+          <Source id="mask" type="geojson" data="/geo/nyc-mask.geojson">
+            {/* Dims everything outside the five boroughs so the city reads as the stage. */}
+            <Layer id="nyc-mask" type="fill" paint={{ 'fill-color': '#0b0c0e', 'fill-opacity': 0.72 }} />
+          </Source>
+        )}
+
         {ready && ntaGeo && (
           <Source id="nta" type="geojson" data={ntaGeo}>
             <Layer id="nta-fill" type="fill" paint={{ 'fill-color': ntaFill, 'fill-opacity': 0.55 }} />

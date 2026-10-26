@@ -434,6 +434,27 @@ function main() {
   fs.writeFileSync(path.join(OUT_DATA, 'grid-gh6.json'), JSON.stringify({ precision: 6, cells, ntaWeights, kioskCell }));
   fs.writeFileSync(path.join(OUT_DATA, 'nyc-study.wkt'), study + '\n');
   fs.writeFileSync(path.join(OUT_DATA, 'nyc-hull.wkt'), hull + '\n');
+  // Display-only "spotlight" mask: a box around the metro with each sizable borough part as a hole.
+  const maskHoles = boroFc.features.flatMap((f) =>
+    polygonsOf(f.geometry)
+      .filter((poly) => area({ type: 'Polygon', coordinates: poly }) > 1_500_000)
+      .map((poly) => simplifyRing(poly[0]!, 160)),
+  );
+  const maskOuter: Ring = [
+    [-75.5, 39.8],
+    [-72.5, 39.8],
+    [-72.5, 41.6],
+    [-75.5, 41.6],
+    [-75.5, 39.8],
+  ];
+  fs.writeFileSync(
+    path.join(OUT_PUBLIC, 'nyc-mask.geojson'),
+    JSON.stringify({
+      type: 'FeatureCollection',
+      features: [{ type: 'Feature', properties: {}, geometry: { type: 'Polygon', coordinates: [maskOuter, ...maskHoles] } }],
+    }),
+  );
+  console.log(`mask: ${maskHoles.length} holes`);
   // JSON copy so server code can import the study area without runtime file reads.
   fs.writeFileSync(path.join(OUT_DATA, 'study.json'), JSON.stringify({ study, hull }) + '\n');
   fs.writeFileSync(
