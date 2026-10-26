@@ -41,6 +41,23 @@
 - **AI assistance:** research, planning and implementation are AI-assisted (Claude Code); the owner
   directs decisions and remains responsible for verifying the work.
 
+### 2026-10-26 (evening) — build decisions
+
+- **Restricted categories.** Stoop refuses briefs for housing, job, credit, political, health-claim,
+  tobacco, weapons, adult and gambling ads. Choosing neighborhoods by taste can exclude people along
+  lines that fair-housing, employment and fair-lending law protect, and political ads need disclosures.
+  The patterns are phrase-based and tested against ordinary briefs to avoid false refusals
+  (`restrictedCategory` in `src/server/guard/brief.ts`).
+- **No error pages for capacity.** When quota, limits or availability block a live run, the visitor gets
+  a labelled sample plan for the nearest preset. Before any preset is recorded, that sample is a
+  synthetic run of the preset brief, labelled SYNTHETIC.
+- **Retention.** Saved runs and recorded presets never outlive `EVENT_DATA_EXPIRES_AT` (2026-11-07),
+  the same expiry as the private Qloo cache.
+- **LinkLocal / LinkDirect wording** verified against Intersection's announcement of May 1 2025 (see
+  [RESEARCH.md](RESEARCH.md)). Stoop names neither program as a partner.
+- **Model-output caching** dropped from the plan: identical briefs are served from the saved run, so
+  separate planner and creative caches add complexity without saving calls.
+
 ## Recording future work
 
 For every imported component, record its upstream URL, immutable commit/version, license, purpose and changes. For every material project decision, record date, rationale and source. If a baseline project is reused, identify its pre-event commit and explain the event-period work separately.
