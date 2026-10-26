@@ -1,0 +1,107 @@
+@import 'tailwindcss';
+
+/* Stoop design tokens — "the block at night". Dark is the default; light is opt-in. */
+:root {
+  --bg: #0e0f11;
+  --surface: #17191c;
+  --surface-2: #22252a;
+  --text: #f2f0ea;
+  --muted: #a6a9ae;
+  --border: #6b7078;
+  --sign: #00804f;
+  --sign-text: #ffffff;
+  --amber: #ffb547;
+  --amber-text: #ffb547;
+  --link: #7cc0ff;
+  --danger: #ff6b5e;
+  --ok: #5ec962;
+  --focus: #ffb547;
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --bg: #f4f2ed;
+  --surface: #fbfaf7;
+  --surface-2: #e9e5dc;
+  --text: #121315;
+  --muted: #4a4d52;
+  --border: #8e897d;
+  --sign: #00653f;
+  --sign-text: #ffffff;
+  --amber: #f2b705;
+  --amber-text: #7a5200;
+  --link: #0a58a8;
+  --danger: #b3261e;
+  --ok: #1e7a3c;
+  --focus: #0a58a8;
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-sign: var(--sign);
+  --color-sign-text: var(--sign-text);
+  --color-amber: var(--amber);
+  --color-amber-text: var(--amber-text);
+  --color-link: var(--link);
+  --color-danger: var(--danger);
+  --color-ok: var(--ok);
+  --font-sans: var(--font-public-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-barlow-condensed), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+  --ease-sign: cubic-bezier(0.2, 0, 0, 1);
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+a {
+  color: var(--link);
+}
+
+.sign-plate {
+  background: var(--sign);
+  color: var(--sign-text);
+  border: 2px solid var(--sign-text);
+  border-radius: 4px;
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-weight: 700;
+}
+
+.ticker {
+  font-family: var(--font-display);
+  color: var(--amber-text);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
