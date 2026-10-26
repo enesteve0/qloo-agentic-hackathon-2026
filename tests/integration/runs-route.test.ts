@@ -6,6 +6,7 @@ vi.mock('next/server', async (importOriginal) => {
   return { ...mod, after: (task: unknown) => void (task instanceof Promise ? task.catch(() => undefined) : undefined) };
 });
 
+import { GET } from '@/app/api/runs/[runId]/route';
 import { POST } from '@/app/api/runs/route';
 import { PRESETS } from '@/content/presets';
 import { createRunDeps } from '@/server/agent/deps-live';
@@ -78,6 +79,15 @@ describe('POST /api/runs', () => {
     for (const s of view.state?.plan?.screens ?? []) expect(view.extras?.places[s.i]?.address).toBeTruthy();
     expect(view.extras?.send?.csvHref).toBe(`/api/export?run=${runId}`);
     expect(view.extras?.send?.body).toContain('Halfnote Supper Club');
+
+    // A client following the run by polling gets the same places and draft.
+    const polled = (await (await GET(new Request(`http://localhost:3000/api/runs/${runId}`), { params: Promise.resolve({ runId }) })).json()) as {
+      status: string;
+      extras: { places: Record<string, unknown>; send: { csvHref: string } | null } | null;
+    };
+    expect(polled.status).toBe('done');
+    expect(Object.keys(polled.extras?.places ?? {}).length).toBe(Object.keys(view.extras?.places ?? {}).length);
+    expect(polled.extras?.send?.csvHref).toBe(`/api/export?run=${runId}`);
   });
 
   it('serves an identical brief from the saved run, labelled cached', async () => {

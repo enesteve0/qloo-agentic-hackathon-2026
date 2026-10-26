@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { applyPart, emptyRunView, readUiMessageSse, viewFromState, type RunView } from '@/shared/stream';
-import type { Brief, ResolutionChoice, RunState } from '@/shared/types';
+import type { Brief, ResolutionChoice, RunExtras, RunState } from '@/shared/types';
 
 const POLL_MS = 2_000;
 const POLL_GIVE_UP_MS = 240_000;
@@ -50,8 +50,8 @@ export function useLiveRun(initial: RunState | null = null): LiveRun {
       while (!signal.aborted && Date.now() < until) {
         const res = await fetch(`/api/runs/${runId}`, { cache: 'no-store', signal }).catch(() => null);
         if (res?.ok) {
-          const state = (await res.json()) as RunState;
-          setView((v) => ({ ...viewFromState(state), fallback: v.fallback }));
+          const { extras, ...state } = (await res.json()) as RunState & { extras?: RunExtras | null };
+          setView((v) => ({ ...viewFromState(state), fallback: v.fallback, extras: extras ?? v.extras }));
           syncUrl(state);
           if (state.status !== 'running') return;
         } else if (res?.status === 404) {
