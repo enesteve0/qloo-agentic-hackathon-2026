@@ -44,6 +44,32 @@ limits sit behind this and always fall back to a recorded result instead of an e
 
 - `GET /api/health` returns `{ ok: true, qloo, ai, data, build }` (no quotas or keys).
 - Open `/` and `/plan/demo`; the map shows 2,183 screens.
-- After the Qloo key arrives: run `pnpm qloo:smoke --dry-run`, then `--confirm` locally with the key in
-  `.env.local`, record the decisions in `docs/CALIBRATION.md`, switch `QLOO_MODE=live` in Production and
-  redeploy.
+
+## 5. When the Qloo key arrives
+
+1. Add `QLOO_API_KEY` in Vercel (Production only). Locally, put the same key in `.env.local` together with
+   the production database's Upstash URL and token and `REDIS_PREFIX=p:`, so that the smoke test's quota
+   ledger and `cfg:calibration` land where production reads them.
+2. `pnpm qloo:smoke --dry-run` (prints the 26 planned calls, makes none), then
+   `pnpm qloo:smoke --confirm` (at most 30 calls, sequential; stops on any 401 or 429).
+3. Review `.private/calibration/<timestamp>/decisions.json` and summarize the choices in
+   `docs/CALIBRATION.md` (configuration only, no Qloo data). The app picks up `cfg:calibration` within a
+   minute.
+4. Set `QLOO_MODE=live` in Production and redeploy. `/status` should say "Live".
+5. Record the sample plans, one call per preset (about 10 Qloo calls each):
+
+   ```bash
+   curl -X POST "https://<domain>/api/admin/record" \
+     -H "Authorization: Bearer $ADMIN_TOKEN" -H 'Content-Type: application/json' \
+     -d '{"slug":"halfnote"}'
+   ```
+
+   Slugs: `halfnote`, `three-nights`, `smoke-and-sons`, `puente`, `hand-drawn`, `drop-day`. The reply lists
+   the matched anchors, the top neighborhoods and the calls used; check each anchor's top neighborhoods by
+   eye before keeping a recording. `GET /api/admin/health` (same header) shows every preset's state.
+6. Open `/p/halfnote`: the badge should read RECORDED.
+
+## 6. After the event
+
+Set `QLOO_MODE=off` and redeploy, then delete the remaining Qloo-derived keys (`q1:*`, `res:*`, `run:*`,
+`preset:*`, `presyn:*`) from the database. They expire on their own at `EVENT_DATA_EXPIRES_AT`.
