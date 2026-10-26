@@ -16,7 +16,9 @@ data and services below, which keep their own licenses and terms. Nothing here r
 ## Fonts
 
 Barlow Condensed, Public Sans and IBM Plex Mono, served through Google Fonts via `next/font` — SIL Open
-Font License 1.1.
+Font License 1.1. Barlow Condensed Bold and Medium are also bundled as TTF files in `src/assets/fonts/` for
+the PNG ad export, unmodified, with their license (`OFL-BarlowCondensed.txt`); source:
+[google/fonts](https://github.com/google/fonts/tree/main/ofl/barlowcondensed).
 
 ## Reference semantics
 

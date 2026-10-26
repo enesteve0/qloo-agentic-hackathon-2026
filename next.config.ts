@@ -5,6 +5,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   // Heavy build-time geo tooling must never be bundled into server functions.
   serverExternalPackages: ['mapshaper'],
+  // Fonts read from disk by the PNG ad export must ship with that function.
+  outputFileTracingIncludes: { '/api/ad': ['./src/assets/fonts/**/*'] },
   async headers() {
     return [
       {
