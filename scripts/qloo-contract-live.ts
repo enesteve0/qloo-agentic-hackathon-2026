@@ -4,6 +4,7 @@
  * values) and persists nothing: no cache, no files. The quota ledger still counts the attempts.
  *
  *   pnpm exec tsx scripts/qloo-contract-live.ts             print the plan (no network)
+ *   pnpm exec tsx scripts/qloo-contract-live.ts --mock      rehearse on the synthetic transport
  *   pnpm exec tsx scripts/qloo-contract-live.ts --confirm   run it (needs QLOO_API_KEY)
  */
 import { existsSync, readFileSync } from 'node:fs';
@@ -20,6 +21,7 @@ registerHooks({
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const CONFIRM = process.argv.includes('--confirm');
+const MOCK = !CONFIRM && process.argv.includes('--mock');
 const GAP_MS = 600;
 const MAX_CALLS = 5;
 
@@ -126,10 +128,11 @@ const CHECKS: Check[] = [
   },
 ];
 
-if (!CONFIRM) {
+if (!CONFIRM && !MOCK) {
   console.log(`Qloo live contract check — plan (≤${MAX_CALLS} calls; run with --confirm to execute):\n`);
   for (const c of CHECKS) {
-    const q = params.redactQuery(c.query('<id from K2>'), c.label);
+    // The placeholder must pass the id allow-list (no spaces or commas).
+    const q = params.redactQuery(c.query('<K2:first_id>'), c.label);
     console.log(`${c.id} GET ${c.path}${q ? `?${q}` : ''}  — ${c.title}`);
   }
   process.exit(0);
@@ -137,10 +140,10 @@ if (!CONFIRM) {
 
 for (const file of ['.env.local', '.env']) {
   const p = path.join(ROOT, file);
-  if (existsSync(p)) process.loadEnvFile(p);
+  if (CONFIRM && existsSync(p)) process.loadEnvFile(p);
 }
 const apiKey = process.env.QLOO_API_KEY;
-if (!apiKey) {
+if (CONFIRM && !apiKey) {
   console.error('QLOO_API_KEY is not set (environment or .env.local). Nothing was called.');
   process.exit(1);
 }
@@ -148,18 +151,24 @@ if (!apiKey) {
 const { getEnv } = await import('@/server/env');
 const { kv } = await import('@/server/kv');
 const { createLiveTransport } = await import('@/server/qloo/transport-live');
+const { createDefaultMockTransport } = await import('@/server/qloo/transport-mock');
 const { QuotaLedger, parseCaps, parseRateHeaders } = await import('@/server/qloo/ledger');
 
 const env = getEnv();
 const caps = parseCaps(env.QLOO_CAPS_JSON, { judgingStart: env.EVENT_JUDGING_START, judgingEnd: env.EVENT_JUDGING_END });
-const ledger = new QuotaLedger({ kv: kv(), prefix: '', now: Date.now, caps });
+// The synthetic rehearsal counts in its own namespace, like the client does.
+const ledger = new QuotaLedger({ kv: kv(), prefix: MOCK ? 'syn:' : '', now: Date.now, caps });
 const before = await ledger.read();
 if (before.exhaustedUntil || before.authFailUntil || before.effectiveRemaining <= caps.absoluteFloor) {
   console.error('Quota breaker open or quota at the absolute floor; not calling Qloo.');
   process.exit(1);
 }
-const transport = createLiveTransport({ apiKey, baseUrl: env.QLOO_BASE_URL });
-console.log(`Qloo live contract check against ${env.QLOO_BASE_URL} (key: set, not shown)\n`);
+const transport = MOCK
+  ? createDefaultMockTransport({ latencyMs: () => 0 })
+  : createLiveTransport({ apiKey: apiKey ?? '', baseUrl: env.QLOO_BASE_URL }); // presence checked above
+console.log(
+  MOCK ? 'Qloo contract check — SYNTHETIC rehearsal (no network)\n' : `Qloo live contract check against ${env.QLOO_BASE_URL} (key: set, not shown)\n`,
+);
 
 let entityId: string | null = null;
 let failures = 0;

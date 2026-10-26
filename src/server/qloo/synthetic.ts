@@ -364,7 +364,10 @@ export function syntheticHeatmap(grid: PreparedGrid, seeds: HeatmapSeeds, locati
     const q = fold(location.query);
     if (q === 'nyc' || q === 'new york city') {
       locality = q === 'nyc' ? NYC_LOCALITY : [NYC_LOCALITY];
-      const extras = NJ_POINTS.map(([lat, lon]) => ({ gh: ngeohash.encode(lat, lon, 6), lat, lon, kiosks: 0 }));
+      const emitted = new Set(grid.emitted.map((c) => c.gh));
+      const extras = NJ_POINTS.map(([lat, lon]) => ({ gh: ngeohash.encode(lat, lon, 6), lat, lon, kiosks: 0 })).filter(
+        (c) => !emitted.has(c.gh), // a cell is reported once
+      );
       cells = [...grid.emitted, ...extras];
     } else if (q === 'new york') {
       // The trap ARCHITECTURE §6 warns about: "New York" is the state.

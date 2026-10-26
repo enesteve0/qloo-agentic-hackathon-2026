@@ -45,6 +45,9 @@ export interface DepsOptions {
 
 /** Stage budgets (ARCHITECTURE §12); each is also cut short by the run deadline. */
 const PLANNER_BUDGET_MS = 25_000;
+const RESOLVE_BUDGET_MS = 15_000;
+const WHERE_BUDGET_MS = 35_000;
+const EVIDENCE_BUDGET_MS = 30_000;
 const CREATIVE_BUDGET_MS = 45_000;
 /** Fresh Qloo calls one run may need; live runs start only if this much quota is above the reserve. */
 const RUN_CALL_MARGIN = 20;
@@ -150,7 +153,7 @@ const toAttempt = (e: ModelAttempt): StoopDataParts['attempt'] => {
 
 const viaLabel = (slot: string, model: string) => `${model} via ${slot}`;
 
-function qlooError(f: QlooFailure | undefined, signal: AbortSignal): Error {
+function qlooError(f: Pick<QlooFailure, 'code' | 'reason'> | undefined, signal: AbortSignal): Error {
   if (signal.aborted) return new Error('run deadline'); // reported as the time-limit message
   if (!f) return new UserFacingError('Qloo returned no data for these anchors.', 'no_signal');
   switch (failureKind(f)) {
@@ -187,7 +190,12 @@ function settleUnanswered(outcomes: ResolutionOutcome[]): ResolutionOutcome[] {
 export function createRunDeps(o: DepsOptions): RunDeps {
   const client = qlooClient(o.qloo);
   const gateway: LlmGateway = o.llm === 'live' ? getLlmGateway() : createFakeGateway();
-  const api = (ctx: StepCtx): QlooApi => client.forRun(runCtxFor(ctx));
+  /** The run's Qloo API with this stage's deadline, so transient retries happen only when time is left. */
+  const api = (ctx: StepCtx, budgetMs: number): QlooApi => {
+    const runCtx = runCtxFor(ctx);
+    runCtx.deadlineAt = Date.now() + budgetMs;
+    return client.forRun(runCtx);
+  };
 
   return {
     mode: client.synthetic ? 'mock' : 'live',
@@ -207,21 +215,22 @@ export function createRunDeps(o: DepsOptions): RunDeps {
     },
 
     async resolve({ anchors, choices, previous, ctx }) {
-      const q = api(ctx);
+      const q = api(ctx, RESOLVE_BUDGET_MS);
       const resuming = Boolean(previous && previous.length);
       const r = await resolveStage(q, { anchors, choices, previous: resuming ? previous : null });
-      if (r.failures.length > 0 && r.failures.length === anchors.length) throw qlooError(r.failures[0] as QlooFailure | undefined, ctx.signal);
+      if (r.failures.length > 0 && r.failures.length === anchors.length) throw qlooError(r.failures[0], ctx.signal);
       if (!resuming) return { outcomes: r.outcomes, issues: r.issues, envelope: r.envelope };
       const outcomes = settleUnanswered(r.outcomes);
       return { outcomes, issues: r.issues.filter((i) => i.kind !== 'ambiguous'), envelope: { ...r.envelope, status: 'ok' } };
     },
 
     async where({ anchors, ctx }) {
-      const q = api(ctx);
+      const q = api(ctx, WHERE_BUDGET_MS);
       const started = Date.now();
       const first = q.ctx.requests.length;
       const cal = await loadCalibration();
-      const location = cal.location === 'query' ? { query: 'New York City' } : { wkt: nycStudyWkt, label: 'NYC study area' };
+      // The query form must match what calibration measured (`filter.location.query=NYC`); never "New York" (the state).
+      const location = cal.location === 'query' ? { query: 'NYC' } : { wkt: nycStudyWkt, label: 'NYC study area' };
       const usesBaselineMaps = cal.config.baseline === 'B1' || cal.config.baseline === 'B2' || cal.config.baseline === 'B3';
       const [anchorMaps, baselineMaps, fingerprint] = await Promise.all([
         Promise.all(anchors.map((a) => q.heatmap({ signals: { entities: [a.id] }, location, purpose: 'heatmap' }))),
@@ -262,7 +271,7 @@ export function createRunDeps(o: DepsOptions): RunDeps {
     },
 
     async evidence({ ntas: top, anchors, ctx }) {
-      const q = api(ctx);
+      const q = api(ctx, EVIDENCE_BUDGET_MS);
       const started = Date.now();
       const first = q.ctx.requests.length;
       const entityIds = anchors.map((a) => a.id);

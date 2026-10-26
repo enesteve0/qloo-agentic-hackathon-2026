@@ -96,9 +96,20 @@ describe('limits', () => {
     const blocked = await admitLiveRun({ sessionId: 's1', ip: '1.1.1.1', now: new Date(now) });
     expect(blocked).toMatchObject({ ok: false, reason: 'session' });
     expect(blocked.retryAfterS).toBeGreaterThan(0);
-    now += 15 * 60_000;
-    expect((await admitLiveRun({ sessionId: 's1', ip: '1.1.1.1', now: new Date(now) })).ok).toBe(true);
+    // Another session is unaffected; refused attempts don't count, so the window frees up on time.
     expect((await admitLiveRun({ sessionId: 's2', ip: '1.1.1.1', now: new Date(now) })).ok).toBe(true);
+    now += 30 * 60_000;
+    expect((await admitLiveRun({ sessionId: 's1', ip: '1.1.1.1', now: new Date(now) })).ok).toBe(true);
+  });
+
+  it('does not reset at a bucket boundary (sliding window)', async () => {
+    const window = 15 * 60_000;
+    const boundary = Math.ceil(now / window) * window + window;
+    for (let i = 0; i < 3; i++) {
+      expect((await admitLiveRun({ sessionId: 's3', ip: null, now: new Date(boundary - 1_000) })).ok).toBe(true);
+    }
+    // Two seconds later the fixed bucket has rolled over, but the three runs still count.
+    expect((await admitLiveRun({ sessionId: 's3', ip: null, now: new Date(boundary + 1_000) })).ok).toBe(false);
   });
 });
 

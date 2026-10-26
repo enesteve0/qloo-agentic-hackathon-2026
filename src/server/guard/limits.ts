@@ -23,11 +23,27 @@ function dailyLiveRuns(now: Date): number {
   return 40;
 }
 
-async function window(key: string, limit: number, windowMs: number, now: number): Promise<{ ok: boolean; retryAfterS: number }> {
-  const bucket = Math.floor(now / windowMs);
-  const count = await kv().incrby(`rl:${key}:${bucket}`, 1, windowMs + 5_000);
-  const retryAfterS = Math.ceil(((bucket + 1) * windowMs - now) / 1000);
-  return { ok: count <= limit, retryAfterS };
+interface Window {
+  key: string;
+  limit: number;
+  windowMs: number;
+  reason: LimitDecision['reason'];
+}
+
+/**
+ * Sliding-window counter: the current bucket plus the previous bucket weighted by how much of it still
+ * overlaps the window. Fixed buckets alone would let a burst straddling a boundary through twice.
+ */
+async function take(w: Window, now: number): Promise<{ ok: boolean; retryAfterS: number; counted: string }> {
+  const bucket = Math.floor(now / w.windowMs);
+  const counted = `rl:${w.key}:${bucket}`;
+  const [count, previous] = await Promise.all([
+    kv().incrby(counted, 1, 2 * w.windowMs + 5_000),
+    kv().get<number>(`rl:${w.key}:${bucket - 1}`),
+  ]);
+  const overlap = 1 - (now - bucket * w.windowMs) / w.windowMs;
+  const ok = count + (previous ?? 0) * overlap <= w.limit;
+  return { ok, retryAfterS: Math.ceil(((bucket + 1) * w.windowMs - now) / 1000), counted };
 }
 
 /**
@@ -38,19 +54,26 @@ export async function admitLiveRun(input: { sessionId: string | null; ip: string
   const now = input.now ?? new Date();
   const t = now.getTime();
   const env = getEnv();
-  if (input.sessionId) {
-    const short = await window(`sess15:${input.sessionId}`, 3, 15 * MIN, t);
-    if (!short.ok) return { ok: false, reason: 'session', retryAfterS: short.retryAfterS };
-    const day = await window(`sessday:${input.sessionId}`, 8, DAY, t);
-    if (!day.ok) return { ok: false, reason: 'session', retryAfterS: day.retryAfterS };
+  const windows: Window[] = [
+    ...(input.sessionId
+      ? [
+          { key: `sess15:${input.sessionId}`, limit: 3, windowMs: 15 * MIN, reason: 'session' as const },
+          { key: `sessday:${input.sessionId}`, limit: 8, windowMs: DAY, reason: 'session' as const },
+        ]
+      : []),
+    ...(input.ip ? [{ key: `ip:${input.ip}`, limit: 25, windowMs: DAY, reason: 'ip' as const }] : []),
+    { key: 'global:hour', limit: env.LIVE_RUNS_PER_HOUR, windowMs: HOUR, reason: 'hour' },
+    { key: 'global:day', limit: dailyLiveRuns(now), windowMs: DAY, reason: 'day' },
+  ];
+  const counted: string[] = [];
+  for (const w of windows) {
+    const r = await take(w, t);
+    counted.push(r.counted);
+    if (!r.ok) {
+      // A refused attempt doesn't count against any window.
+      await Promise.all(counted.map((key) => kv().incrby(key, -1).catch(() => 0)));
+      return { ok: false, reason: w.reason, retryAfterS: r.retryAfterS };
+    }
   }
-  if (input.ip) {
-    const ipDay = await window(`ip:${input.ip}`, 25, DAY, t);
-    if (!ipDay.ok) return { ok: false, reason: 'ip', retryAfterS: ipDay.retryAfterS };
-  }
-  const hour = await window('global:hour', env.LIVE_RUNS_PER_HOUR, HOUR, t);
-  if (!hour.ok) return { ok: false, reason: 'hour', retryAfterS: hour.retryAfterS };
-  const day = await window('global:day', dailyLiveRuns(now), DAY, t);
-  if (!day.ok) return { ok: false, reason: 'day', retryAfterS: day.retryAfterS };
   return { ok: true, reason: null, retryAfterS: null };
 }

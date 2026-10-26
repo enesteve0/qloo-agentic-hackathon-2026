@@ -82,10 +82,10 @@ export function makeClient(
   transport: QlooTransport | null,
   opts: Partial<Omit<CreateQlooClientOptions, 'transport' | 'kv'>> & { kv?: MemoryKV; start?: number } = {},
 ) {
-  const clock = { t: opts.start ?? BUILD_DAY };
+  const { start, kv: sharedKv, ...rest } = opts;
+  const clock = { t: start ?? BUILD_DAY };
   const sleeps: number[] = [];
-  const kv = opts.kv ?? new MemoryKV(() => clock.t);
-  const { start: _start, kv: _kv, ...rest } = opts;
+  const kv = sharedKv ?? new MemoryKV(() => clock.t);
   const client = createQlooClient({
     transport,
     kv,
