@@ -61,6 +61,8 @@ export interface RunDeps {
     signal: AbortSignal;
     onAttempt: (e: AttemptEvent) => void;
   }): Promise<{ sets: CreativeSet[]; via: string; attempts: number }>;
+  /** Frees per-run resources such as the cross-run Qloo slot; called after the last Qloo stage and on exit. */
+  release?(ctx: StepCtx): Promise<void>;
   plan(input: { where: WhereResult; topNtas: string[]; brief: Brief }): MediaPlan;
   proof(input: { where: WhereResult; llmPicks: PlannerOutput['llmOnlyNeighborhoods']; plan: MediaPlan; brief: Brief; packs: EvidencePack[] }): Proof;
 }

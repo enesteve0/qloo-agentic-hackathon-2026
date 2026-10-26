@@ -249,9 +249,14 @@ Schemas the model sees: `z.strictObject`, every field required, `.nullable()` in
 `.optional()`, no default/transform/refine, ≤3 levels; array lengths enforced after the call.
 Cooldowns: 429 → retry-after / Groq reset (default 60 s, max 24 h); 5xx/timeout 20–30 s;
 401/402/403 30 min; 404 6 h; OpenRouter HTTP-200 error body 30 s; 3 schema failures in 10 min →
-10 min. Daily soft caps per slot; kill switch `cfg:llm:disabled`; planner and creative outputs
-cached 7 days. Budget: 2 calls per run (≤5 attempts). The fixed instruction prefix (including the
-eligible NTA list) comes first for prompt caching.
+10 min. Keys: provider-wide `llm:cd:{slot}` for 401/402/403, per model `llm:cd:{slot}:{model}` for
+everything else (a 404 on one Gemini model doesn't bench the other), `llm:sf:{slot}:{model}` for the
+schema-failure breaker and `llm:use:{slot}:{UTC day}` for daily soft caps. A `validate()` rejection
+moves to the next slot with no cooldown. Per-attempt timeouts: planner 12 s, creative 15 s (three
+attempts fit the 45 s creative budget). Kill switch `cfg:llm:disabled`. Model outputs are not cached
+separately: identical briefs are served from the saved run. Budget: 2 calls per run (≤5 attempts).
+The fixed instruction prefix (including the eligible NTA list) comes first for prompt caching. Place
+names and the business address are never sent to a model.
 
 Planner output: `{ business {name, category, offer}, audienceSummary, anchors[{ name, type,
 searchHint, why }] (≤6), tone, llmOnlyNeighborhoods[{ ntaCode, reason }] (5), budgetUsd, weeks }`.
@@ -263,28 +268,44 @@ optimize ∥ proof → finalize. Budgets: plan 25 s, resolve 15 s, where 35 s, e
 45 s; run deadline 110 s; `maxDuration` 150. A stage that would cross the deadline degrades and labels
 itself.
 
-`POST /api/runs { mode: start|resume, brief?, options?, runId?, choices? }` → guards → load/create
-`RunState` → `executeRun` decoupled with `waitUntil` (a client disconnect never loses the run) →
-`createUIMessageStream` writing typed data parts → `createUIMessageStreamResponse`.
+`POST /api/runs { mode: 'start', brief, presetSlug? } | { mode: 'resume', runId, choices }`
+(`src/app/api/runs/route.ts`) → same-origin check → brief parse + restricted-category check (422 with
+a plain reason) → identical brief: a finished run streams back as a `snapshot` labelled CACHED, a running
+one answers `{ runId, follow: true }` → availability (`liveAvailability`: Qloo mode, runtime switch,
+breakers, daily cap and reserve floor with a 20-call margin) → per-session/IP/global limits → `RunState`
+saved → `executeRun` registered with Next's `after()` (a client disconnect never loses the run) →
+`createUIMessageStream` writing typed data parts → `createUIMessageStreamResponse` with 10 s keep-alives
+and an `x-run-id` header. JSON replies are reserved for problems with the request itself and for
+"follow this run"; every capacity problem streams a `fallback` part and a sample plan for the nearest
+preset (the recorded run, or a synthetic run of its brief before any recording).
 
 Data parts (same `id` updates in place): `run`, `stage`, `decision`, `anchors`, `needsInput`,
-`where`, `evidence` (per NTA), `creative` (per NTA), `plan`, `proof`, `provenance` (per stage),
-`label`, `fallback`; transient `progress` and `attempt`. `needs_input` persists state and ends the
-stream; the picker resumes with choices. Client: `useChat` + `DefaultChatTransport` (custom body) +
-`onData` reducer; URL becomes `/plan/{id}`; a reload server-renders the saved snapshot and polls
-`GET /api/runs/{id}` while running.
+`where`, `evidence` (per NTA), `creative` (per NTA), `plan`, `proof`, `envelope` (per stage),
+`label`, `fallback`, `snapshot` (a complete saved run: cached brief, recorded preset or the start of a
+resume), `done`; transient `progress` and `attempt`. A `run` part for a run the client already holds
+keeps its state (resume). `needs_input` persists state and ends the stream; the picker resumes with
+choices, and anything left unanswered takes its first candidate (one question per run). The client
+(`src/components/live/useLiveRun.ts`) reads the SSE body with `readUiMessageSse`, folds parts with the
+shared `applyPart` reducer, moves the URL to `/plan/{id}` (or `/p/{slug}` for a recorded preset), and
+polls `GET /api/runs/{id}` when the stream drops or a reload lands mid-run. `GET /api/runs/{id}` reports
+a run still marked running three minutes after its last checkpoint as stopped.
+
+Production wiring lives in `src/server/agent/deps-live.ts` (`createRunDeps`). The cross-run Qloo slot is
+released right after the evidence stage (no Qloo calls follow) and again on exit, so a slow model step
+never blocks other plans. The lift configuration comes from `cfg:calibration`
+(`{ config, location, baselineSignals, fingerprintSignals, decidedAt }`, no Qloo data inside; baseline
+and fingerprint maps are re-requested through the client cache) and defaults to B4 on the NYC polygon.
 
 ## 13. Storage (Upstash Redis; key prefix per environment `p:` / `pv:` / `d:`)
 
 | Key | Content | TTL |
 |---|---|---|
-| `run:{id}` | `RunState` (~35 KB, no raw Qloo) | 14 days |
+| `run:{id}` | `RunState` (~35 KB, no raw Qloo) | 14 days, capped at the event data expiry |
 | `share:{id}` | derived snapshot (no Qloo IDs, raw scores, place names or images) | until 2026-11-07 |
-| `preset:{slug}` | recorded run (RECORDED) | until purged after the event |
+| `preset:{slug}` | recorded run (RECORDED) | until the event data expiry |
 | `q1:{hash}` | normalized Qloo data | until event data expiry |
 | `res:{type}:{name}` | resolution outcome | same |
-| `llm:plan:*`, `llm:cre:*` | model outputs | 7 days |
-| `sf:run:{briefHash}` / `done:run:{briefHash}` | single-flight lock / completed identical brief | 150 s / 6 h |
+| `sf:run:{briefHash}` / `done:run:{briefHash}` / `sf:resume:{id}` | single-flight lock / completed identical brief / resume lock | 150 s / 6 h / 150 s |
 | `qloo:*`, `llm:use:*`, `llm:cd:*`, `rl:*`, `sem:*`, `cfg:*` | ledgers, cooldowns, limits, slots, config | various |
 
 `ResultLabel`: `live {model, qloo {fresh, cached}}` · `cached {at}` · `recorded {at, model}` ·
@@ -295,8 +316,10 @@ stream; the picker resumes with choices. Client: `useChat` + `DefaultChatTranspo
 Vercel WAF rule: `POST /api/runs`, 20 requests / 60 s / IP. Signed session cookie (HMAC); per session
 3 live runs / 15 min and 8 / day; per IP 25 / day (loose for shared networks); global per-phase daily
 caps and 25 / hour. Same-origin POST; brief ≤1,200 characters with emails, phones and URLs stripped
-before the model; brief text never sent to Qloo. Exhausting any budget streams a `fallback` part plus
-the cached identical-brief result or the nearest preset with a banner — never an error page.
+before the model; brief text never sent to Qloo. Briefs for housing, job, credit, political,
+health-claim, tobacco, weapons, adult or gambling ads are refused with a reason (`restrictedCategory`).
+Exhausting any budget streams a `fallback` part plus the nearest preset's sample plan with a banner —
+never an error page. Admin routes need `Authorization: Bearer $ADMIN_TOKEN` and answer 404 otherwise.
 
 ## 15. Qloo call budget
 
@@ -363,8 +386,8 @@ Publish whatever the result is, including failures.
 
 Pages: `/`, `/plan/new`, `/plan/[runId]`, `/p/[slug]`, `/proof`, `/how-it-works`, `/judges`,
 `/status`, `/s/[shareId]`. API: `POST /api/runs`, `GET /api/runs/[id]`,
-`POST /api/runs/[id]/share`, `GET /api/runs/[id]/export?format=csv` (derived only, assumptions in
-header rows), `GET /api/presets[/slug]`, `GET /api/health` (public, no numbers),
+`POST /api/runs/[id]/share`, `GET /api/export?run=<id>|preset=<slug>` (CSV, derived only, assumptions
+in header rows), `GET /api/health` (public, no numbers),
 `GET /api/admin/health` and `POST /api/admin/record` (bearer `ADMIN_TOKEN`). `robots.txt` disallows
 `/api/`, `/s/`, `/plan/`.
 

@@ -120,6 +120,7 @@ export async function executeRun(state: RunState, emit: Emit, deps: RunDeps, opt
     state.llm.attempts += 1;
     emit({ type: 'data-attempt', data: e, transient: true });
   };
+  const release = () => deps.release?.(ctx).catch(() => undefined) ?? Promise.resolve();
   const timed = async <T>(stage: StageId, fn: () => Promise<T>): Promise<T> => {
     const t0 = deps.now().getTime();
     setStage(stage, 'running');
@@ -130,6 +131,8 @@ export async function executeRun(state: RunState, emit: Emit, deps: RunDeps, opt
     return out;
   };
 
+  state.status = 'running';
+  state.error = null;
   emit({
     type: 'data-run',
     data: { runId: state.id, mode: state.mode, startedAt: state.createdAt, presetSlug: state.presetSlug, businessName: state.brief.business },
@@ -207,6 +210,8 @@ export async function executeRun(state: RunState, emit: Emit, deps: RunDeps, opt
       for (const p of ev.packs) emit({ type: 'data-evidence', id: p.nta, data: p });
       return ev.packs;
     });
+    // No Qloo calls after this point: let other plans use the slot while the ads are written.
+    await release();
 
     // ---------------- creative ∥ optimize, then proof ----------------
     const remaining = deadline - deps.now().getTime();
@@ -264,6 +269,7 @@ export async function executeRun(state: RunState, emit: Emit, deps: RunDeps, opt
   } finally {
     clearTimeout(timer);
     opts.signal?.removeEventListener('abort', onAbort);
+    await release();
     touch();
     await opts.persist(state);
     emit({ type: 'data-done', data: { runId: state.id, status: state.status, error: state.error } });
