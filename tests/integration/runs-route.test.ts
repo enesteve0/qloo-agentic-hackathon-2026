@@ -74,6 +74,10 @@ describe('POST /api/runs', () => {
     expect(view.state?.status).toBe('done');
     expect(view.state?.label).toEqual({ kind: 'synthetic' });
     expect((await loadRun(runId))?.status).toBe('done');
+    // Street places for every planned screen and a booking draft arrive with the plan.
+    for (const s of view.state?.plan?.screens ?? []) expect(view.extras?.places[s.i]?.address).toBeTruthy();
+    expect(view.extras?.send?.csvHref).toBe(`/api/export?run=${runId}`);
+    expect(view.extras?.send?.body).toContain('Halfnote Supper Club');
   });
 
   it('serves an identical brief from the saved run, labelled cached', async () => {
@@ -81,6 +85,7 @@ describe('POST /api/runs', () => {
     expect(view.done).toBe(true);
     expect(view.state?.label?.kind).toBe('cached');
     expect(view.state?.plan).not.toBeNull();
+    expect(Object.keys(view.extras?.places ?? {}).length).toBeGreaterThan(0);
   });
 
   it('answers a session over its live-run limit with a labelled sample plan, not an error', async () => {

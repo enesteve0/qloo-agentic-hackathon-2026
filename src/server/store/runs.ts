@@ -43,3 +43,12 @@ export async function loadPreset(slug: string): Promise<RunState | null> {
   if (!isPresetSlug(slug)) return null;
   return kv().get<RunState>(`preset:${slug}`);
 }
+
+/** A run still marked running this long after its last checkpoint was cut off (the run deadline is 110 s). */
+const STALE_MS = 180_000;
+
+/** Reports a run that stopped checkpointing mid-flight as stopped, so pages and polls don't wait forever. */
+export function settleStale(run: RunState, now = Date.now()): RunState {
+  if (run.status !== 'running' || now - Date.parse(run.updatedAt) <= STALE_MS) return run;
+  return { ...run, status: 'error', error: 'This plan stopped before it finished. Start it again.' };
+}

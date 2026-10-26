@@ -360,6 +360,31 @@ export interface PlannerOutput {
   fallback: boolean;
 }
 
+/**
+ * The client-safe slice of one street screen, picked on the server from kiosks.json
+ * (`placesForRun`). The full kiosk file never ships to the browser.
+ */
+export type ScreenPlace = Pick<Kiosk, 'i' | 'siteId' | 'address' | 'cross1' | 'cross2' | 'nta' | 'boro' | 'type'>;
+
+/** Kiosk index (Kiosk.i) → place. */
+export type PlaceLookup = Record<number, ScreenPlace>;
+
+/** The booking package for SEND, drafted on the server from the plan. */
+export interface SendDraft {
+  subject: string;
+  body: string;
+  /** `mailto:` URL (recipient and optional params); subject and body are re-encoded from the edited text. */
+  mailto: string;
+  /** Link to the screen list CSV, or null when exports are unavailable. */
+  csvHref: string | null;
+}
+
+/** Server-derived extras for a run's screen: street places for mockups and the plan table, and the SEND draft. */
+export interface RunExtras {
+  places: PlaceLookup;
+  send: SendDraft | null;
+}
+
 export type ResultLabel =
   | { kind: 'live'; model: string | null; qloo: { fresh: number; cached: number } }
   | { kind: 'cached'; at: string }

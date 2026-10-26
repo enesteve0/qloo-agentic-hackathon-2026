@@ -123,7 +123,10 @@ export function kv(): KV {
     if (!url || !token) throw new Error('REDIS_DRIVER=upstash but no Upstash URL/token is configured');
     instance = new UpstashKV(new Redis({ url, token }), env.REDIS_PREFIX);
   } else {
-    instance = new MemoryKV();
+    // Next.js loads route handlers and pages as separate module instances in one process; keep a single
+    // in-memory store on globalThis so a run saved by the API is visible to the page that renders it.
+    const g = globalThis as typeof globalThis & { __stoopMemoryKv?: MemoryKV };
+    instance = g.__stoopMemoryKv ??= new MemoryKV();
   }
   return instance;
 }

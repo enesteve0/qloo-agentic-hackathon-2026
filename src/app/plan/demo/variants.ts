@@ -46,6 +46,7 @@ export function demoState(kind: DemoState): { view: RunView; state: RunState } {
         attempts: [],
         fallback: null,
         needsInput: null,
+        extras: null,
         done: false,
       };
       return { view, state };

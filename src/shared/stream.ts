@@ -15,6 +15,7 @@ import type {
   ResolutionIssue,
   ResolutionOutcome,
   ResultLabel,
+  RunExtras,
   RunState,
   RunStatus,
   StageEnvelope,
@@ -42,6 +43,8 @@ export interface StoopDataParts {
   fallback: { reason: FallbackReason; presetSlug: string | null; message: string };
   /** A complete saved run: a cached identical brief, a recorded preset, or the starting point of a resume. */
   snapshot: RunState;
+  /** Street places and the booking draft, derived on the server once the plan exists. */
+  extras: RunExtras;
   done: { runId: string; status: RunStatus; error: string | null };
   /** Transient: the agent's current one-line activity for the ticker. */
   progress: { text: string };
@@ -62,6 +65,7 @@ export interface RunView {
   attempts: StoopDataParts['attempt'][];
   fallback: StoopDataParts['fallback'] | null;
   needsInput: ResolutionIssue[] | null;
+  extras: RunExtras | null;
   done: boolean;
 }
 
@@ -71,6 +75,7 @@ export const emptyRunView = (): RunView => ({
   attempts: [],
   fallback: null,
   needsInput: null,
+  extras: null,
   done: false,
 });
 
@@ -120,16 +125,17 @@ export function applyPart(view: RunView, part: { type: string; data?: unknown })
     const run = data as StoopDataParts['run'];
     // A resumed run announces itself again; keep what we already know about it.
     if (view.state?.id === run.runId) return { ...view, done: false, needsInput: null, state: { ...view.state, status: 'running' } };
-    return { ...view, state: skeletonState(run) };
+    return { ...view, extras: null, state: skeletonState(run) };
   }
   if (name === 'snapshot') {
     const saved = viewFromState(data as RunState);
-    return { ...saved, fallback: view.fallback, attempts: view.attempts };
+    return { ...saved, fallback: view.fallback, attempts: view.attempts, extras: view.extras };
   }
   if (name === 'progress') return { ...view, progress: (data as StoopDataParts['progress']).text };
   if (name === 'attempt') return { ...view, attempts: [...view.attempts, data as StoopDataParts['attempt']].slice(-20) };
   if (name === 'fallback') return { ...view, fallback: data as StoopDataParts['fallback'] };
   if (name === 'needsInput') return { ...view, needsInput: (data as StoopDataParts['needsInput']).issues };
+  if (name === 'extras') return { ...view, extras: data as RunExtras };
   const s = view.state;
   if (!s) return view;
   const touch = (patch: Partial<RunState>): RunView => ({ ...view, state: { ...s, ...patch, updatedAt: nowIso() } });
@@ -173,6 +179,7 @@ export function viewFromState(state: RunState): RunView {
     attempts: [],
     fallback: null,
     needsInput: state.status === 'awaiting_input' ? (state.resolution?.issues ?? []) : null,
+    extras: null,
     done: state.status === 'done' || state.status === 'error',
   };
 }

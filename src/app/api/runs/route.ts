@@ -5,6 +5,7 @@ import { presetBySlug } from '@/content/presets';
 import type { RunDeps } from '@/server/agent/deps';
 import { createRunDeps, liveAvailability } from '@/server/agent/deps-live';
 import { GENERIC_ERROR } from '@/server/agent/errors';
+import { csvHref, runExtras } from '@/server/agent/extras';
 import { FALLBACK_MESSAGES, nearestPreset } from '@/server/agent/fallback';
 import { executeRun, newRunState } from '@/server/agent/orchestrator';
 import { getEnv } from '@/server/env';
@@ -82,7 +83,9 @@ async function start(input: unknown, presetSlug: string | null, ctx: Ctx): Promi
   const claim = await claimBrief(hash, runId);
   if (!claim.claimed) {
     const prior = await loadRun(claim.existingRunId);
-    if (prior?.status === 'done') return snapshotResponse({ ...prior, label: { kind: 'cached', at: prior.updatedAt } }, null, ctx);
+    if (prior?.status === 'done') {
+      return snapshotResponse({ ...prior, label: { kind: 'cached', at: prior.updatedAt } }, null, csvHref({ runId: prior.id }), ctx);
+    }
     if (prior?.status === 'running') return json({ runId: prior.id, follow: true }, 202, ctx.headers);
   }
   const lockHash = claim.claimed ? hash : null;
@@ -129,7 +132,7 @@ async function fallbackResponse(reason: FallbackReason, brief: Brief, ctx: Ctx):
   const slug = nearestPreset(brief);
   const notice: StoopPart = { type: 'data-fallback', data: { reason, presetSlug: slug, message: FALLBACK_MESSAGES[reason] } };
   const recorded = await loadPreset(slug);
-  if (recorded) return snapshotResponse(recorded, notice, ctx);
+  if (recorded) return snapshotResponse(recorded, notice, csvHref({ presetSlug: slug }), ctx);
   const preset = presetBySlug(slug)!;
   const state = newRunState({ id: newRunId(), brief: preset.brief, mode: 'mock', presetSlug: slug, now: new Date() });
   await saveRun(state);
@@ -137,11 +140,12 @@ async function fallbackResponse(reason: FallbackReason, brief: Brief, ctx: Ctx):
   return runResponse(state, { deps, hash: null, before: [notice] }, ctx);
 }
 
-function snapshotResponse(state: RunState, notice: StoopPart | null, ctx: Ctx): Response {
+function snapshotResponse(state: RunState, notice: StoopPart | null, csv: string, ctx: Ctx): Response {
   const stream = createUIMessageStream<StoopMessage>({
     execute: ({ writer }) => {
       if (notice) writer.write(notice);
       writer.write({ type: 'data-snapshot', data: state });
+      writer.write({ type: 'data-extras', data: runExtras(state, csv) });
       writer.write({ type: 'data-done', data: { runId: state.id, status: state.status, error: state.error } });
     },
   });
@@ -156,7 +160,12 @@ function runResponse(
   const stream = createUIMessageStream<StoopMessage>({
     execute: async ({ writer }) => {
       for (const part of o.before ?? []) writer.write(part);
-      const task = executeRun(state, (part) => writer.write(part), o.deps, {
+      const emit = (part: StoopPart) => {
+        writer.write(part);
+        // Once the plan exists the screen needs street places and the booking draft (server-only data).
+        if (part.type === 'data-plan') writer.write({ type: 'data-extras', data: runExtras(state, csvHref({ runId: state.id })) });
+      };
+      const task = executeRun(state, emit, o.deps, {
         country: ctx.country,
         choices: o.choices,
         persist: saveRun,
