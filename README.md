@@ -28,7 +28,7 @@ Built for the [Qloo Agentic Hackathon 2026](https://qloo.devpost.com/).
 | Station | What happens | Who decides |
 |---|---|---|
 | Brief | Business, offer, budget, weeks, optional address (never sent to Qloo) | Owner |
-| Taste | The agent proposes 2–5 taste anchors (artists, places, brands, films, shows) and matches them in Qloo; if a name is ambiguous it asks one question | Model proposes, Qloo resolves |
+| Taste | The agent proposes 2–6 taste anchors (artists, places, brands, films, shows) and matches them in Qloo; if a name is ambiguous it asks one question | Model proposes, Qloo resolves |
 | Where | Qloo heatmaps for each anchor, compared with an NYC baseline (rank-based lift), scored onto 2,183 live ad-capable LinkNYC kiosks in 2020 neighborhoods | Qloo measures, code ranks |
 | What | Local Qloo place evidence for the top neighborhoods; two ads per neighborhood, each phrase traced to evidence and checked against eight copy rules | Model writes, code verifies |
 | Plan | Screens per dollar under per-neighborhood caps, with every price and impression figure labelled as an assumption | Code |
