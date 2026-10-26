@@ -148,7 +148,9 @@ function qlooClient(mode: QlooMode): QlooClient {
 
 const toAttempt = (e: ModelAttempt): StoopDataParts['attempt'] => {
   const ok = e.outcome === 'ok' || e.outcome === 'repaired';
-  return { kind: e.kind, slot: e.slot, ok, reason: ok ? null : (e.detail ?? e.outcome), ms: e.ms };
+  // A fixed vocabulary only: provider error text can name accounts or quotas, so it stays on the server.
+  const reason = ok ? null : [e.outcome, e.error, e.status].filter((x) => x !== null && x !== undefined).join(' · ');
+  return { kind: e.kind, slot: e.slot, ok, reason, ms: e.ms };
 };
 
 const viaLabel = (slot: string, model: string) => `${model} via ${slot}`;
@@ -156,6 +158,9 @@ const viaLabel = (slot: string, model: string) => `${model} via ${slot}`;
 function qlooError(f: Pick<QlooFailure, 'code' | 'reason'> | undefined, signal: AbortSignal): Error {
   if (signal.aborted) return new Error('run deadline'); // reported as the time-limit message
   if (!f) return new UserFacingError('Qloo returned no data for these anchors.', 'no_signal');
+  if (f.code === 'BUSY') {
+    return new UserFacingError('Lots of people are planning right now, so Qloo’s slots are full. Try again in a minute.', 'qloo_busy');
+  }
   switch (failureKind(f)) {
     case 'quota':
       return new UserFacingError('Stoop has used its Qloo budget for now. Open a recorded plan, or try again later.', 'qloo_quota');

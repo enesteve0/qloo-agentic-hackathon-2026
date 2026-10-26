@@ -133,9 +133,10 @@ export async function executeRun(state: RunState, emit: Emit, deps: RunDeps, opt
 
   state.status = 'running';
   state.error = null;
+  state.errorCode = null;
   emit({
     type: 'data-run',
-    data: { runId: state.id, mode: state.mode, startedAt: state.createdAt, presetSlug: state.presetSlug, businessName: state.brief.business },
+    data: { runId: state.id, mode: state.mode, startedAt: state.createdAt, presetSlug: state.presetSlug, brief: state.brief },
   });
 
   try {
@@ -265,13 +266,18 @@ export async function executeRun(state: RunState, emit: Emit, deps: RunDeps, opt
       if (running) setStage(running.stage, 'error', message);
       state.status = 'error';
       state.error = message;
+      state.errorCode = err instanceof UserFacingError ? err.code : signal.aborted ? 'deadline' : 'other';
     }
   } finally {
     clearTimeout(timer);
     opts.signal?.removeEventListener('abort', onAbort);
     await release();
     touch();
-    await opts.persist(state);
+    try {
+      await opts.persist(state);
+    } catch {
+      // The client still learns the outcome; a reload may show the last saved checkpoint.
+    }
     emit({ type: 'data-done', data: { runId: state.id, status: state.status, error: state.error } });
   }
   return state;

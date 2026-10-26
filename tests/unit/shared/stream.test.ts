@@ -1,5 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { applyPart, emptyRunView, readUiMessageSse } from '@/shared/stream';
+import type { Brief } from '@/shared/types';
+
+const brief: Brief = {
+  business: 'Halfnote',
+  description: 'A jazz supper club in Bed-Stuy',
+  offer: 'Free first set on Tuesdays',
+  budgetUsd: 2000,
+  weeks: 3,
+  startDate: '2026-11-16',
+  address: 'Nostrand Av & Fulton St',
+};
 
 const sse = (events: string[]) =>
   new ReadableStream<Uint8Array>({
@@ -35,11 +46,12 @@ describe('applyPart', () => {
     expect(v.state).toBeNull(); // parts before `run` are ignored
     v = applyPart(v, {
       type: 'data-run',
-      data: { runId: 'r1', mode: 'mock', startedAt: '2026-10-26T00:00:00Z', presetSlug: null, businessName: 'Halfnote' },
+      data: { runId: 'r1', mode: 'mock', startedAt: '2026-10-26T00:00:00Z', presetSlug: null, brief },
     });
     v = applyPart(v, { type: 'data-stage', data: { stage: 'plan', status: 'running', title: 'Planning', detail: null, ms: null } });
     v = applyPart(v, { type: 'data-stage', data: { stage: 'plan', status: 'done', title: 'Planning', detail: null, ms: 900 } });
     v = applyPart(v, { type: 'data-progress', data: { text: 'Scoring 2,183 street screens' } });
+    expect(v.state?.brief).toEqual(brief); // a retry or the mockups can use the brief before any snapshot
     expect(v.state?.stages).toHaveLength(1);
     expect(v.state?.stages[0]?.status).toBe('done');
     expect(v.progress).toBe('Scoring 2,183 street screens');
@@ -51,7 +63,7 @@ describe('applyPart', () => {
   });
 
   it('loads a snapshot and keeps a resumed run when it announces itself again', () => {
-    const run = { runId: 'r2', mode: 'mock' as const, startedAt: '2026-10-26T00:00:00Z', presetSlug: null, businessName: 'Halfnote' };
+    const run = { runId: 'r2', mode: 'mock' as const, startedAt: '2026-10-26T00:00:00Z', presetSlug: null, brief };
     const paused = applyPart(applyPart(emptyRunView(), { type: 'data-run', data: run }), {
       type: 'data-decision',
       data: { stage: 'plan', text: 'Anchors for this audience: Robert Glasper (artist).' },

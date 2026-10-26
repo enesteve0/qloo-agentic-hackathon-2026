@@ -83,7 +83,9 @@ export function useLiveRun(initial: RunState | null = null): LiveRun {
         const type = res.headers.get('content-type') ?? '';
         if (!type.includes('text/event-stream') || !res.body) {
           const body = (await res.json().catch(() => ({}))) as { error?: string; errors?: string[]; runId?: string; follow?: boolean };
-          if (body.follow && body.runId) {
+          // A run id means "that run exists": follow it while running, or load where it ended (e.g. a 409 after
+          // the question was answered elsewhere).
+          if (body.runId) {
             await follow(body.runId, controller.signal);
             return;
           }

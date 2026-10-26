@@ -8,6 +8,7 @@
  */
 import type { UIMessage } from 'ai';
 import type {
+  Brief,
   CreativeSet,
   EvidencePack,
   MediaPlan,
@@ -26,9 +27,10 @@ import type {
 
 export type FallbackReason = 'limits' | 'qloo_reserve' | 'llm_exhausted' | 'busy' | 'qloo_unavailable' | 'error';
 
-export interface StoopDataParts {
-  [key: string]: unknown;
-  run: { runId: string; mode: 'live' | 'mock'; startedAt: string; presetSlug: string | null; businessName: string };
+// A type alias (not an interface with an index signature) so every part name and payload is checked.
+export type StoopDataParts = {
+  /** Carries the (sanitized) brief so the client can show it and retry with it before any snapshot. */
+  run: { runId: string; mode: 'live' | 'mock'; startedAt: string; presetSlug: string | null; brief: Brief };
   stage: StageInfo;
   decision: { stage: StageId; text: string };
   anchors: { interpretation: string; outcomes: ResolutionOutcome[] };
@@ -50,7 +52,7 @@ export interface StoopDataParts {
   progress: { text: string };
   /** Transient: one model attempt in the fallback chain. */
   attempt: { kind: 'planner' | 'creative'; slot: string; ok: boolean; reason: string | null; ms: number };
-}
+};
 
 export type StoopMessage = UIMessage<never, StoopDataParts>;
 
@@ -89,7 +91,7 @@ function skeletonState(run: StoopDataParts['run']): RunState {
     status: 'running',
     mode: run.mode,
     presetSlug: run.presetSlug,
-    brief: { business: run.businessName, description: '', offer: null, budgetUsd: 0, weeks: 0, startDate: null, address: null },
+    brief: run.brief,
     planner: null,
     resolution: null,
     where: null,

@@ -77,30 +77,33 @@ async function start(input: unknown, presetSlug: string | null, ctx: Ctx): Promi
   const brief = parsed.brief;
   const restricted = restrictedCategory(brief);
   if (restricted) return json({ error: restricted.message, errors: [restricted.message], restricted: restricted.category }, 422, ctx.headers);
-  const hash = await briefHash(brief);
+  const env = getEnv();
+  const mode = env.QLOO_MODE === 'mock' ? 'mock' : 'live';
+  const hash = await briefHash(brief, mode);
   const runId = newRunId();
 
   // An identical brief is either finished (serve it, no new calls) or still running (follow it).
   const claim = await claimBrief(hash, runId);
-  if (!claim.claimed) {
-    const prior = await loadRun(claim.existingRunId);
+  if (!claim.claimed && claim.existingRunId) {
+    const prior = await waitForRun(claim.existingRunId);
     if (prior?.status === 'done') {
-      return snapshotResponse({ ...prior, label: { kind: 'cached', at: prior.updatedAt } }, null, csvHref({ runId: prior.id }), ctx);
+      // A synthetic plan keeps its SYNTHETIC label; only a live plan becomes CACHED.
+      const label = prior.mode === 'mock' ? (prior.label ?? { kind: 'synthetic' as const }) : { kind: 'cached' as const, at: prior.updatedAt };
+      return snapshotResponse({ ...prior, label }, null, csvHref({ runId: prior.id }), ctx);
     }
     if (prior?.status === 'running') return json({ runId: prior.id, follow: true }, 202, ctx.headers);
   }
   const lockHash = claim.claimed ? hash : null;
 
-  const env = getEnv();
   let blocked: FallbackReason | null = env.QLOO_MODE === 'off' ? 'qloo_unavailable' : await liveAvailability();
   if (!blocked && !(await admitLiveRun({ sessionId: ctx.sessionId, ip: ctx.ip })).ok) blocked = 'limits';
   if (blocked) {
-    if (lockHash) await releaseBrief(lockHash);
+    if (lockHash) await releaseBrief(lockHash, runId);
     return fallbackResponse(blocked, brief, ctx);
   }
 
   const slug = presetSlug && presetBySlug(presetSlug) ? presetSlug : null;
-  const state = newRunState({ id: runId, brief, mode: env.QLOO_MODE === 'mock' ? 'mock' : 'live', presetSlug: slug, now: new Date() });
+  const state = newRunState({ id: runId, brief, mode, presetSlug: slug, now: new Date() });
   await saveRun(state);
   const deps = createRunDeps({ qloo: env.QLOO_MODE, llm: env.LLM_MODE, country: ctx.country });
   return runResponse(state, { deps, hash: lockHash }, ctx);
@@ -124,8 +127,9 @@ async function resume(runId: string, choices: ResolutionChoice[], ctx: Ctx): Pro
   await saveRun(state);
   const env = getEnv();
   const deps = createRunDeps({ qloo: state.mode === 'mock' ? 'mock' : env.QLOO_MODE, llm: env.LLM_MODE, country: ctx.country });
-  const hash = await briefHash(state.brief);
-  return runResponse(state, { deps, hash, choices, before: [{ type: 'data-snapshot', data: state }] }, ctx);
+  const hash = await briefHash(state.brief, state.mode);
+  // A copy: the run mutates `state` before the stream serializes this part.
+  return runResponse(state, { deps, hash, choices, before: [{ type: 'data-snapshot', data: structuredClone(state) }] }, ctx);
 }
 
 /**
@@ -152,6 +156,13 @@ function snapshotResponse(state: RunState, notice: StoopPart | null, csv: string
   return createUIMessageStreamResponse({ stream, headers: { ...ctx.headers, 'x-run-id': state.id } });
 }
 
+/** Capacity failures mid-run end with a labelled sample plan, like capacity problems before a run starts. */
+const CAPACITY: Partial<Record<NonNullable<RunState['errorCode']>, FallbackReason>> = {
+  qloo_busy: 'busy',
+  qloo_quota: 'qloo_reserve',
+  qloo_unavailable: 'qloo_unavailable',
+};
+
 function runResponse(
   state: RunState,
   o: { deps: RunDeps; hash: string | null; choices?: ResolutionChoice[]; before?: StoopPart[] },
@@ -165,22 +176,46 @@ function runResponse(
         // Once the plan exists the screen needs street places and the booking draft (server-only data).
         if (part.type === 'data-plan') writer.write({ type: 'data-extras', data: runExtras(state, csvHref({ runId: state.id })) });
       };
-      const task = executeRun(state, emit, o.deps, {
-        country: ctx.country,
-        choices: o.choices,
-        persist: saveRun,
-      }).then(async (final) => {
-        if (!o.hash) return;
-        if (final.status === 'done') await completeBrief(o.hash, final.id);
-        else await releaseBrief(o.hash);
+      const persist = async (s: RunState) => {
+        try {
+          await saveRun(s);
+        } catch (err) {
+          console.error(`[runs] could not save run ${s.id}:`, err instanceof Error ? err.message : err);
+          throw err;
+        }
+      };
+      const task = executeRun(state, emit, o.deps, { country: ctx.country, choices: o.choices, persist }).then(async (final) => {
+        if (o.hash) {
+          if (final.status === 'done') await completeBrief(o.hash, final.id);
+          else await releaseBrief(o.hash, final.id);
+        }
+        const reason = final.status === 'error' && final.errorCode ? CAPACITY[final.errorCode] : undefined;
+        if (!reason) return;
+        const slug = nearestPreset(final.brief);
+        const sample = await presetRun(slug).catch(() => null);
+        if (!sample) return;
+        writer.write({ type: 'data-fallback', data: { reason, presetSlug: slug, message: FALLBACK_MESSAGES[reason] } });
+        writer.write({ type: 'data-snapshot', data: sample });
+        writer.write({ type: 'data-extras', data: runExtras(sample, csvHref({ presetSlug: slug })) });
+        writer.write({ type: 'data-done', data: { runId: sample.id, status: sample.status, error: sample.error } });
       });
       // The run keeps going if the browser disconnects; reloads read the saved state.
-      after(task.catch(() => undefined));
+      after(task.catch((err) => console.error(`[runs] run ${state.id} failed to finish:`, err instanceof Error ? err.message : err)));
       await task;
     },
     onError: () => GENERIC_ERROR,
   });
   return createUIMessageStreamResponse({ stream, headers: { ...ctx.headers, 'x-run-id': state.id }, keepAliveMs: KEEP_ALIVE_MS });
+}
+
+/** The holder of an identical brief's lock saves its run moments after claiming; wait briefly for it. */
+async function waitForRun(id: string): Promise<RunState | null> {
+  for (let i = 0; i < 8; i++) {
+    const run = await loadRun(id);
+    if (run) return run;
+    await new Promise((r) => setTimeout(r, 250));
+  }
+  return null;
 }
 
 function json(body: unknown, status: number, headers: Record<string, string> = { 'Cache-Control': 'no-store' }): Response {

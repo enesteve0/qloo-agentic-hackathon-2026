@@ -4,7 +4,7 @@ import { MemoryKV, setKvForTests } from '@/server/kv';
 import { briefHash, parseBrief, restrictedCategory, sanitizeText } from '@/server/guard/brief';
 import { admitLiveRun } from '@/server/guard/limits';
 import { newSession, readSession } from '@/server/guard/session';
-import { claimBrief, completeBrief } from '@/server/guard/singleflight';
+import { claimBrief, completeBrief, releaseBrief } from '@/server/guard/singleflight';
 import { isRunId, newRunId } from '@/server/store/runs';
 
 let now = Date.parse('2026-10-28T15:00:00Z');
@@ -39,7 +39,20 @@ describe('brief', () => {
     const a = parseBrief({ business: 'Halfnote', description: 'Jazz supper club in Bed-Stuy', budgetUsd: 2000, weeks: 3 });
     const b = parseBrief({ business: 'HALFNOTE ', description: 'jazz supper club in bed-stuy', budgetUsd: 2000, weeks: 3 });
     if (!a.ok || !b.ok) throw new Error('parse failed');
-    expect(await briefHash(a.brief)).toBe(await briefHash(b.brief));
+    expect(await briefHash(a.brief, 'live')).toBe(await briefHash(b.brief, 'live'));
+  });
+
+  it('keeps briefs apart when anything a plan shows differs, or the data mode does', async () => {
+    const base = { business: 'Halfnote', description: 'Jazz supper club in Bed-Stuy', budgetUsd: 2000, weeks: 3 };
+    const parse = (extra: object) => {
+      const r = parseBrief({ ...base, ...extra });
+      if (!r.ok) throw new Error('parse failed');
+      return r.brief;
+    };
+    const plain = await briefHash(parse({}), 'live');
+    expect(await briefHash(parse({ startDate: '2026-11-16' }), 'live')).not.toBe(plain);
+    expect(await briefHash(parse({ address: 'Nostrand Av & Fulton St' }), 'live')).not.toBe(plain);
+    expect(await briefHash(parse({}), 'mock')).not.toBe(plain);
   });
 });
 
@@ -81,6 +94,12 @@ describe('restricted categories', () => {
 });
 
 describe('session', () => {
+  it('rejects a tampered signature with non-ASCII characters instead of throwing', () => {
+    const s = newSession();
+    const [id] = s.setCookie.split(';')[0]!.split('=')[1]!.split('.');
+    expect(readSession(`stoop_sid=${id}.${'é'.repeat(22)}`)).toBeNull();
+  });
+
   it('round-trips a signed cookie and rejects tampering', () => {
     const s = newSession();
     const cookie = s.setCookie.split(';')[0]!;
@@ -110,6 +129,16 @@ describe('limits', () => {
     }
     // Two seconds later the fixed bucket has rolled over, but the three runs still count.
     expect((await admitLiveRun({ sessionId: 's3', ip: null, now: new Date(boundary + 1_000) })).ok).toBe(false);
+  });
+});
+
+describe('single-flight locks', () => {
+  it('only release the lock their own run holds', async () => {
+    expect(await claimBrief('h2', 'run-a')).toEqual({ claimed: true });
+    await releaseBrief('h2', 'run-b'); // another run's release must not free run-a's lock
+    expect(await claimBrief('h2', 'run-c')).toEqual({ claimed: false, existingRunId: 'run-a' });
+    await releaseBrief('h2', 'run-a');
+    expect(await claimBrief('h2', 'run-c')).toEqual({ claimed: true });
   });
 });
 

@@ -57,6 +57,12 @@ export function LivePlanner({ initial = null, initialExtras = null, initialTab =
   }
 
   const kind = state?.label?.kind;
+  // Problems after a run exists (a rejected answer, a lost connection) show above the run, not on a hidden form.
+  const notice = error ? (
+    <p role="alert" className="border-l-4 border-danger bg-surface p-3">
+      {error.message}
+    </p>
+  ) : undefined;
   const rerun = state
     ? () => {
         window.scrollTo({ top: 0 });
@@ -76,6 +82,7 @@ export function LivePlanner({ initial = null, initialExtras = null, initialTab =
       onRunLive={liveAvailable && !busy && (kind === 'recorded' || kind === 'synthetic') ? rerun : undefined}
       onRetry={state?.status === 'error' ? rerun : undefined}
       recordedHref={`/p/${view.fallback?.presetSlug ?? state?.presetSlug ?? 'halfnote'}`}
+      notice={notice}
     />
   );
 }

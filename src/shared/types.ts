@@ -432,4 +432,6 @@ export interface RunState {
   qlooCalls: { fresh: number; cached: number };
   llm: { via: string[]; attempts: number };
   error: string | null;
+  /** Why a run stopped, for the server's fallback decision (absent on runs saved before it existed). */
+  errorCode?: 'anchors' | 'no_signal' | 'qloo_quota' | 'qloo_unavailable' | 'qloo_busy' | 'deadline' | 'other' | null;
 }

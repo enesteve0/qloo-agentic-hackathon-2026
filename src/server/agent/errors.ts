@@ -7,7 +7,7 @@ import 'server-only';
 export class UserFacingError extends Error {
   constructor(
     message: string,
-    readonly code: 'anchors' | 'no_signal' | 'qloo_quota' | 'qloo_unavailable' | 'deadline' | 'other' = 'other',
+    readonly code: 'anchors' | 'no_signal' | 'qloo_quota' | 'qloo_unavailable' | 'qloo_busy' | 'deadline' | 'other' = 'other',
   ) {
     super(message);
     this.name = 'UserFacingError';

@@ -26,8 +26,10 @@ export function readSession(cookieHeader: string | null): string | null {
   if (!raw) return null;
   const [id, mac] = raw.split('.');
   if (!id || !mac || !/^[A-Za-z0-9_-]{16,32}$/.test(id)) return null;
-  const expected = sign(id);
-  if (mac.length !== expected.length || !timingSafeEqual(Buffer.from(mac), Buffer.from(expected))) return null;
+  // Compare bytes, not characters: a tampered non-ASCII signature must not throw.
+  const given = Buffer.from(mac);
+  const expected = Buffer.from(sign(id));
+  if (given.length !== expected.length || !timingSafeEqual(given, expected)) return null;
   return id;
 }
 

@@ -44,14 +44,22 @@ export function parseBrief(input: unknown): { ok: true; brief: Brief } | { ok: f
   return { ok: false, errors: r.error.issues.map((i) => `${i.path.join('.') || 'brief'}: ${i.message}`) };
 }
 
-/** Normalized brief hash for single-flight and identical-brief caching. */
-export async function briefHash(brief: Brief): Promise<string> {
+/**
+ * Normalized brief hash for single-flight and identical-brief caching. Everything a plan shows is part of
+ * it (dates and address appear in mockups and the booking email), and so is the data mode: a synthetic
+ * plan is never served as a cached live one.
+ */
+export async function briefHash(brief: Brief, mode: 'live' | 'mock'): Promise<string> {
+  const fold = (s: string | null) => s?.normalize('NFKC').toLowerCase().replace(/\s+/g, ' ').trim() ?? null;
   const norm = JSON.stringify({
-    b: brief.business.normalize('NFKC').toLowerCase(),
-    d: brief.description.normalize('NFKC').toLowerCase(),
-    o: brief.offer?.normalize('NFKC').toLowerCase() ?? null,
+    m: mode,
+    b: fold(brief.business),
+    d: fold(brief.description),
+    o: fold(brief.offer),
     u: brief.budgetUsd,
     w: brief.weeks,
+    s: brief.startDate,
+    a: fold(brief.address),
   });
   const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(norm));
   return Buffer.from(digest).toString('hex').slice(0, 32);

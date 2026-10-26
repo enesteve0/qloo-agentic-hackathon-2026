@@ -94,16 +94,23 @@ describe('POST /api/runs', () => {
     expect(polled.extras?.send?.csvHref).toBe(`/api/export?run=${runId}`);
   });
 
-  it('serves an identical brief from the saved run, labelled cached', async () => {
+  it('serves an identical brief from the saved run without relabelling synthetic data as cached', async () => {
     const view = await read(await post({ mode: 'start', brief: brief('Halfnote Supper Club') }, { cookie }));
     expect(view.done).toBe(true);
-    expect(view.state?.label?.kind).toBe('cached');
+    expect(view.state?.label?.kind).toBe('synthetic'); // mock mode: a cached synthetic plan stays SYNTHETIC
     expect(view.state?.plan).not.toBeNull();
     expect(Object.keys(view.extras?.places ?? {}).length).toBeGreaterThan(0);
   });
 
+  it('never serves another visitor\'s dates or address for a brief that differs only in those', async () => {
+    const res = await post({ mode: 'start', brief: { ...brief('Halfnote Supper Club'), startDate: '2026-12-21', address: null } }, { cookie });
+    const view = await read(res);
+    expect(view.state?.brief.startDate).toBe('2026-12-21');
+    expect(view.state?.brief.address).toBeNull();
+  });
+
   it('answers a session over its live-run limit with a labelled sample plan, not an error', async () => {
-    for (const name of ['Second Spot', 'Third Spot']) {
+    for (const name of ['Second Spot']) {
       const view = await read(await post({ mode: 'start', brief: brief(name) }, { cookie }));
       expect(view.fallback).toBeNull();
       expect(view.state?.status).toBe('done');
