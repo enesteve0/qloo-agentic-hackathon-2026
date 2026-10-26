@@ -79,6 +79,10 @@ describe('POST /api/runs', () => {
     for (const s of view.state?.plan?.screens ?? []) expect(view.extras?.places[s.i]?.address).toBeTruthy();
     expect(view.extras?.send?.csvHref).toBe(`/api/export?run=${runId}`);
     expect(view.extras?.send?.body).toContain('Halfnote Supper Club');
+    // The free LinkLocal option: six spaced screens across the top neighborhoods, with street places.
+    expect(view.extras?.linkLocal).toHaveLength(6);
+    for (const s of view.extras?.linkLocal ?? []) expect(view.extras?.places[s.i]?.address).toBeTruthy();
+    expect(new Set(view.extras?.linkLocal?.map((s) => s.nta)).size).toBe(view.state?.where?.ntas.slice(0, 3).length);
 
     // A client following the run by polling gets the same places and draft.
     const polled = (await (await GET(new Request(`http://localhost:3000/api/runs/${runId}`), { params: Promise.resolve({ runId }) })).json()) as {

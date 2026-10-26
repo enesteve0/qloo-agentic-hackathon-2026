@@ -383,6 +383,11 @@ export interface SendDraft {
 export interface RunExtras {
   places: PlaceLookup;
   send: SendDraft | null;
+  /**
+   * The six best free screens for an owner who qualifies for LinkNYC's LinkLocal program (six screens at
+   * a time at no cost), spread across the top neighborhoods; null before WHERE.
+   */
+  linkLocal: PlannedScreen[] | null;
 }
 
 export type ResultLabel =
