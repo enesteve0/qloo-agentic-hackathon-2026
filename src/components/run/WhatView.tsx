@@ -1,6 +1,6 @@
 'use client';
 
-import { Check, ChevronRight, Pause, Play, ScrollText, TriangleAlert } from 'lucide-react';
+import { Check, ChevronRight, Download, Pause, Play, ScrollText, TriangleAlert } from 'lucide-react';
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import type { CreativeVariant, EvidencePack, NtaScore, RunState } from '@/shared/types';
 import { Segmented } from '@/components/ui/Segmented';
@@ -14,6 +14,9 @@ import type { PlaceLookup, ScreenPlace } from './types';
 
 export const approvalKey = (nta: string, variant: 'A' | 'B') => `${nta}:${variant}`;
 
+/** Link to a print-ready PNG of one ad, or null when downloads are unavailable. */
+export type AdHref = ((nta: string, variant: 'A' | 'B') => string) | null;
+
 export interface WhatViewProps {
   state: RunState;
   places?: PlaceLookup;
@@ -25,6 +28,8 @@ export interface WhatViewProps {
   onApprove: (key: string, approved: boolean) => void;
   /** Open the provenance drawer at this neighborhood's evidence request. */
   onOpenEvidence?: (nta: string) => void;
+  /** Print-ready PNG link per ad (1080×1920); hidden when null. */
+  adHref?: AdHref;
   className?: string;
 }
 
@@ -96,6 +101,7 @@ function VariantCard({
   theme,
   approved,
   onApprove,
+  downloadHref,
   hidden,
   className,
 }: {
@@ -107,6 +113,7 @@ function VariantCard({
   theme: MockupTheme;
   approved: boolean;
   onApprove: (approved: boolean) => void;
+  downloadHref?: string | null;
   hidden?: boolean;
   className?: string;
 }) {
@@ -141,6 +148,18 @@ function VariantCard({
         label={`Variant ${v.variant} for ${short}`}
         className="mx-auto max-w-[19rem]"
       />
+      {downloadHref ? (
+        <a
+          href={downloadHref}
+          download
+          className="inline-flex min-h-8 items-center gap-1.5 self-center font-display text-sm font-bold tracking-[0.06em] uppercase underline-offset-4 hover:underline"
+        >
+          <Download aria-hidden="true" className="size-4" />
+          Download ad {v.variant}
+          <span className="sr-only"> for {short}</span>
+          <span className="font-sans text-xs font-normal tracking-normal normal-case">(PNG, 1080×1920)</span>
+        </a>
+      ) : null}
       <div className="flex flex-col gap-3">
         <RuleCheck v={v} />
         {v.references.length ? (
@@ -328,7 +347,17 @@ function useIsCarousel(): boolean {
  * evidence beside them, the copy-rule check and an approve switch per variant. On small screens the
  * two ads become a carousel that cross-fades every 6 s, with buttons, swipe and a pause control.
  */
-export function WhatView({ state, places = {}, selectedNta, onSelectNta, approvals, onApprove, onOpenEvidence, className }: WhatViewProps) {
+export function WhatView({
+  state,
+  places = {},
+  selectedNta,
+  onSelectNta,
+  approvals,
+  onApprove,
+  onOpenEvidence,
+  adHref = null,
+  className,
+}: WhatViewProps) {
   const codes = planNeighborhoods(state).filter((c) => state.creative.some((s) => s.nta === c) || state.evidence.some((e) => e.nta === c));
   const current = selectedNta && codes.includes(selectedNta) ? selectedNta : (codes[0] ?? null);
   const byCode = ntaMap(state);
@@ -375,7 +404,7 @@ export function WhatView({ state, places = {}, selectedNta, onSelectNta, approva
         <div className="max-w-3xl">
           <p className="font-mono text-xs tracking-[0.14em] text-muted uppercase">04 · What</p>
           <h2 id="what-title" className="mt-1 font-display text-[40px] leading-[0.95] font-bold uppercase">
-            An ad for each block
+            An ad for each neighborhood
           </h2>
           <p className="mt-3 text-lg text-muted">
             Two variants per neighborhood, written only from that neighborhood’s Qloo evidence. Approve the ones you want to
@@ -385,7 +414,7 @@ export function WhatView({ state, places = {}, selectedNta, onSelectNta, approva
         <Segmented label="Mockup style" value={theme} onChange={setTheme} options={MOCKUP_THEMES} />
       </header>
 
-      <div role="tablist" aria-label="Neighborhoods" className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
+      <div role="tablist" aria-label="Neighborhoods" className="relative flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
         {codes.map((code, k) => {
           const n = byCode.get(code);
           const on = code === current;
@@ -507,6 +536,7 @@ export function WhatView({ state, places = {}, selectedNta, onSelectNta, approva
                         theme={theme}
                         approved={Boolean(approvals[key])}
                         onApprove={(on) => onApprove(key, on)}
+                        downloadHref={adHref ? adHref(current, v.variant) : null}
                         hidden={hidden}
                         className={cx(
                           'transition-opacity duration-[240ms] ease-sign max-lg:col-start-1 max-lg:row-start-1',

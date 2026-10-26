@@ -15,7 +15,7 @@ import { ProvenanceBadge } from './ProvenanceBadge';
 import { ProvenanceDrawer } from './ProvenanceDrawer';
 import { SendView } from './SendView';
 import { StationRail } from './StationRail';
-import { WhatView } from './WhatView';
+import { WhatView, type AdHref } from './WhatView';
 import { WhereView } from './WhereView';
 import {
   STATION_BLURB,
@@ -46,6 +46,8 @@ export interface RunScreenProps {
   send?: SendDraft | null;
   /** The six best free LinkLocal screens (server-picked) for PLAN. */
   linkLocal?: PlannedScreen[] | null;
+  /** Print-ready PNG link per ad. Defaults to `/api/ad?run=<id>&nta=…&v=…`; null hides the links (unsaved runs). */
+  adHref?: AdHref;
   /** View to open first (`?view=`). */
   initialTab?: RunTab | null;
   /** Where "Open a recorded plan" goes from error and limit states. */
@@ -207,6 +209,7 @@ export function RunScreen({
   places,
   send = null,
   linkLocal = null,
+  adHref,
   initialTab,
   recordedHref = '/plan/demo',
   notice,
@@ -246,10 +249,25 @@ export function RunScreen({
   const openDrawer = (t: DrawerTab, op: StageOperation | null = null) => setDrawer({ open: true, tab: t, op });
 
   const badge = badgeForLabel(state?.label ?? null, state?.mode);
+  const runId = state?.id ?? null;
+  const adLink: AdHref =
+    adHref === null || !runId
+      ? null
+      : (adHref ?? ((nta, v) => `/api/ad?run=${encodeURIComponent(runId)}&nta=${encodeURIComponent(nta)}&v=${v}`));
   const needsInput = state?.status === 'awaiting_input' && (view.needsInput?.length ?? 0) > 0;
   const errored = state?.status === 'error';
   const degraded = (state?.stages ?? []).filter((s) => s.status === 'degraded');
   const range = state ? fmtDateRange(state.brief.startDate, state.brief.weeks) : null;
+  const degradedList = degraded.length ? (
+    <ul className="mt-1 flex flex-col gap-1">
+      {degraded.map((s) => (
+        <li key={s.stage}>
+          <span className="font-semibold text-text">{s.title}: </span>
+          {s.detail ?? 'a labelled fallback was used.'}
+        </li>
+      ))}
+    </ul>
+  ) : null;
   const next = RUN_TABS.slice(RUN_TABS.indexOf(tab) + 1).find((t) => available[t]) ?? null;
   const kicker = !state
     ? 'Starting'
@@ -277,9 +295,12 @@ export function RunScreen({
                 Open {STATION_LABEL[t]}
               </button>
             ))}
-            <a href={recordedHref} className={buttonClass('ghost', 'md', 'border-surface-2')}>
-              Open a recorded plan
-            </a>
+            {/* The error banner above already offers a recorded plan. */}
+            {errored ? null : (
+              <a href={recordedHref} className={buttonClass('outline', 'md')}>
+                Open a recorded plan
+              </a>
+            )}
           </div>
         </div>
       ) : (
@@ -308,6 +329,7 @@ export function RunScreen({
             approvals={approvals}
             onApprove={(key, on) => setApprovals((a) => ({ ...a, [key]: on }))}
             onOpenEvidence={() => openDrawer('requests', 'neighborhood_evidence')}
+            adHref={adLink}
           />
         );
         break;
@@ -327,7 +349,17 @@ export function RunScreen({
         canvas = <ProofView state={state} />;
         break;
       case 'send':
-        canvas = <SendView key={send ? `${send.subject}` : 'none'} state={state} draft={send} approvals={approvals} visited={visited} onGoTo={goTo} />;
+        canvas = (
+          <SendView
+            key={send ? `${send.subject}` : 'none'}
+            state={state}
+            draft={send}
+            approvals={approvals}
+            visited={visited}
+            onGoTo={goTo}
+            adHref={adLink}
+          />
+        );
         break;
     }
   }
@@ -397,6 +429,7 @@ export function RunScreen({
               }
             >
               <p>{view.fallback.message}</p>
+              {degradedList}
             </Banner>
           ) : null}
           {errored ? (
@@ -411,7 +444,7 @@ export function RunScreen({
                       Retry
                     </button>
                   ) : null}
-                  <a href={recordedHref} className={buttonClass('ghost', 'sm', 'border-surface-2')}>
+                  <a href={recordedHref} className={buttonClass('outline', 'sm')}>
                     Open a recorded plan
                   </a>
                 </>
@@ -420,17 +453,10 @@ export function RunScreen({
               <p>{state?.error ?? 'Something went wrong while planning.'} Your brief is saved.</p>
             </Banner>
           ) : null}
-          {degraded.length ? (
+          {degraded.length && !view.fallback ? (
             <Banner tone="amber" title="Some steps fell back">
-              <ul className="flex flex-col gap-1">
-                {degraded.map((s) => (
-                  <li key={s.stage}>
-                    <span className="font-semibold text-text">{s.title}: </span>
-                    {s.detail ?? 'a labelled fallback was used.'}
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-1">Everything else still holds: the taste map, neighborhoods and plan use the same Qloo data.</p>
+              {degradedList}
+              <p className="mt-1">Everything else in this plan still holds.</p>
             </Banner>
           ) : null}
           {notice}
@@ -453,10 +479,7 @@ export function RunScreen({
         <div className="sticky-cta sticky bottom-0 z-20 border-t-2 border-surface-2 bg-bg px-4 py-3 lg:hidden">
           <button type="button" onClick={() => goTo(next)} className={buttonClass('primary', 'lg', 'w-full justify-between')}>
             <span className="truncate">{NEXT_LABEL[next]}</span>
-            <span className="flex items-center gap-2">
-              <span className="font-mono text-xs font-normal tracking-normal">{STATION_LABEL[next].toUpperCase()}</span>
-              <ArrowRight aria-hidden="true" className="size-5" />
-            </span>
+            <ArrowRight aria-hidden="true" className="size-5" />
           </button>
         </div>
       ) : null}

@@ -106,6 +106,7 @@ function Envelope({ env, highlight }: { env: StageEnvelope; highlight: boolean }
  */
 export function ProvenanceDrawer({ open, onClose, view, tab, onTabChange, focusOperation }: ProvenanceDrawerProps) {
   const ref = useRef<HTMLDialogElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
   const [copied, setCopied] = useState(false);
   const envelopes = view.state?.envelopes ?? [];
   const requestCount = envelopes.reduce((a, e) => a + e.provenance.requests.length, 0);
@@ -114,7 +115,11 @@ export function ProvenanceDrawer({ open, onClose, view, tab, onTabChange, focusO
   useEffect(() => {
     const d = ref.current;
     if (!d) return;
-    if (open && !d.open) d.showModal();
+    if (open && !d.open) {
+      d.showModal();
+      // Start on the close button rather than the first control (a label whose tip would cover the tabs).
+      closeRef.current?.focus();
+    }
     if (!open && d.open) d.close();
   }, [open]);
 
@@ -159,6 +164,7 @@ export function ProvenanceDrawer({ open, onClose, view, tab, onTabChange, focusO
               {badge ? <ProvenanceBadge kind={badge.kind} detail={badge.detail} /> : null}
             </div>
             <button
+              ref={closeRef}
               type="button"
               onClick={onClose}
               aria-label="Close the agent log"

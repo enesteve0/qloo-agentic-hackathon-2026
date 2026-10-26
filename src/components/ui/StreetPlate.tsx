@@ -28,7 +28,7 @@ export function StreetPlate({ name, size = 'md', designation = true, prefix, as:
   const [main, suffix] = designation ? splitDesignation(name.toUpperCase()) : [name, null];
   return (
     <Tag className={cx('sign-plate sign-plate-rim inline-flex max-w-full items-baseline gap-[0.28em] leading-none', SIZES[size], className)}>
-      {prefix ? <span className="font-mono text-[0.62em] font-normal tracking-normal opacity-90">{prefix}</span> : null}
+      {prefix ? <span className="font-mono text-[0.62em] font-normal tracking-normal">{prefix}</span> : null}
       <span className="min-w-0 truncate">{main}</span>
       {suffix ? <span className="text-[0.7em]">{suffix}</span> : null}
     </Tag>

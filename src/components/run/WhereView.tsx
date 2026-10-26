@@ -20,33 +20,40 @@ export interface WhereViewProps {
 
 export function TasteLegend({ showLlm, selectedCount, className }: { showLlm: boolean; selectedCount: number; className?: string }) {
   return (
-    <div className={cx('w-[15.5rem] max-w-full border-2 border-surface-2 bg-bg p-3', className)}>
-      <p className="font-display text-xs font-bold tracking-[0.1em] text-text uppercase">Taste signal vs NYC baseline</p>
-      <div aria-hidden="true" className="mt-2 h-2.5 w-full" style={{ background: HEAT_GRADIENT }} />
-      <div className="relative mt-1 h-4 font-mono text-[11px] text-muted" aria-hidden="true">
-        <span className="absolute left-0">1×</span>
-        <span className="absolute left-1/4 -translate-x-1/2">1.5×</span>
-        <span className="absolute left-1/2 -translate-x-1/2">2×</span>
-        <span className="absolute right-0">3×+</span>
+    <div className={cx('flex flex-wrap items-center gap-x-6 gap-y-2 bg-bg px-3 py-2.5', className)}>
+      <div className="flex min-w-0 items-center gap-3">
+        <p className="font-display text-xs leading-tight font-bold tracking-[0.1em] text-text uppercase">
+          Taste signal
+          <span className="block text-muted">vs NYC baseline</span>
+        </p>
+        <div className="w-36 shrink-0 sm:w-44">
+          <div aria-hidden="true" className="h-2.5 w-full" style={{ background: HEAT_GRADIENT }} />
+          <div aria-hidden="true" className="relative mt-1 h-3.5 font-mono text-[11px] leading-none text-muted">
+            <span className="absolute left-0">1×</span>
+            <span className="absolute left-1/4 -translate-x-1/2">1.5×</span>
+            <span className="absolute left-1/2 -translate-x-1/2">2×</span>
+            <span className="absolute right-0">3×+</span>
+          </div>
+        </div>
+        <p className="sr-only">Color scale from 1 times to 3 or more times the NYC baseline: 1×, 1.5×, 2×, 3×+.</p>
       </div>
-      <p className="sr-only">Color scale from 1 times to 3 or more times the NYC baseline: 1×, 1.5×, 2×, 3×+.</p>
-      <ul className="mt-2 flex flex-col gap-1 text-xs text-muted">
-        <li className="flex items-center gap-2">
-          <span aria-hidden="true" className="size-3 border-2 border-[#0e0f11] bg-amber outline outline-1 outline-amber" />
+      <ul className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted">
+        <li className="flex items-center gap-1.5">
+          <span aria-hidden="true" className="size-3 border-2 border-[#0e0f11] bg-amber outline-1 outline-amber outline-solid" />
           Plan screen{selectedCount ? ` (${fmtInt(selectedCount)})` : ''}
         </li>
-        <li className="flex items-center gap-2">
-          <span aria-hidden="true" className="ml-0.5 size-1.5 bg-[#a6a9ae]" />
-          Other street screen
+        <li className="flex items-center gap-1.5">
+          <span aria-hidden="true" className="size-1.5 bg-[#a6a9ae]" />
+          Other screen
         </li>
-        <li className="flex items-center gap-2">
+        <li className="flex items-center gap-1.5">
           <span aria-hidden="true" className="size-3 border-2 border-[#3d424a]" />
           Below baseline: no color
         </li>
         {showLlm ? (
-          <li className="flex items-center gap-2">
+          <li className="flex items-center gap-1.5">
             <span aria-hidden="true" className="h-3 w-4 border-[1.5px] border-dashed border-text" />
-            AI-only pick (no Qloo)
+            AI-only pick
           </li>
         ) : null}
       </ul>
@@ -127,8 +134,9 @@ export function WhereView({ state, onOpenAds, className }: WhereViewProps) {
       </header>
 
       <div className="grid border-2 border-surface-2 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
-        <div className={cx('flex flex-col', mobileMode === 'list' && 'max-xl:hidden')}>
-          <div className="relative h-[45vh] min-h-[280px] bg-surface xl:h-[min(74vh,780px)]">
+        <div className={cx('flex min-w-0 flex-col', mobileMode === 'list' && 'max-xl:hidden')}>
+          <TasteLegend showLlm={showLlm} selectedCount={screens} className="border-b-2 border-surface-2" />
+          <div className="relative h-[45vh] min-h-[280px] bg-surface xl:h-[min(70vh,740px)]">
             <MapClient
               className="h-full w-full"
               heat={where.heat}
@@ -139,55 +147,53 @@ export function WhereView({ state, onOpenAds, className }: WhereViewProps) {
               onNtaClick={setFocusNta}
               ariaLabel={`Night map of New York: taste signal by neighborhood and the plan’s ${fmtInt(screens)} street screens. The neighborhood list has the same information.`}
             />
-            <TasteLegend showLlm={showLlm} selectedCount={screens} className="absolute bottom-3 left-3 hidden sm:block" />
           </div>
-          <TasteLegend showLlm={showLlm} selectedCount={screens} className="w-full border-x-0 border-b-0 sm:hidden" />
         </div>
 
-        <div
-          ref={setListEl}
-          className="border-surface-2 max-xl:border-t-2 xl:h-[min(74vh,780px)] xl:overflow-y-auto xl:border-l-2"
-        >
-          {focused ? (
-            <div className="sticky top-0 z-10 flex flex-wrap items-center gap-x-3 gap-y-2 border-b-2 border-surface-2 bg-bg px-4 py-3">
-              <span className="font-mono text-[10px] tracking-[0.14em] text-muted uppercase">On the map</span>
-              <StreetPlate name={focused.short} size="xs" />
-              <span className="font-display text-xl font-bold tabular-nums">{fmtMultiplier(focused.multiplier)}</span>
-              <ConfidenceMeter level={focused.confidence} className="text-sm text-muted" />
-              <span className="ml-auto flex items-center gap-2">
-                {focusedInPlan ? (
+        {/* On wide screens the list fills the map's row height and scrolls on its own. */}
+        <div className="relative min-w-0 border-surface-2 max-xl:border-t-2 xl:border-l-2">
+          <div ref={setListEl} className="xl:absolute xl:inset-0 xl:overflow-y-auto">
+            {focused ? (
+              <div className="sticky top-0 z-10 flex flex-wrap items-center gap-x-3 gap-y-2 border-b-2 border-surface-2 bg-bg px-4 py-3">
+                <span className="font-mono text-[10px] tracking-[0.14em] text-muted uppercase">On the map</span>
+                <StreetPlate name={focused.short} size="xs" />
+                <span className="font-display text-xl font-bold tabular-nums">{fmtMultiplier(focused.multiplier)}</span>
+                <ConfidenceMeter level={focused.confidence} className="text-sm text-muted" />
+                <span className="ml-auto flex items-center gap-2">
+                  {focusedInPlan ? (
+                    <button
+                      type="button"
+                      onClick={() => onOpenAds(focused.code)}
+                      className="inline-flex min-h-8 items-center gap-1 font-display text-sm font-bold tracking-[0.06em] text-link uppercase underline-offset-4 hover:underline"
+                    >
+                      Ads
+                      <ArrowRight aria-hidden="true" className="size-4" />
+                    </button>
+                  ) : null}
                   <button
                     type="button"
-                    onClick={() => onOpenAds(focused.code)}
-                    className="inline-flex min-h-8 items-center gap-1 font-display text-sm font-bold tracking-[0.06em] text-link uppercase underline-offset-4 hover:underline"
+                    onClick={() => setFocusNta(null)}
+                    aria-label="Clear map focus"
+                    className="grid size-8 place-items-center border-2 border-surface-2 hover:border-border"
                   >
-                    Ads
-                    <ArrowRight aria-hidden="true" className="size-4" />
+                    <X aria-hidden="true" className="size-4" />
                   </button>
-                ) : null}
-                <button
-                  type="button"
-                  onClick={() => setFocusNta(null)}
-                  aria-label="Clear map focus"
-                  className="grid size-8 place-items-center border-2 border-surface-2 hover:border-border"
-                >
-                  <X aria-hidden="true" className="size-4" />
-                </button>
-              </span>
-            </div>
-          ) : null}
-          <NeighborhoodList
-            className="p-4"
-            leadTitle={state.plan ? undefined : 'Strongest fit'}
-            ntas={where.ntas}
-            planCodes={planCodes}
-            plan={state.plan}
-            evidence={state.evidence}
-            focused={focusNta}
-            onFocus={(code) => setFocusNta((cur) => (cur === code ? null : code))}
-            onOpenAds={onOpenAds}
-            scrollRoot={listEl}
-          />
+                </span>
+              </div>
+            ) : null}
+            <NeighborhoodList
+              className="p-4"
+              leadTitle={state.plan ? undefined : 'Strongest fit'}
+              ntas={where.ntas}
+              planCodes={planCodes}
+              plan={state.plan}
+              evidence={state.evidence}
+              focused={focusNta}
+              onFocus={(code) => setFocusNta((cur) => (cur === code ? null : code))}
+              onOpenAds={onOpenAds}
+              scrollRoot={listEl}
+            />
+          </div>
         </div>
       </div>
 

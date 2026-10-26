@@ -1,11 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { placesForRun } from '@/components/run/places';
-import { isRunTab, type SendDraft } from '@/components/run/types';
+import { isRunTab } from '@/components/run/types';
 import { Footer } from '@/components/site/Footer';
 import { Header } from '@/components/site/Header';
-import { ntas, kiosks } from '@/server/data';
-import { bookingEmailDraft } from '@/server/plan/export';
+import { runExtras } from '@/server/agent/extras';
 import { DemoRun } from './DemoRun';
 import { demoState, isDemoState } from './variants';
 
@@ -14,8 +12,6 @@ export const metadata: Metadata = {
   description: 'A synthetic sample plan for a fictional Bed-Stuy jazz supper club: screens, ads, budget and proof.',
   robots: { index: false, follow: false },
 };
-
-const NTA_NAMES = Object.fromEntries(ntas.map((n) => [n.code, n.name]));
 
 /**
  * The design canvas and e2e target until recorded live runs exist: the synthetic Halfnote run rendered
@@ -26,12 +22,9 @@ export default async function DemoPlanPage({ searchParams }: { searchParams: Pro
   const sp = await searchParams;
   const kind = isDemoState(sp.state) ? sp.state : 'done';
   const { view, state } = demoState(kind);
-  const places = placesForRun(state);
+  // The same server-side extras as live runs: street places, the booking draft and the free LinkLocal picks.
+  const extras = runExtras(state, '/plan/demo/screens.csv');
   const initialTab = isRunTab(sp.view) ? sp.view : kind === 'empty' ? 'plan' : 'where';
-  const send: SendDraft | null =
-    state.plan && state.plan.screens.length
-      ? { ...bookingEmailDraft(state.plan, state.brief, kiosks, NTA_NAMES), csvHref: '/plan/demo/screens.csv' }
-      : null;
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -57,7 +50,7 @@ export default async function DemoPlanPage({ searchParams }: { searchParams: Pro
         </div>
       </div>
       <main id="main" className="flex-1">
-        <DemoRun view={view} places={places} send={send} initialTab={initialTab} />
+        <DemoRun view={view} places={extras.places} send={extras.send} linkLocal={extras.linkLocal} initialTab={initialTab} />
       </main>
       <Footer />
     </div>

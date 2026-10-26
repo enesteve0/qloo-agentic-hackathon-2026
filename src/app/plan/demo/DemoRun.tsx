@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { RunScreen, type RunScreenProps } from '@/components/run/RunScreen';
 
-type Props = Omit<RunScreenProps, 'onAnswer' | 'onRunLive' | 'onRetry' | 'notice'>;
+type Props = Omit<RunScreenProps, 'onAnswer' | 'onRunLive' | 'onRetry' | 'notice' | 'adHref'>;
 
 /** The synthetic sample plan with demo-only behavior: answering the question resumes to the finished sample. */
 export function DemoRun(props: Props) {
@@ -14,6 +14,8 @@ export function DemoRun(props: Props) {
   return (
     <RunScreen
       {...props}
+      // This sample is not saved under its id, so there is no server PNG to download.
+      adHref={null}
       onAnswer={() => router.push('/plan/demo?view=where')}
       onRetry={() => router.push('/plan/demo')}
       onRunLive={() => setLiveNote(true)}

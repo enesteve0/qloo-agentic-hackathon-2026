@@ -73,8 +73,11 @@ body {
   outline-offset: 2px;
 }
 
-a {
-  color: var(--link);
+/* In the base layer so Tailwind color utilities on links win. */
+@layer base {
+  a {
+    color: var(--link);
+  }
 }
 
 .sign-plate {
@@ -149,12 +152,10 @@ a {
 
 @keyframes stoop-ticker-roll {
   from {
-    transform: translateY(55%);
-    opacity: 0;
+    transform: translateY(40%);
   }
   to {
     transform: translateY(0);
-    opacity: 1;
   }
 }
 
@@ -221,4 +222,10 @@ html:has(.sticky-cta) {
   .no-print {
     display: none !important;
   }
+}
+
+/* Map attribution links must not rely on color alone (WCAG 1.4.1). */
+.maplibregl-map .maplibregl-ctrl-attrib a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }

@@ -5,7 +5,7 @@ import { useId, useState } from 'react';
 import type { RunState } from '@/shared/types';
 import { buttonClass } from '@/components/ui/button';
 import { cx } from '@/components/ui/cx';
-import { approvalKey } from './WhatView';
+import { approvalKey, type AdHref } from './WhatView';
 import { STATION_LABEL, ntaShort, planNeighborhoods } from './model';
 import type { RunTab, SendDraft } from './types';
 
@@ -17,6 +17,8 @@ export interface SendViewProps {
   /** Views the owner has opened in this session (drives the checklist). */
   visited: Partial<Record<RunTab, boolean>>;
   onGoTo: (tab: RunTab) => void;
+  /** Print-ready PNG link per approved ad; hidden when null. */
+  adHref?: AdHref;
   className?: string;
 }
 
@@ -61,7 +63,7 @@ const linkBtn = 'inline-flex min-h-8 items-center gap-1 font-display text-sm fon
  * SEND: a pre-flight checklist and the booking email the owner edits and sends from their own email
  * app. Nothing leaves without the owner: the send and copy buttons unlock only after they confirm.
  */
-export function SendView({ state, draft, approvals, visited, onGoTo, className }: SendViewProps) {
+export function SendView({ state, draft, approvals, visited, onGoTo, adHref = null, className }: SendViewProps) {
   const id = useId();
   const [subject, setSubject] = useState(draft?.subject ?? '');
   const [body, setBody] = useState(draft?.body ?? '');
@@ -73,6 +75,9 @@ export function SendView({ state, draft, approvals, visited, onGoTo, className }
   const codes = planNeighborhoods(state).filter((c) => state.creative.some((s) => s.nta === c));
   const approvedNtas = codes.filter((c) => approvals[approvalKey(c, 'A')] || approvals[approvalKey(c, 'B')]);
   const approvedCount = Object.values(approvals).filter(Boolean).length;
+  const approvedAds = codes.flatMap((c) =>
+    (['A', 'B'] as const).filter((v) => approvals[approvalKey(c, v)]).map((v) => ({ nta: c, variant: v })),
+  );
   const to = draft ? recipientOf(draft.mailto) : '';
   const mailto = buildMailto(to, subject, body);
 
@@ -154,14 +159,33 @@ export function SendView({ state, draft, approvals, visited, onGoTo, className }
               Downloads
             </h3>
             {draft?.csvHref ? (
-              <a href={draft.csvHref} download onClick={() => setDownloaded(true)} className={buttonClass('secondary', 'md', 'justify-start')}>
+              <a href={draft.csvHref} download onClick={() => setDownloaded(true)} className={buttonClass('secondary', 'md')}>
                 <Download aria-hidden="true" className="size-4" />
                 Screen list (CSV)
               </a>
             ) : (
               <p className="text-sm text-muted">The screen list appears when exports are available for this plan.</p>
             )}
-            <button type="button" onClick={() => window.print()} className={buttonClass('ghost', 'md', 'justify-start border-surface-2')}>
+            {adHref ? (
+              approvedAds.length ? (
+                <ul aria-label="Approved ads, print-ready" className="flex flex-col gap-2">
+                  {approvedAds.map((a) => (
+                    <li key={`${a.nta}:${a.variant}`}>
+                      <a href={adHref(a.nta, a.variant)} download className={buttonClass('outline', 'md', 'w-full')}>
+                        <Download aria-hidden="true" className="size-4" />
+                        <span className="truncate">
+                          Ad {a.variant} · {ntaShort(state, a.nta)}
+                        </span>
+                        <span className="ml-auto font-sans text-xs font-normal tracking-normal normal-case">PNG, 1080×1920</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="text-sm text-muted">Approve ads on WHAT and their print-ready PNGs (1080×1920) appear here.</p>
+              )
+            ) : null}
+            <button type="button" onClick={() => window.print()} className={buttonClass('outline', 'md')}>
               <Printer aria-hidden="true" className="size-4" />
               Print or save as PDF
             </button>

@@ -64,7 +64,7 @@ export function AgentTicker({ view, variant = 'panel', onOpenLog, className }: A
         <p
           key={head.text}
           className={cx(
-            'led-glow min-w-0 flex-1 truncate font-display text-base font-bold tracking-[0.08em] uppercase motion-safe:ticker-roll',
+            'led-glow min-w-0 flex-1 truncate font-display text-base font-bold tracking-[0.08em] text-[#ffb547] uppercase motion-safe:ticker-roll',
             head.tone === 'danger' && 'text-[#ff6b5e]',
           )}
         >
@@ -90,26 +90,28 @@ export function AgentTicker({ view, variant = 'panel', onOpenLog, className }: A
 
   return (
     <section aria-label="Agent" className={cx('flex flex-col', className)}>
-      <div className="led-panel border-2 border-[#1d1f23] p-4">
-        <div className="flex items-center justify-between gap-3 font-mono text-[11px] tracking-[0.12em] text-[#c98f38] uppercase">
-          <span className="inline-flex items-center gap-2">
-            <span
-              aria-hidden="true"
-              className={cx('size-2', head.tone === 'danger' ? 'bg-[#ff6b5e]' : 'bg-[#ffb547]', working && 'motion-safe:led-pulse')}
-            />
-            Agent · {working ? 'working' : state?.status === 'awaiting_input' ? 'waiting for you' : state?.status === 'error' ? 'stopped' : 'done'}
-          </span>
-          <span className="truncate">{counts(view)}</span>
-        </div>
+      <div className="led-panel overflow-hidden border-2 border-[#1d1f23] p-4">
+        <p className="flex items-center gap-2 font-mono text-[11px] tracking-[0.14em] text-[#d9a24a] uppercase">
+          <span
+            aria-hidden="true"
+            className={cx('size-2 shrink-0', head.tone === 'danger' ? 'bg-[#ff6b5e]' : 'bg-[#ffb547]', working && 'motion-safe:led-pulse')}
+          />
+          Agent · {working ? 'working' : state?.status === 'awaiting_input' ? 'waiting for you' : state?.status === 'error' ? 'stopped' : 'done'}
+        </p>
         <p
           key={head.text}
           className={cx(
-            'led-glow mt-3 font-display text-[28px] leading-[1.02] font-bold tracking-[0.06em] uppercase motion-safe:ticker-roll',
+            'led-glow mt-3 font-display text-[28px] leading-[1.04] font-bold tracking-[0.05em] text-[#ffb547] uppercase motion-safe:ticker-roll',
             head.tone === 'danger' && 'text-[#ff6b5e]',
           )}
         >
           {head.text}
         </p>
+        {counts(view) ? (
+          <p className="mt-3 border-t border-[#2b2418] pt-2 font-mono text-[11px] leading-relaxed tracking-[0.08em] text-[#d9a24a] uppercase">
+            {counts(view)}
+          </p>
+        ) : null}
       </div>
 
       <div className="mt-6 flex items-center justify-between gap-3">

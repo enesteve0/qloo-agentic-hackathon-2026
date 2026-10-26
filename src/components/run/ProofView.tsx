@@ -47,6 +47,31 @@ export function ProofView({ state, className }: ProofViewProps) {
     );
   }
 
+  // "Same AI model" is only true when a model planned the run; rule fallbacks get their own words.
+  const modelWrote = !state.planner?.fallback && state.llm.via.some((v) => v !== 'rules' && v !== 'template');
+  const words = modelWrote
+    ? {
+        kicker: 'LLM only',
+        title: 'The AI alone',
+        blurb: 'Picked from the brief and general knowledge. No taste data.',
+        listLabel: 'Neighborhoods the AI picked alone',
+        oursTitle: 'The AI with Qloo',
+        oursBlurb: 'Same model, same brief, plus Qloo taste maps and neighborhood evidence.',
+        versus: 'Stoop vs AI alone',
+        median: 'AI picks',
+        missed: 'Missed by the AI alone',
+      }
+    : {
+        kicker: 'Rules only',
+        title: 'Busy-area picks',
+        blurb: 'The AI writers were busy, so rules picked busy areas for this brief. No taste data.',
+        listLabel: 'Neighborhoods picked by rules',
+        oursTitle: 'Stoop with Qloo',
+        oursBlurb: 'Same brief and budget, plus Qloo taste maps and neighborhood evidence.',
+        versus: 'Stoop vs busy-area picks',
+        median: 'Busy-area picks',
+        missed: 'Missed by the busy-area picks',
+      };
   const ourCodes = planNeighborhoods(state).slice(0, 5);
   const ours = (ourCodes.length >= 5 ? ourCodes : [...ourCodes, ...(state.where?.ntas ?? []).map((n) => n.code).filter((c) => !ourCodes.includes(c))]).slice(0, 5);
   const shared = new Set(proof.llmPicks.map((p) => p.nta).filter((c) => ours.includes(c)));
@@ -78,15 +103,15 @@ export function ProofView({ state, className }: ProofViewProps) {
   const llmColumn = (
     <div className={cx('flex flex-col gap-5 border-2 border-surface-2 p-5', side !== 'llm' && 'max-lg:hidden')}>
       <header>
-        <p className="font-display text-sm font-bold tracking-[0.14em] text-muted uppercase">LLM only</p>
-        <h3 className="mt-1 font-display text-[28px] leading-none font-bold uppercase">The AI alone</h3>
-        <p className="mt-2 text-sm text-muted">Picked from the brief and general knowledge. No taste data.</p>
+        <p className="font-display text-sm font-bold tracking-[0.14em] text-muted uppercase">{words.kicker}</p>
+        <h3 className="mt-1 font-display text-[28px] leading-none font-bold uppercase">{words.title}</h3>
+        <p className="mt-2 text-sm text-muted">{words.blurb}</p>
       </header>
       <dl className="grid grid-cols-2 gap-4 border-y-2 border-surface-2 py-4">
         <Metric label="Taste-weighted impr." value={fmtCompact(proof.llmOnly.tasteWeightedImpressions)} />
         <Metric label="Budget below baseline" value={fmtPct(proof.llmOnly.belowBaselineShare)} tone={proof.llmOnly.belowBaselineShare > 0 ? 'bad' : undefined} />
       </dl>
-      <ol aria-label="Neighborhoods the AI picked alone">
+      <ol aria-label={words.listLabel}>
         {proof.llmPicks.map((p) =>
           pickRow(
             p.nta,
@@ -102,8 +127,8 @@ export function ProofView({ state, className }: ProofViewProps) {
     <div className={cx('flex flex-col gap-5 border-2 border-sign p-5', side !== 'stoop' && 'max-lg:hidden')}>
       <header>
         <p className="font-display text-sm font-bold tracking-[0.14em] text-ok uppercase">Stoop</p>
-        <h3 className="mt-1 font-display text-[28px] leading-none font-bold uppercase">The AI with Qloo</h3>
-        <p className="mt-2 text-sm text-muted">Same model, same brief, plus Qloo taste maps and neighborhood evidence.</p>
+        <h3 className="mt-1 font-display text-[28px] leading-none font-bold uppercase">{words.oursTitle}</h3>
+        <p className="mt-2 text-sm text-muted">{words.oursBlurb}</p>
       </header>
       <dl className="grid grid-cols-2 gap-4 border-y-2 border-surface-2 py-4">
         <Metric label="Taste-weighted impr." value={fmtCompact(proof.ours.tasteWeightedImpressions)} />
@@ -119,7 +144,7 @@ export function ProofView({ state, className }: ProofViewProps) {
             pack?.items.length ? (
               <span className="mt-1.5 block text-sm leading-snug text-muted">{pack.items.slice(0, 3).map((i) => i.label).join(' · ')}</span>
             ) : n ? (
-              <span className="mt-1.5 block text-sm leading-snug text-muted">{n.name}</span>
+              <span className="mt-1.5 block text-sm leading-snug text-muted">{n.name === n.short ? n.boro : n.name}</span>
             ) : null,
           );
         })}
@@ -132,7 +157,12 @@ export function ProofView({ state, className }: ProofViewProps) {
       <header className="max-w-4xl">
         <p className="font-mono text-xs tracking-[0.14em] text-muted uppercase">06 · Proof</p>
         <h2 id="proof-title" className="mt-1 font-display text-[40px] leading-[0.95] font-bold uppercase sm:text-[64px] sm:leading-[0.9]">
-          Same brief. Same budget. Same AI model.
+          {/* Each sentence wraps as a unit. */}
+          {(modelWrote ? ['Same brief.', 'Same budget.', 'Same AI model.'] : ['Same brief.', 'Same budget.']).map((t) => (
+            <span key={t} className="inline-block pr-[0.25em]">
+              {t}
+            </span>
+          ))}
           <span className="block text-amber">One of them had Qloo.</span>
         </h2>
       </header>
@@ -148,13 +178,13 @@ export function ProofView({ state, className }: ProofViewProps) {
           <p className="led-glow mt-1 font-display text-[40px] leading-none font-bold">
             {fmtPct(proof.ours.belowBaselineShare)} vs {fmtPct(proof.llmOnly.belowBaselineShare)}
           </p>
-          <p className="mt-1 text-sm text-[#d9c39a]">Stoop vs AI alone</p>
+          <p className="mt-1 text-sm text-[#d9c39a]">{words.versus}</p>
         </div>
         <div className="p-4">
           <p className="font-mono text-[10px] tracking-[0.14em] text-[#c98f38] uppercase">Neighborhoods in common</p>
           <p className="led-glow mt-1 font-display text-[40px] leading-none font-bold">{proof.overlapAt5} of 5</p>
           <p className="mt-1 text-sm text-[#d9c39a]">
-            {proof.medianLlmPercentile !== null ? `AI picks: median ${ordinal(proof.medianLlmPercentile)} percentile` : 'top-five overlap'}
+            {proof.medianLlmPercentile !== null ? `${words.median}: median ${ordinal(proof.medianLlmPercentile)} percentile` : 'top-five overlap'}
           </p>
         </div>
       </div>
@@ -166,7 +196,7 @@ export function ProofView({ state, className }: ProofViewProps) {
         value={side}
         onChange={setSide}
         options={[
-          { value: 'llm', label: 'LLM only' },
+          { value: 'llm', label: words.kicker },
           { value: 'stoop', label: 'Stoop' },
         ]}
       />
@@ -177,7 +207,7 @@ export function ProofView({ state, className }: ProofViewProps) {
 
       {proof.missedByLlm ? (
         <p className="max-w-3xl text-lg">
-          <span className="font-semibold">Missed by the AI alone: </span>
+          <span className="font-semibold">{words.missed}: </span>
           {missed?.name ?? proof.missedByLlm.nta}
           {missed ? ` (${fmtMultiplier(missed.multiplier)})` : ''}
           {proof.missedByLlm.evidence.length ? <span className="text-muted">: {proof.missedByLlm.evidence.join(' · ')}.</span> : '.'}

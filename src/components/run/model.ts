@@ -266,6 +266,26 @@ export function tagTypeLabel(tagType: string): string {
 
 export type BadgeKind = 'live' | 'cached' | 'recorded' | 'template' | 'assumption' | 'synthetic' | 'qloo_only';
 
+/** Badge explanations from PRODUCT §3 (tooltips, the labels table on /how-it-works). */
+export function badgeExplanation(kind: BadgeKind, detail?: string | null): string {
+  switch (kind) {
+    case 'live':
+      return 'Computed just now: Qloo and the AI model were called for this run.';
+    case 'cached':
+      return `The saved plan for this exact brief${detail ? `, made ${detail}` : ''}: shown again as it was, without new Qloo or AI calls.`;
+    case 'recorded':
+      return `A real live run recorded ${detail ?? 'earlier'}, replayed exactly. Press Run live to redo it.`;
+    case 'template':
+      return 'AI writers were busy, so this copy was assembled by rules from the same Qloo evidence.';
+    case 'assumption':
+      return 'Not data. A labelled estimate you can change.';
+    case 'synthetic':
+      return 'Demo data generated locally; not Qloo data (only before the Qloo key is active).';
+    case 'qloo_only':
+      return detail ?? 'AI writers were busy, so rules and templates built this from Qloo evidence only.';
+  }
+}
+
 /** Run-level badge for a result label (null while a run has not finished). */
 export function badgeForLabel(label: ResultLabel | null, mode?: 'live' | 'mock'): { kind: BadgeKind; detail: string | null } | null {
   if (!label) return mode === 'mock' ? { kind: 'synthetic', detail: null } : null;

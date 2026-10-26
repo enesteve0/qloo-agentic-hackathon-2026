@@ -23,7 +23,7 @@ export function NavLinks({ current, className }: { current?: SiteSection; classN
               href={item.href}
               rel="noreferrer"
               target="_blank"
-              className="inline-flex min-h-10 items-center gap-1 px-2 font-display text-base font-bold tracking-[0.06em] text-text uppercase hover:text-amber sm:px-3"
+              className="inline-flex min-h-10 items-center gap-1 px-2 font-display text-base font-bold tracking-[0.06em] text-text! uppercase hover:text-amber! sm:px-3"
             >
               {item.label}
               <ArrowUpRight aria-hidden="true" className="size-4" />
@@ -33,7 +33,7 @@ export function NavLinks({ current, className }: { current?: SiteSection; classN
             <Link
               href={item.href}
               aria-current={item.section === current ? 'page' : undefined}
-              className="inline-flex min-h-10 items-center px-2 font-display text-base font-bold tracking-[0.06em] text-text uppercase hover:text-amber aria-[current=page]:text-amber aria-[current=page]:underline aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-[6px] sm:px-3"
+              className="inline-flex min-h-10 items-center px-2 font-display text-base font-bold tracking-[0.06em] text-text! uppercase hover:text-amber! aria-[current=page]:text-amber! aria-[current=page]:underline aria-[current=page]:decoration-2 aria-[current=page]:underline-offset-[6px] sm:px-3"
             >
               {item.label}
             </Link>

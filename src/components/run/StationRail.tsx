@@ -75,8 +75,8 @@ export function StationRail({ statuses, current, available, onSelect, hrefFor, a
   }, [current]);
 
   return (
-    <nav aria-label="Plan stations" className={cx('relative', className)}>
-      <ol ref={listRef} className="flex snap-x items-stretch gap-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <nav aria-label="Plan stations" className={className}>
+      <ol ref={listRef} className="relative flex snap-x items-stretch gap-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {STATIONS.map((station, k) => {
           const status = statuses[station];
           const tab = isRunTab(station) ? station : null;
@@ -93,19 +93,20 @@ export function StationRail({ statuses, current, available, onSelect, hrefFor, a
               </span>
             </>
           );
+          // Colors carry `!` because globals.css styles `a` outside Tailwind's layers.
           const chip = cx(
-            'group flex h-11 shrink-0 snap-start items-center gap-2 border-2 px-3 transition-colors duration-[120ms] ease-sign',
-            selected ? 'border-text bg-text text-bg' : 'border-surface-2 bg-surface',
-            status === 'pending' && !selected && 'text-muted',
+            'group flex h-11 shrink-0 snap-start items-center gap-2 border-2 px-3 transition-colors duration-[120ms] ease-sign lg:flex-1 lg:justify-center',
+            selected ? 'border-text bg-text text-bg!' : 'border-surface-2 bg-surface text-text!',
+            status === 'pending' && !selected && 'text-muted!',
             status === 'needs_input' && !selected && 'border-amber',
             status === 'error' && !selected && 'border-danger',
           );
           return (
-            <li key={station} className="flex shrink-0 items-center">
+            <li key={station} className={cx('flex shrink-0 items-center', k > 0 ? 'lg:flex-[1.35_1_0%]' : 'lg:flex-1')}>
               {k > 0 ? (
                 <span
                   aria-hidden="true"
-                  className={cx('h-0.5 w-3 sm:w-5 lg:w-6', status === 'pending' ? 'bg-surface-2' : 'bg-border')}
+                  className={cx('h-0.5 w-3 shrink-0 sm:w-5 lg:w-auto lg:min-w-6 lg:flex-[0.35_1_0%]', status === 'pending' ? 'bg-surface-2' : 'bg-border')}
                 />
               ) : null}
               {tab && canOpen ? (
@@ -118,7 +119,7 @@ export function StationRail({ statuses, current, available, onSelect, hrefFor, a
                     e.preventDefault();
                     onSelect(tab);
                   }}
-                  className={cx(chip, !selected && 'hover:border-border hover:text-text')}
+                  className={cx(chip, !selected && 'hover:border-border hover:text-text!')}
                 >
                   {inner}
                 </a>
@@ -126,7 +127,7 @@ export function StationRail({ statuses, current, available, onSelect, hrefFor, a
                 <a
                   href={anchorFor[station as 'brief' | 'taste']}
                   title={STATION_BLURB[station]}
-                  className={cx(chip, 'hover:border-border hover:text-text')}
+                  className={cx(chip, 'hover:border-border hover:text-text!')}
                 >
                   {inner}
                 </a>

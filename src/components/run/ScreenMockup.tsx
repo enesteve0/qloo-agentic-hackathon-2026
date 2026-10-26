@@ -109,7 +109,7 @@ export function ScreenMockup({
       <div role="img" aria-label={mockupAlt(ad, business, label)} className="@container w-full">
         <div aria-hidden="true" className="flex flex-col items-center select-none">
           {plateMain ? (
-            <div className="flex w-[78%] flex-col items-center">
+            <div className="flex w-[84%] flex-col items-center">
               <Plate name={plateMain} size="main" />
               {plates?.cross ? (
                 <span className="-mt-[0.4cqw] ml-[14cqw]">
@@ -120,7 +120,7 @@ export function ScreenMockup({
             </div>
           ) : null}
 
-          <div className="w-[78%] rounded-[2.2cqw] border-2 border-[#2a2d33] bg-[#050506] p-[2.4cqw] shadow-[0_3cqw_8cqw_-3cqw_rgba(0,0,0,0.85)]">
+          <div className="w-[84%] rounded-[2.2cqw] border-2 border-[#2a2d33] bg-[#050506] p-[2.4cqw] shadow-[0_3cqw_8cqw_-3cqw_rgba(0,0,0,0.85)]">
             <div className={cx('relative flex aspect-[9/16] w-full flex-col overflow-hidden px-[6.2cqw] pt-[7cqw] pb-[5.5cqw]', t.screen)}>
               <div className="flex h-[45%] shrink-0 flex-col justify-end pb-[2cqw]">
                 <p className={cx('line-clamp-3 font-display text-[10.4cqw] leading-[0.9] font-bold tracking-[0.01em] uppercase', t.headline)}>
@@ -132,12 +132,12 @@ export function ScreenMockup({
                   {hook.slice(0, 3).join(' · ')}
                 </p>
               ) : null}
-              <p className={cx('mt-[3cqw] font-sans text-[4.5cqw] leading-[1.28]', t.body)}>{ad.body}</p>
+              <p className={cx('mt-[3cqw] font-sans text-[4.8cqw] leading-[1.28]', t.body)}>{ad.body}</p>
               <div className={cx('mt-auto flex flex-col gap-[1.6cqw] border-t-[0.5cqw] pt-[3cqw]', t.rule)}>
                 <p className={cx('font-display text-[6.2cqw] leading-none font-bold tracking-[0.02em] uppercase', t.headline)}>{business}</p>
                 {offer ? <p className={cx('font-sans text-[3.6cqw] leading-snug font-semibold', t.meta)}>{offer}</p> : null}
                 <div className="flex items-end justify-between gap-[2cqw]">
-                  {address ? <p className={cx('min-w-0 font-mono text-[2.9cqw] leading-tight', t.meta)}>{address}</p> : <span />}
+                  {address ? <p className={cx('min-w-0 font-mono text-[3.1cqw] leading-tight', t.meta)}>{address}</p> : <span />}
                   <span
                     className={cx(
                       'shrink-0 border-[0.5cqw] px-[2cqw] py-[1.2cqw] font-display text-[3.9cqw] leading-none font-bold tracking-[0.04em] whitespace-nowrap uppercase',

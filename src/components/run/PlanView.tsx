@@ -52,16 +52,28 @@ function LinkLocalCard({ picks, places }: { picks: PlannedScreen[]; places: Plac
   );
 }
 
-function Tile({ label, value, sub, badge, hero }: { label: string; value: string; sub?: string; badge?: React.ReactNode; hero?: boolean }) {
+function Tile({
+  label,
+  value,
+  sub,
+  badge,
+  hero,
+  className,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  badge?: React.ReactNode;
+  hero?: boolean;
+  className?: string;
+}) {
   return (
-    <div className="flex min-w-0 flex-col justify-between gap-2 bg-bg p-4">
-      <dt className="flex items-center justify-between gap-2 font-mono text-[10px] tracking-[0.14em] text-muted uppercase">
-        {label}
-        {badge}
-      </dt>
-      <dd>
+    <div className={cx('flex min-w-0 flex-col gap-2 bg-bg p-4', className)}>
+      <dt className="font-mono text-[10px] tracking-[0.14em] text-muted uppercase">{label}</dt>
+      <dd className="flex min-w-0 flex-col items-start gap-1">
         <span className={cx('block font-display leading-none font-bold tabular-nums', hero ? 'text-[64px]' : 'text-[40px]')}>{value}</span>
-        {sub ? <span className="mt-1 block text-sm text-muted">{sub}</span> : null}
+        {sub ? <span className="block text-sm text-muted">{sub}</span> : null}
+        {badge ? <span className="mt-1 block">{badge}</span> : null}
       </dd>
     </div>
   );
@@ -301,8 +313,8 @@ export function PlanView({ state, places = {}, onChangeBudget, onChangeWeeks, re
             {plan.totals.screens} screens. {plan.byNta.length} neighborhoods. {fmtUsd(plan.totals.spend)}.
           </h2>
           <p className="mt-3 text-lg text-muted">
-            Fit to your budget by rules, not by the AI: the strongest screens per dollar, capped so no neighborhood takes more
-            than half.{range ? ` Runs ${range}.` : ''}
+            Fit to your budget by rules, not by the AI: the strongest screens per dollar, capped so no neighborhood gets more
+            than half the screens.{range ? ` Runs ${range}.` : ''}
           </p>
         </div>
         <Assumptions plan={plan} />
@@ -339,9 +351,13 @@ export function PlanView({ state, places = {}, onChangeBudget, onChangeWeeks, re
       ) : null}
 
       <dl className="grid grid-cols-2 gap-0.5 border-2 border-surface-2 bg-surface-2 sm:grid-cols-3 xl:grid-cols-5">
-        <div className="col-span-2 sm:col-span-1 xl:col-span-1">
-          <Tile label="Total" value={fmtUsd(plan.totals.spend)} sub={`of ${fmtUsd(plan.budgetUsd)} · ${fmtUsd(plan.leftoverUsd)} left`} hero />
-        </div>
+        <Tile
+          className="col-span-2 sm:col-span-1"
+          label="Total"
+          value={fmtUsd(plan.totals.spend)}
+          sub={`of ${fmtUsd(plan.budgetUsd)} · ${fmtUsd(plan.leftoverUsd)} left`}
+          hero
+        />
         <Tile label="Screens" value={fmtInt(plan.totals.screens)} />
         <Tile label="Neighborhoods" value={fmtInt(plan.byNta.length)} />
         <Tile label="Weeks" value={fmtInt(plan.weeks)} sub={range ?? undefined} />
@@ -353,25 +369,26 @@ export function PlanView({ state, places = {}, onChangeBudget, onChangeWeeks, re
         />
       </dl>
 
-      <div className="overflow-x-auto border-2 border-surface-2">
-        <table className="w-full min-w-[34rem] border-collapse text-left">
+      <div className="relative overflow-x-auto border-2 border-surface-2">
+        <table className="w-full border-collapse text-left sm:min-w-[34rem]">
           <caption className="sr-only">Spend and estimated taste-weighted impressions by neighborhood. Expand a row for its screens.</caption>
           <thead>
             <tr className="border-b-2 border-surface-2 bg-surface font-mono text-[10px] tracking-[0.12em] text-muted uppercase">
-              <th scope="col" className="px-4 py-3 font-normal">
+              <th scope="col" className="px-3 py-3 font-normal sm:px-4">
                 Neighborhood
               </th>
-              <th scope="col" className="px-3 py-3 text-right font-normal">
+              <th scope="col" className="px-2 py-3 text-right font-normal sm:px-3">
                 Screens
               </th>
-              <th scope="col" className="px-3 py-3 text-right font-normal">
+              <th scope="col" className="px-2 py-3 text-right font-normal sm:px-3">
                 Spend
               </th>
               <th scope="col" className="hidden px-3 py-3 text-right font-normal sm:table-cell">
                 Share
               </th>
-              <th scope="col" className="px-4 py-3 text-right font-normal">
-                Taste-weighted impr.
+              <th scope="col" className="px-3 py-3 text-right font-normal sm:px-4">
+                <span className="sm:hidden">Taste-wtd</span>
+                <span className="hidden sm:inline">Taste-weighted impr.</span>
               </th>
             </tr>
           </thead>
@@ -384,7 +401,7 @@ export function PlanView({ state, places = {}, onChangeBudget, onChangeWeeks, re
               return (
                 <Fragment key={row.nta}>
                   <tr className="border-b-2 border-surface-2">
-                    <th scope="row" className="px-4 py-3 font-normal">
+                    <th scope="row" className="px-3 py-3 font-normal sm:px-4">
                       <button
                         type="button"
                         aria-expanded={isOpen}
@@ -405,15 +422,18 @@ export function PlanView({ state, places = {}, onChangeBudget, onChangeWeeks, re
                         </span>
                       </button>
                     </th>
-                    <td className="px-3 py-3 text-right font-display text-2xl font-bold tabular-nums">{row.screens}</td>
-                    <td className="px-3 py-3 text-right font-mono tabular-nums">{fmtUsd(row.spend)}</td>
+                    <td className="px-2 py-3 text-right font-display text-2xl font-bold tabular-nums sm:px-3">{row.screens}</td>
+                    <td className="px-2 py-3 text-right font-mono tabular-nums sm:px-3">{fmtUsd(row.spend)}</td>
                     <td className="hidden px-3 py-3 text-right font-mono text-muted tabular-nums sm:table-cell">
                       {plan.totals.spend ? fmtPct(row.spend / plan.totals.spend) : '—'}
                     </td>
-                    <td className="px-4 py-3 text-right font-mono tabular-nums">{fmtInt(row.tasteWeightedImpressions)}</td>
+                    <td className="px-3 py-3 text-right font-mono tabular-nums sm:px-4">
+                      <span className="sm:hidden">{fmtCompact(row.tasteWeightedImpressions)}</span>
+                      <span className="hidden sm:inline">{fmtInt(row.tasteWeightedImpressions)}</span>
+                    </td>
                   </tr>
                   <tr id={panel} hidden={!isOpen} className="border-b-2 border-surface-2 bg-surface">
-                    <td colSpan={5} className="px-4 py-2">
+                    <td colSpan={5} className="px-3 py-2 sm:px-4">
                       <ScreenRows screens={screens} places={places} numberOf={numberOf} />
                     </td>
                   </tr>
@@ -423,13 +443,16 @@ export function PlanView({ state, places = {}, onChangeBudget, onChangeWeeks, re
           </tbody>
           <tfoot>
             <tr className="bg-surface font-semibold">
-              <th scope="row" className="px-4 py-3 text-left font-display text-base tracking-[0.06em] uppercase">
+              <th scope="row" className="px-3 py-3 text-left font-display text-base tracking-[0.06em] uppercase sm:px-4">
                 Total
               </th>
-              <td className="px-3 py-3 text-right font-display text-2xl font-bold tabular-nums">{plan.totals.screens}</td>
-              <td className="px-3 py-3 text-right font-mono tabular-nums">{fmtUsd(plan.totals.spend)}</td>
+              <td className="px-2 py-3 text-right font-display text-2xl font-bold tabular-nums sm:px-3">{plan.totals.screens}</td>
+              <td className="px-2 py-3 text-right font-mono tabular-nums sm:px-3">{fmtUsd(plan.totals.spend)}</td>
               <td className="hidden px-3 py-3 text-right font-mono tabular-nums sm:table-cell">100%</td>
-              <td className="px-4 py-3 text-right font-mono tabular-nums">{fmtInt(plan.totals.tasteWeightedImpressions)}</td>
+              <td className="px-3 py-3 text-right font-mono tabular-nums sm:px-4">
+                <span className="sm:hidden">{fmtCompact(plan.totals.tasteWeightedImpressions)}</span>
+                <span className="hidden sm:inline">{fmtInt(plan.totals.tasteWeightedImpressions)}</span>
+              </td>
             </tr>
           </tfoot>
         </table>
