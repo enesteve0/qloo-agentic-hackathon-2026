@@ -42,7 +42,7 @@ correction in `tasks/lessons.md`.
 - [ ] 12. Calibration (`pnpm qloo:smoke --confirm`, ≤ 30 calls) applied — verify:
       `docs/CALIBRATION.md` + `cfg:calibration`; each anchor's top-10 NTAs sanity-checked
 - [ ] 13. ≥ 4 recorded presets — verify: landing cards open RECORDED runs
-- [ ] 14. Share page (flagged, noindex, derived only) — verify: e2e noindex + no affinity values
+- [ ] ~~14. Share page (flagged, noindex, derived only)~~ — cut 2026-10-26: `/plan/<id>` links are the share links (unguessable ids, noindex, robots-excluded, expire with the event data)
 - [ ] 15. Docs + Devpost assets + public audit + owner-authorized publication + submission —
       verify: audit clean, MIT detected, submission URL recorded in PROVENANCE
 

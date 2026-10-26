@@ -55,6 +55,9 @@
   the same expiry as the private Qloo cache.
 - **LinkLocal / LinkDirect wording** verified against Intersection's announcement of May 1 2025 (see
   [RESEARCH.md](RESEARCH.md)). Stoop names neither program as a partner.
+- **Share page cut.** `/plan/<id>` links serve as share links (unguessable ids, noindex, excluded in
+  robots.txt, expiring with the event data); a separate derived-only share snapshot was dropped to keep
+  scope.
 - **Model-output caching** dropped from the plan: identical briefs are served from the saved run, so
   separate planner and creative caches add complexity without saving calls.
 
