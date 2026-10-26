@@ -30,3 +30,10 @@ rule that prevents it, and how to check.
   them and again in `finally`; a leak only shows up on the third back-to-back run, so test that.
 - Don't hand-pick sample cells in tests of a generator that drops random cells; pick them
   programmatically (the synthetic heatmap's 2.5% "holes" broke a fixed geohash).
+- A cache key must cover everything the cached output shows. The identical-brief key ignored dates and
+  address (both visible in the plan), so one visitor could see another's. Include the data mode too, or a
+  synthetic result gets served as a live one.
+- Get an independent review of the judge-facing path. One reviewer pass found ten real bugs (8
+  reproduced with throwaway tests) that unit, integration and e2e suites all missed.
+- Test mocks in route tests: scope a failure flag to the request under test, or the mock also breaks the
+  fallback path that should rescue it.
