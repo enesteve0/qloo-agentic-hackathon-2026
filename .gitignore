@@ -33,3 +33,6 @@ blob-report/
 # Private working material (never published): pitch notes, calibration dumps, raw downloads
 .private/
 data/raw/
+
+# Copied vendor assets (scripts/copy-vendor.mjs)
+public/vendor/

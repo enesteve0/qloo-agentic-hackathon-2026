@@ -20,3 +20,6 @@ rule that prevents it, and how to check.
 - **Commits: no `Co-Authored-By` or "Generated with" trailers** (owner instruction, 2026-10-26).
   Committing and pushing to `master` is pre-approved. Rule: plain conventional-commit messages;
   before every push, `git log --format=%B origin/master..HEAD | grep -i co-authored` must be empty.
+- **Parallel agents share the working tree: never `git add -A` while they run.** Stage explicit
+  paths that you wrote and reviewed (e.g. `git add src/data scripts/build-geo.ts`), then check
+  `git diff --cached --name-only` before committing.

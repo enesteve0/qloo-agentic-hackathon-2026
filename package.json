@@ -10,8 +10,8 @@
     "node": ">=22 <23"
   },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "node scripts/copy-vendor.mjs && next dev",
+    "build": "node scripts/copy-vendor.mjs && next build",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
