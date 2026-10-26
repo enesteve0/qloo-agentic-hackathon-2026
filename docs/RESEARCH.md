@@ -90,9 +90,15 @@ Multiple submissions must be substantially different. [Rules §3–4](https://ql
 - 36.2M US small businesses. [SBA Office of Advocacy, Feb 3 2026](https://advocacy.sba.gov/2026/02/03/advocacy-releases-frequently-asked-questions-about-small-businesses-2026/)
 - Qloo and JCDecaux have used Qloo taste data for hyper-localized out-of-home campaigns since 2020.
   [PR Newswire, Apr 3 2025](https://www.prnewswire.com/news-releases/qloo-and-jcdecaux-use-ai-powered-taste-data-to-deliver-hyper-localized-dooh-campaigns-302419224.html)
-- LinkNYC advertising is sold by Intersection, including the LinkDirect self-serve portal and the
-  free LinkLocal program for eligible community groups and small businesses. (Program details to be
-  re-verified before being described in the product.)
+- LinkNYC advertising is sold by Intersection. Its LinkNYC Self-Service Ad Portal (launched May 1 2025)
+  hosts LinkDirect, which "allows advertisers to select specific screen locations and campaign dates",
+  and the free LinkLocal program: "Eligible New York City-based community organizations and local small
+  businesses can now display ads on six LinkNYC screens at a time—up from four—at no cost." "In 2024
+  alone, LinkNYC provided over $4 million in free advertising space." [Intersection, May 1 2025](https://www.intersection.com/announcement/intersection-launches-linknyc-self-service-portal-to-expand-free-and-low-cost-advertising-opportunities-for-businesses-of-all-sizes/)
+  (verified 2026-10-26). Eligibility thresholds seen in 2023 (fewer than 50 employees and fewer than three
+  locations, NYC online businesses, NYC nonprofits) come from a BID notice, [Lincoln Square BID, Jul 21 2023](https://lincolnsquarebid.org/2023/07/21/advertise-for-free-through-linklocal/),
+  and may have changed: describe eligibility only as "eligible NYC small businesses and community
+  organizations". LinkDirect prices are not public in these sources.
 - FTC orders against location-data brokers 2024–2026 (X-Mode/Outlogic, InMarket, Gravy
   Analytics/Venntel, Mobilewalla, Kochava). [FTC](https://www.ftc.gov/news-events/news/press-releases/2025/01/ftc-finalizes-order-prohibiting-gravy-analytics-venntel-selling-sensitive-location-data)
 

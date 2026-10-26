@@ -29,9 +29,10 @@ what, for $X over N days — and why.**
 self-serve screen platforms and media owners (embedded "Plan with Stoop").
 
 **Paths to buy.** Paid: Intersection's LinkDirect self-serve portal lets buyers pick specific
-screens and dates; LinkNYC inventory is also sold programmatically. Free: NYC's LinkLocal program
-gives eligible small businesses and community groups free ads on a limited number of screens (verify
-current eligibility and limits before describing them in the product).
+screens and dates; LinkNYC inventory is also sold programmatically. Free: LinkNYC's LinkLocal program
+lets eligible NYC small businesses and community organizations run ads on six screens at a time at no
+cost (over $4 million of free space in 2024, per Intersection, May 1 2025; see docs/RESEARCH.md). Stoop
+names neither program as a partner and never claims eligibility on the owner's behalf.
 
 **Division of labour.** The language model proposes taste anchors and writes copy. Qloo measures
 taste. Code ranks screens, enforces caps and copy rules, and allocates the budget. The owner
