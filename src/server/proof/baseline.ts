@@ -3,7 +3,8 @@ import type { Kiosk, MediaPlan, PricingAssumptions, Proof, WhereResult } from '@
 import { buildMediaPlan } from '@/server/plan/optimizer';
 
 /** Always shown with the comparison (ARCHITECTURE §10). */
-export const PROOF_NOTE = "Scoring the LLM-only plan on Qloo's map is circular by design; see /proof for an independent test.";
+export const PROOF_NOTE =
+  "Scoring the AI-only plan on Qloo's own map is circular by design: it shows how differently the two plans spend the budget, not that Qloo's map is right.";
 
 /**
  * The LLM-only plan runs the same optimizer on the LLM's neighborhoods without the fit floor: an
