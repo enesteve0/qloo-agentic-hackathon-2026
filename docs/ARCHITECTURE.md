@@ -384,10 +384,11 @@ Publish whatever the result is, including failures.
 
 ## 19. Routes
 
-Pages: `/`, `/plan/new`, `/plan/[runId]`, `/p/[slug]`, `/proof`, `/how-it-works`, `/judges`,
-`/status`, `/s/[shareId]`. API: `POST /api/runs`, `GET /api/runs/[id]`,
-`POST /api/runs/[id]/share`, `GET /api/export?run=<id>|preset=<slug>` (CSV, derived only, assumptions
-in header rows), `GET /api/health` (public, no numbers),
+Pages: `/`, `/plan/new`, `/plan/[runId]`, `/p/[slug]`, `/proof` (once validation results exist),
+`/how-it-works`, `/judges`, `/status`. API: `POST /api/runs`, `GET /api/runs/[id]`,
+`GET /api/export?run=<id>|preset=<slug>` (CSV, derived only, assumptions in header rows),
+`GET /api/ad?run=<id>|preset=<slug>&nta=<code>&v=A|B` (one ad as a 1080×1920 PNG, `next/og` with bundled
+fonts), `GET /api/health` (public, no numbers),
 `GET /api/admin/health` and `POST /api/admin/record` (bearer `ADMIN_TOKEN`). `robots.txt` disallows
 `/api/`, `/s/`, `/plan/`.
 
