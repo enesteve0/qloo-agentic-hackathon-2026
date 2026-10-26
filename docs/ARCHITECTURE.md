@@ -1,8 +1,8 @@
 # Stoop — architecture
 
 Engineering specification for the hackathon build. Product behaviour lives in
-[PRODUCT.md](PRODUCT.md). Qloo-specific evidence lives in [QLOO_INTEGRATION.md](QLOO_INTEGRATION.md)
-once real calls exist.
+[PRODUCT.md](PRODUCT.md). Qloo-specific evidence will live in `docs/QLOO_INTEGRATION.md` once
+real calls exist.
 
 ## 0. Principles
 

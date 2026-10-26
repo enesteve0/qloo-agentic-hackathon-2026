@@ -40,6 +40,8 @@ export interface StoopDataParts {
   envelope: StageEnvelope;
   label: ResultLabel;
   fallback: { reason: FallbackReason; presetSlug: string | null; message: string };
+  /** A complete saved run: a cached identical brief, a recorded preset, or the starting point of a resume. */
+  snapshot: RunState;
   done: { runId: string; status: RunStatus; error: string | null };
   /** Transient: the agent's current one-line activity for the ticker. */
   progress: { text: string };
@@ -114,7 +116,16 @@ export function applyPart(view: RunView, part: { type: string; data?: unknown })
   if (!part.type.startsWith('data-')) return view;
   const name = part.type.slice(5) as keyof StoopDataParts;
   const data = part.data as never;
-  if (name === 'run') return { ...view, state: skeletonState(data as StoopDataParts['run']) };
+  if (name === 'run') {
+    const run = data as StoopDataParts['run'];
+    // A resumed run announces itself again; keep what we already know about it.
+    if (view.state?.id === run.runId) return { ...view, done: false, needsInput: null, state: { ...view.state, status: 'running' } };
+    return { ...view, state: skeletonState(run) };
+  }
+  if (name === 'snapshot') {
+    const saved = viewFromState(data as RunState);
+    return { ...saved, fallback: view.fallback, attempts: view.attempts };
+  }
   if (name === 'progress') return { ...view, progress: (data as StoopDataParts['progress']).text };
   if (name === 'attempt') return { ...view, attempts: [...view.attempts, data as StoopDataParts['attempt']].slice(-20) };
   if (name === 'fallback') return { ...view, fallback: data as StoopDataParts['fallback'] };

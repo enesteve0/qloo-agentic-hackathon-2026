@@ -49,4 +49,29 @@ describe('applyPart', () => {
     expect(v.state?.status).toBe('done');
     expect(applyPart(v, { type: 'text-delta' })).toBe(v);
   });
+
+  it('loads a snapshot and keeps a resumed run when it announces itself again', () => {
+    const run = { runId: 'r2', mode: 'mock' as const, startedAt: '2026-10-26T00:00:00Z', presetSlug: null, businessName: 'Halfnote' };
+    const paused = applyPart(applyPart(emptyRunView(), { type: 'data-run', data: run }), {
+      type: 'data-decision',
+      data: { stage: 'plan', text: 'Anchors for this audience: Robert Glasper (artist).' },
+    });
+    const saved = { ...paused.state!, status: 'awaiting_input' as const };
+
+    let v = applyPart(emptyRunView(), { type: 'data-fallback', data: { reason: 'limits', presetSlug: 'halfnote', message: 'Busy' } });
+    v = applyPart(v, { type: 'data-snapshot', data: saved });
+    expect(v.fallback?.reason).toBe('limits');
+    expect(v.needsInput).toEqual([]);
+    expect(v.done).toBe(false);
+    expect(v.state?.decisions).toHaveLength(1);
+
+    v = applyPart(v, { type: 'data-run', data: run });
+    expect(v.state?.decisions).toHaveLength(1); // not reset to an empty skeleton
+    expect(v.state?.status).toBe('running');
+    expect(v.needsInput).toBeNull();
+
+    v = applyPart(v, { type: 'data-run', data: { ...run, runId: 'r3' } });
+    expect(v.state?.id).toBe('r3');
+    expect(v.state?.decisions).toHaveLength(0);
+  });
 });

@@ -18,14 +18,14 @@ correction in `tasks/lessons.md`.
 
 ## P0 — must ship (dependency order)
 
-- [ ] 0. Specs + task list + lessons + PROVENANCE decisions — verify: docs render, links valid
-- [ ] 1. Scaffold: Next 16.4.3, pinned deps, env schema, Redis drivers, CI — verify: `pnpm build`,
+- [x] 0. Specs + task list + lessons + PROVENANCE decisions — verify: docs render, links valid
+- [x] 1. Scaffold: Next 16.4.3, pinned deps, env schema, Redis drivers, CI — verify: `pnpm build`,
       typecheck, lint, tests green locally and in CI
-- [ ] 2. `scripts/build-geo.ts` + committed data + night-mode kiosk map — verify: 2,183 ± 5 kiosks,
+- [x] 2. `scripts/build-geo.ts` + committed data + night-mode kiosk map — verify: 2,183 ± 5 kiosks,
       every kiosk in a 2020 NTA, WKT ≤ 4,000 chars encoded, map renders
 - [ ] 3. Qloo client + mock transport + synthetic fixtures + contract tests + smoke dry-run —
       verify: unit/contract tests; `pnpm qloo:smoke --dry-run` prints the call plan
-- [ ] 4. Lift engine + kiosk/NTA scoring + flags — verify: planted-bump recovery precision@5 ≥ 0.6
+- [x] 4. Lift engine + kiosk/NTA scoring + flags — verify: planted-bump recovery precision@5 ≥ 0.6
       (raw affinity ≤ 0.3); default-map / density-only / thin detection tests
 - [ ] 5. LLM chain + planner/creative schemas + fallbacks — verify: live Groq call returns valid
       JSON; disabling slots walks the chain; all disabled → templates
