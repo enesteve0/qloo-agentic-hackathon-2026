@@ -31,10 +31,10 @@ correction in `tasks/lessons.md`.
       JSON; disabling slots walks the chain; all disabled → templates
 - [ ] 6. Orchestrator + stream + run store + needs_input resume + labels + provenance drawer —
       verify: mock integration test; e2e (new brief streams; picker resumes)
-- [ ] 7. Evidence + creative + validator + screen mockups — verify: validator tests (≥25 cases);
+- [x] 7. Evidence + creative + validator + screen mockups — verify: validator tests (≥25 cases);
       grounded variants in a mock run
 - [ ] 8. Optimizer + PLAN table + CSV + print/PDF + email draft — verify: optimizer tests; e2e CSV
-- [ ] 9. Per-run PROOF (LLM-only comparison) — verify: integration asserts proof fields
+- [x] 9. Per-run PROOF (LLM-only comparison) — verify: integration asserts proof fields
 - [ ] 10. Guards (WAF rule, limits, slots, single-flight, banners) — verify: e2e rate-limit →
       banner + recorded run; manual WAF test
 - [ ] 11. Production deploy (mock + banner) → live after calibration — verify: new brief < 90 s,
@@ -64,6 +64,15 @@ correction in `tasks/lessons.md`.
 - [ ] G2 Wed 23:00 — live end-to-end with ≥ 3 presets (or escalate per contingencies)
 - [ ] G3 Thu 23:00 — feature freeze (prompts + dependencies frozen 18:00)
 - [ ] G4 Fri 18:00 — submitted; tag `v1.0.0-submission`
+
+## Progress notes
+
+- 2026-10-26 21:35 Istanbul: backend complete on mocks. Qloo client (111 tests), lift engine (86),
+  model chain (155), creative/plan/proof (107), guards, streaming run API with resume, cached briefs,
+  sample-plan fallbacks and restricted categories; `/plan/new`, `/plan/[runId]` and `/p/[slug]` stream
+  and render through the shared RunScreen (checked in a production build with a headless browser).
+  Still open for G1: `/how-it-works`, `/judges`, landing preset cards, Playwright e2e specs. Blocked on
+  owner: Vercel import (G0), Qloo key, model keys.
 
 ## Review
 

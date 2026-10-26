@@ -65,7 +65,15 @@ describe('mock run end to end (synthetic Qloo + deterministic writer)', () => {
     expect(final.plan?.totals.spend).toBeLessThanOrEqual(halfnote.brief.budgetUsd);
     expect(final.plan?.byNta.length).toBe(3);
     // PROOF and provenance.
-    expect(final.proof?.note).toMatch(/circular/);
+    const proof = final.proof!;
+    expect(proof.note).toMatch(/circular/);
+    expect(proof.available).toBe(true);
+    expect(proof.llmPicks.length).toBeGreaterThan(0);
+    expect(proof.overlapAt5).toBeGreaterThanOrEqual(0);
+    expect(proof.overlapAt5).toBeLessThanOrEqual(1);
+    expect(proof.ours.tasteWeightedImpressions).toBe(final.plan?.totals.tasteWeightedImpressions);
+    expect(proof.ours.belowBaselineShare).toBeGreaterThanOrEqual(0);
+    expect(proof.ours.belowBaselineShare).toBeLessThanOrEqual(proof.llmOnly?.belowBaselineShare ?? 1);
     expect(final.envelopes.map((e) => e.operation).sort()).toEqual(['map_taste_lift', 'neighborhood_evidence', 'resolve_anchors']);
     expect(final.envelopes.every((e) => e.provenance.source === 'Synthetic Qloo transport')).toBe(true);
     expect(final.qlooCalls.fresh + final.qlooCalls.cached).toBeGreaterThan(0);
