@@ -2,7 +2,7 @@ import 'server-only';
 import { presetBySlug } from '@/content/presets';
 import type { RunState } from '@/shared/types';
 import { kv } from '../kv';
-import { loadPreset } from '../store/runs';
+import { loadPreset, saveRun } from '../store/runs';
 import { createRunDeps } from './deps-live';
 import { executeRun, newRunState } from './orchestrator';
 
@@ -39,7 +39,10 @@ export async function presetRun(slug: string): Promise<RunState | null> {
   if (!pending) {
     pending = syntheticPresetRun(slug)
       .then(async (run) => {
-        if (run) await kv().set(key, run, { px: SYNTHETIC_TTL_MS });
+        if (run) {
+          // Also saved as a run, so /plan/<id> links to a sample plan keep working.
+          await Promise.all([kv().set(key, run, { px: SYNTHETIC_TTL_MS }), saveRun(run)]);
+        }
         return run;
       })
       .finally(() => inflight.delete(slug));

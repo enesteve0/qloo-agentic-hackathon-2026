@@ -8,6 +8,7 @@ import { GENERIC_ERROR } from '@/server/agent/errors';
 import { csvHref, runExtras } from '@/server/agent/extras';
 import { FALLBACK_MESSAGES, nearestPreset } from '@/server/agent/fallback';
 import { executeRun, newRunState } from '@/server/agent/orchestrator';
+import { presetRun } from '@/server/agent/presets';
 import { getEnv } from '@/server/env';
 import { briefHash, parseBrief, restrictedCategory } from '@/server/guard/brief';
 import { admitLiveRun } from '@/server/guard/limits';
@@ -15,7 +16,7 @@ import { isSameOrigin } from '@/server/guard/origin';
 import { newSession, readSession } from '@/server/guard/session';
 import { claimBrief, completeBrief, releaseBrief } from '@/server/guard/singleflight';
 import { kv } from '@/server/kv';
-import { loadPreset, loadRun, newRunId, saveRun } from '@/server/store/runs';
+import { loadRun, newRunId, saveRun } from '@/server/store/runs';
 import type { FallbackReason, StoopMessage, StoopPart } from '@/shared/stream';
 import type { Brief, ResolutionChoice, RunState } from '@/shared/types';
 
@@ -127,17 +128,16 @@ async function resume(runId: string, choices: ResolutionChoice[], ctx: Ctx): Pro
   return runResponse(state, { deps, hash, choices, before: [{ type: 'data-snapshot', data: state }] }, ctx);
 }
 
-/** A sample plan for a similar business: the recorded preset, or (before any recording) a synthetic run of it. */
+/**
+ * A sample plan for a similar business: the recorded preset, or (before any recording) its cached synthetic
+ * run. Never a fresh pipeline, so a visitor past a limit costs one cache read, not a run.
+ */
 async function fallbackResponse(reason: FallbackReason, brief: Brief, ctx: Ctx): Promise<Response> {
   const slug = nearestPreset(brief);
   const notice: StoopPart = { type: 'data-fallback', data: { reason, presetSlug: slug, message: FALLBACK_MESSAGES[reason] } };
-  const recorded = await loadPreset(slug);
-  if (recorded) return snapshotResponse(recorded, notice, csvHref({ presetSlug: slug }), ctx);
-  const preset = presetBySlug(slug)!;
-  const state = newRunState({ id: newRunId(), brief: preset.brief, mode: 'mock', presetSlug: slug, now: new Date() });
-  await saveRun(state);
-  const deps = createRunDeps({ qloo: 'mock', llm: 'mock', country: ctx.country });
-  return runResponse(state, { deps, hash: null, before: [notice] }, ctx);
+  const sample = await presetRun(slug);
+  if (!sample) return json({ error: FALLBACK_MESSAGES[reason] }, 503, ctx.headers);
+  return snapshotResponse(sample, notice, csvHref({ presetSlug: slug }), ctx);
 }
 
 function snapshotResponse(state: RunState, notice: StoopPart | null, csv: string, ctx: Ctx): Response {
