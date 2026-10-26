@@ -21,7 +21,35 @@ export interface PlanViewProps {
   recalculating?: boolean;
   /** Suggested fixes for an infeasible budget (e.g. jump to the brief). */
   onEditBrief?: () => void;
+  /** The six best free screens under LinkNYC's LinkLocal program (server-picked); hidden when absent. */
+  linkLocal?: PlannedScreen[] | null;
   className?: string;
+}
+
+const LINKLOCAL_SOURCE =
+  'https://www.intersection.com/announcement/intersection-launches-linknyc-self-service-portal-to-expand-free-and-low-cost-advertising-opportunities-for-businesses-of-all-sizes/';
+
+/** The free path: LinkNYC's LinkLocal program shows eligible small businesses' ads on six screens at no cost. */
+function LinkLocalCard({ picks, places }: { picks: PlannedScreen[]; places: PlaceLookup }) {
+  const id = useId();
+  return (
+    <section aria-labelledby={id} className="border-2 border-sign p-4">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+        <h3 id={id} className="font-display text-base font-bold tracking-[0.08em] uppercase">
+          Free option: LinkLocal · {picks.length} screens · $0
+        </h3>
+        <a href={LINKLOCAL_SOURCE} target="_blank" rel="noreferrer" className="text-sm underline underline-offset-4">
+          About LinkLocal<span className="sr-only"> (opens in a new tab)</span>
+        </a>
+      </div>
+      <p className="mt-1 max-w-3xl text-sm text-muted">
+        LinkNYC&apos;s LinkLocal program lets eligible New York small businesses and community organizations run ads on six
+        screens at a time at no cost. If you qualify, these are the six Stoop would pick: the best fits across your top
+        neighborhoods, never two on one block. LinkNYC decides eligibility; Stoop doesn&apos;t apply for you.
+      </p>
+      <ScreenRows screens={picks} places={places} numberOf={(s) => picks.indexOf(s) + 1} />
+    </section>
+  );
 }
 
 function Tile({ label, value, sub, badge, hero }: { label: string; value: string; sub?: string; badge?: React.ReactNode; hero?: boolean }) {
@@ -193,7 +221,7 @@ function ScreenRows({ screens, places, numberOf }: { screens: PlannedScreen[]; p
  * PLAN: the deterministic budget plan. Summary tiles, a neighborhood table that expands to screen
  * addresses, labelled assumptions and the next-best screens. No AI or Qloo call happens here.
  */
-export function PlanView({ state, places = {}, onChangeBudget, onChangeWeeks, recalculating, onEditBrief, className }: PlanViewProps) {
+export function PlanView({ state, places = {}, onChangeBudget, onChangeWeeks, recalculating, onEditBrief, linkLocal, className }: PlanViewProps) {
   const plan = state.plan;
   const [open, setOpen] = useState<Record<string, boolean>>({});
   if (!plan) return null;
@@ -259,6 +287,7 @@ export function PlanView({ state, places = {}, onChangeBudget, onChangeWeeks, re
             </li>
           </ul>
         </div>
+        {linkLocal?.length ? <LinkLocalCard picks={linkLocal} places={places} /> : null}
       </section>
     );
   }
@@ -422,6 +451,7 @@ export function PlanView({ state, places = {}, onChangeBudget, onChangeWeeks, re
           </div>
         ) : null}
       </div>
+      {linkLocal?.length ? <LinkLocalCard picks={linkLocal} places={places} /> : null}
     </section>
   );
 }

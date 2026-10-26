@@ -3,7 +3,7 @@
 import { ArrowRight, Play, RotateCcw, ScrollText, TriangleAlert } from 'lucide-react';
 import { useState, type ReactNode } from 'react';
 import type { RunView } from '@/shared/stream';
-import type { ResolutionChoice, RunState, StageOperation } from '@/shared/types';
+import type { PlannedScreen, ResolutionChoice, RunState, StageOperation } from '@/shared/types';
 import { buttonClass } from '@/components/ui/button';
 import { cx } from '@/components/ui/cx';
 import { AgentTicker } from './AgentTicker';
@@ -44,6 +44,8 @@ export interface RunScreenProps {
   places?: PlaceLookup;
   /** Booking email and CSV link for SEND. */
   send?: SendDraft | null;
+  /** The six best free LinkLocal screens (server-picked) for PLAN. */
+  linkLocal?: PlannedScreen[] | null;
   /** View to open first (`?view=`). */
   initialTab?: RunTab | null;
   /** Where "Open a recorded plan" goes from error and limit states. */
@@ -204,6 +206,7 @@ export function RunScreen({
   onRetry,
   places,
   send = null,
+  linkLocal = null,
   initialTab,
   recordedHref = '/plan/demo',
   notice,
@@ -313,6 +316,7 @@ export function RunScreen({
           <PlanView
             state={state}
             places={places}
+            linkLocal={linkLocal}
             onChangeBudget={onChangeBudget}
             onChangeWeeks={onChangeWeeks}
             recalculating={recalculating}

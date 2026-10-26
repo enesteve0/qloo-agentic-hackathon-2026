@@ -71,6 +71,7 @@ export function LivePlanner({ initial = null, initialExtras = null, initialTab =
       onAnswer={answer}
       places={extras?.places}
       send={extras?.send ?? null}
+      linkLocal={extras?.linkLocal ?? null}
       initialTab={initialTab}
       onRunLive={liveAvailable && !busy && (kind === 'recorded' || kind === 'synthetic') ? rerun : undefined}
       onRetry={state?.status === 'error' ? rerun : undefined}
