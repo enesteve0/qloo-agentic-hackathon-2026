@@ -63,9 +63,10 @@ describe('getLlmGateway', () => {
     resetEnvForTests();
     const status = await getLlmStatus();
     expect(status.mode).toBe('mock');
-    expect(status.slots.map((s) => s.id)).toEqual(['groq']);
+    // One Groq key configures both Groq slots (120b, then 20b).
+    expect(status.slots.map((s) => s.id)).toEqual(['groq', 'groq-20b']);
     expect(status.slots[0]).toMatchObject({ disabled: false, cooldownMs: 0, usedToday: 0, geoGated: false });
-    expect(status.unconfigured).toEqual(SLOT_IDS.filter((id) => id !== 'groq'));
+    expect(status.unconfigured).toEqual(SLOT_IDS.filter((id) => !id.startsWith('groq')));
   });
 });
 

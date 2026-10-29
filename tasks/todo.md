@@ -28,8 +28,9 @@ correction in `tasks/lessons.md`.
       verify: unit/contract tests; `pnpm qloo:smoke --dry-run` prints the call plan
 - [x] 4. Lift engine + kiosk/NTA scoring + flags — verify: planted-bump recovery precision@5 ≥ 0.6
       (raw affinity ≤ 0.3); default-map / density-only / thin detection tests
-- [ ] 5. LLM chain + planner/creative schemas + fallbacks — verify: live Groq call returns valid
-      JSON; disabling slots walks the chain; all disabled → templates
+- [x] 5. LLM chain + planner/creative schemas + fallbacks — verify: live Groq call returns valid
+      JSON; disabling slots walks the chain; all disabled → templates (live Groq runs 2026-10-29 night;
+      chain walking and template fallback in unit tests)
 - [x] 6. Orchestrator + stream + run store + needs_input resume + labels + provenance drawer —
       verify: mock integration test; e2e (new brief streams; picker resumes)
 - [x] 7. Evidence + creative + validator + screen mockups — verify: validator tests (≥25 cases);
@@ -90,6 +91,21 @@ correction in `tasks/lessons.md`.
   SEO 63 only on the deliberately `noindex` pages (`/plan/*`, `/p/*`, `/status`); performance 79–100 (the
   MapLibre bundle). Groq's `openai/gpt-oss-20b`/`-120b` confirmed current (not on Groq's deprecation list).
   Still blocked on owner: Upstash terms and `.env.local`.
+
+## Overnight Thu 29 → Fri 30 (owner asleep; Qloo key waits for the owner)
+
+- [x] Prompts v2: planner anchor guidance (types, no mass-market names, no invented entities); creative
+      rule 3 says the evidence phrase must be in the headline or body (B ads kept failing `refs`);
+      typographic hyphens normalized; tests; live check on ≥ 6 briefs (anchors by eye, model pass rate)
+      — 33/36 then 18/18 model ads passed (was 35/54); planner and writer on gpt-oss-120b, 20b as fallback
+- [x] Upstash driver checked against the real database under a throwaway prefix (run persists, limits,
+      single-flight), then the prefix deleted
+- [ ] Production: `LLM_MODE=live` + Upstash (redeploy); health, a live run, data under `p:`
+- [ ] Qloo key-day prep: production env file for scripts (scratch, 600), commands ready
+- [ ] Docs: PROVENANCE (Upstash terms accepted by the owner, Groq key), DEPLOYMENT, README status,
+      SUBMISSION, Devpost draft numbers that do not depend on Qloo
+- [x] Release audit dry run (gitleaks + trufflehog, full history) so Friday's publish is quick — both
+      clean on 66 commits; repeat on the release commit
 
 ## Review
 

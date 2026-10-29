@@ -12,6 +12,10 @@ server code. Without keys the app runs in SYNTHETIC mock mode, so a fresh deploy
    on by default.
 4. Storage → Marketplace → **Upstash for Redis** → Free plan, region us-east-1 → connect to the project
    (this injects `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` or the `KV_REST_API_*` pair).
+   From the CLI, once a person has accepted Upstash's terms for the team in the browser:
+   `vercel integration add upstash/upstash-kv --plan free -m primaryRegion=iad1 -m autoUpgrade=false
+   -m prodPack=false --name stoopnyc-redis --no-env-pull` (keep `autoUpgrade=false`; the CLI default is
+   true).
 
 ## 2. Environment variables
 

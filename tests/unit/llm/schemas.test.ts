@@ -127,6 +127,15 @@ describe('finalizePlannerOutput', () => {
   it('normalizes names like the resolver', () => {
     expect(normalizeName('  The Marías & Friends!')).toBe('marias and friends');
   });
+
+  it('writes typographic hyphens as plain ones before names reach Qloo search', () => {
+    const raw = plannerSchema.parse({
+      ...validPlan(),
+      anchors: [...validPlan().anchors.slice(0, 2), { name: 'Off‑White', type: 'brand', searchHint: 'New‐York', why: 'streetwear' }],
+    });
+    const out = finalizePlannerOutput(raw, { eligibleCodes: codes });
+    expect(out.anchors.at(-1)).toMatchObject({ name: 'Off-White', searchHint: 'New-York' });
+  });
 });
 
 describe('createPlannerValidator', () => {

@@ -83,6 +83,31 @@
 - **Validation page** is `/validation` (not `/proof`, which is the PROOF station's name). It is built
   from the committed report and does not exist until the live Qloo arm has run.
 
+### 2026-10-29 (night) — database, model key and first live model runs
+
+- **Upstash:** the owner signed in to Vercel and accepted the Marketplace terms for Upstash (Vercel
+  requires a person to accept them). The free database `stoopnyc-redis` (iad1, `autoUpgrade=false`,
+  `prodPack=false`) was then created with the Vercel CLI and connected to the project for production,
+  preview and development. The Upstash driver was checked against the real database under a throwaway
+  key prefix (same results as the in-memory store, except that Upstash decodes JSON-looking strings;
+  Stoop stores none it reads back as strings, apart from run ids that cannot look like JSON in practice).
+- **Groq key:** created by the owner (free tier, no payment method) and added to production as a
+  sensitive variable and to the git-ignored `.env.local`. The Qloo key is still with the owner.
+- **Model chain after the first live runs:** planner and copywriter both run on Groq's
+  `openai/gpt-oss-120b`; a second Groq slot on the same key runs `openai/gpt-oss-20b` and answers when
+  120b is rate-limited (Groq's free limits are per model). Side by side on the same briefs, 20b picked
+  wrong-type, mass-market or made-up anchors and passed fewer copy checks (12/24 vs 17/24 ads).
+- **Prompts v2:** anchor types defined; mass-market names, invented entities and filler picks ("three
+  strong anchors beat six weak ones") ruled out; each anchor must connect to what the business offers,
+  never to its neighborhood or who lives there (an earlier run picked a sitcom for a jazz club in
+  Bed-Stuy). The copywriter is asked for a margin under the length limits, keeps the business name in
+  every ad, makes ad B's headline the offer itself and puts each evidence phrase in the headline or body
+  (the validator never looked at the CTA). Typographic hyphens are normalized in names and copy.
+- **Copy rules, fewer false alarms:** digits from the owner's own description count as the brief's
+  numbers; a capitalized word at a sentence start that the brief itself uses is not read as an
+  anchor's name. When no model answer gets half its ads through, the best answer's passing ads are
+  kept instead of templating all six.
+
 ## Recording future work
 
 For every imported component, record its upstream URL, immutable commit/version, license, purpose and changes. For every material project decision, record date, rationale and source. If a baseline project is reused, identify its pre-event commit and explain the event-period work separately.

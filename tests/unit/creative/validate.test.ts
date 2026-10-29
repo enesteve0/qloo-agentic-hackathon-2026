@@ -37,6 +37,8 @@ describe('validateVariant: passing copy', () => {
     ['no business name required when none is given', { body: 'A new supper club on the block.' }, { businessName: null }],
     ['a one-word anchor that is a common word does not block it', { body: 'Halfnote: soul food, live music.' }, { blockedNames: ['Soul'] }],
     ['capitalized words the brief uses are allowed', { body: 'Halfnote, steps from Nostrand.' }, { description: 'Jazz club on Nostrand Ave.' }],
+    ['digits from the owner\'s description', { body: 'Halfnote: live music from 7pm.' }, { description: 'A jazz supper club open from 7pm with Tuesday jam nights.' }],
+    ['an anchor word at a sentence start that the brief also uses', { cta: 'Climb in free' }, { blockedNames: ['The Climb'], offer: 'First climb free' }],
   ];
   it.each(passing)('%s', (_name, copy, opts) => {
     const result = validateVariant(ad(BK, copy), ctxFor(BK, opts));
@@ -83,6 +85,7 @@ describe('validateVariant: failing copy', () => {
     ['street not in the brief', { body: 'Halfnote: live music off Flushing Ave.' }, 'ungrounded_proper_noun', '"Flushing"'],
     ['third-party name, even at a sentence start', { headline: 'Robert Glasper fans?', body: 'Halfnote brings live music to Bed-Stuy.' }, 'ungrounded_proper_noun', 'third-party name "Robert Glasper"', { blockedNames: ['Robert Glasper'] }],
     ['one distinctive word of a third-party name', { body: 'Halfnote: live music for Glasper lovers.' }, 'ungrounded_proper_noun', 'third-party name "Robert Glasper"', { blockedNames: ['Robert Glasper'] }],
+    ['an anchor word at a sentence start that the brief never uses', { cta: 'Climb in free' }, 'ungrounded_proper_noun', 'third-party name "The Climb"', { blockedNames: ['The Climb'] }],
     ['local place name from the evidence', { body: 'Halfnote, around the corner from Bar Lunatico.' }, 'ungrounded_proper_noun', 'local place name "Bar Lunatico"', { places: ['Bar Lunatico'] }],
     ['age targeting', { body: 'Halfnote: live music for seniors.' }, 'sensitive', '"seniors" (age)'],
     ['generation label', { headline: 'Live music for Gen-Z' }, 'sensitive', '"gen z" (age)'],
@@ -92,8 +95,8 @@ describe('validateVariant: failing copy', () => {
     ['politics', { body: 'Halfnote: live music for voters.' }, 'sensitive', '(politics)'],
     ['sexuality', { body: 'Halfnote: LGBTQ+ live music night.' }, 'sensitive', 'sexuality'],
     ['income', { body: 'Halfnote: live music for affluent locals.' }, 'sensitive', '(income)'],
-    ['invented date', { body: 'Halfnote opens Nov 19 with live music.' }, 'invented_number', 'numbers not in the offer: 19'],
-    ['digit that is only a substring of the offer', { headline: 'Live music, 1 night only' }, 'invented_number', 'numbers not in the offer: 1', { offer: '10% off all week' }],
+    ['invented date', { body: 'Halfnote opens Nov 19 with live music.' }, 'invented_number', 'numbers not in the brief: 19'],
+    ['digit that is only a substring of the offer', { headline: 'Live music, 1 night only' }, 'invented_number', 'numbers not in the brief: 1', { offer: '10% off all week' }],
     ['digits with no offer', { headline: 'Live music, 2 sets' }, 'invented_number', '2', { offer: null }],
     ['missing business name', { body: 'A new supper club brings live music.' }, 'missing_business', 'business name "Halfnote" is missing'],
     ['business name made of common words must appear whole', { body: 'Smoke brings live music.' }, 'missing_business', '"Smoke & Sons"', { businessName: 'Smoke & Sons' }],

@@ -110,6 +110,13 @@ describe('finalizeCreative', () => {
     expect(a).toMatchObject({ source: 'model', headline: 'Live music, Bed-Stuy style.', cta: 'Book a table' });
   });
 
+  it('stores plain hyphens where the model wrote typographic ones', () => {
+    const variants = allGood();
+    variants[0] = good(BK, 'A', { headline: 'Live music, Bed‑Stuy style.', body: 'Halfnote brings live music to Bed‐Stuy.' });
+    const a = finalizeCreative(variants, contexts(), { via: 'groq' }).sets[0]?.variants[0];
+    expect(a).toMatchObject({ source: 'model', headline: 'Live music, Bed-Stuy style.', body: 'Halfnote brings live music to Bed-Stuy.' });
+  });
+
   it('reports template failures too when even the template cannot pass', () => {
     const ctx = { [BK]: ctxFor(BK, { labels: [] }) };
     const a = finalizeCreative([], ctx, { via: 'template' }).sets[0]?.variants[0];

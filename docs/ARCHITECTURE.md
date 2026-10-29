@@ -205,9 +205,11 @@ cta ≤22, no emoji) · ≥1 reference and every `evidenceId` from this neighbor
 phrase present in the copy · no foreign neighborhood names (lexicon of all NTA names, short names,
 aliases, boroughs) · mid-sentence proper nouns must be allow-listed (business name, this NTA,
 referenced labels, boroughs, days/months, common words) · no sensitive or demographic targeting terms ·
-digits only if present in the brief's offer · business name present. A failed variant is replaced by
-an evidence-filled template (reason shown); if fewer than half pass, the attempt fails over to the
-next model slot (≤3 attempts).
+digits only if present in the brief (offer, description or business name) · business name present.
+The writer is asked for a margin under the hard limits (headline 34, body 84, CTA 20) because models
+miscount characters. A failed variant is replaced by an evidence-filled template (reason shown); if
+fewer than half pass, the attempt fails over to the next model slot (≤3 attempts). When no slot
+reaches half, the best answer's passing ads are kept and templates fill the rest.
 
 ## 9. Budget optimizer (`src/server/plan/`, deterministic)
 
@@ -238,7 +240,8 @@ maxOutputTokens })` → on `NoObjectGeneratedError`, local `jsonrepair` + `safeP
 
 | Slot | Planner (≤2 attempts) | Creative (≤3 attempts) | JSON enforcement |
 |---|---|---|---|
-| Groq | `openai/gpt-oss-20b` | `openai/gpt-oss-120b` | strict `json_schema`, reasoning effort low |
+| Groq | `openai/gpt-oss-120b` | same | strict `json_schema`, reasoning effort low |
+| Groq (20b), same key | `openai/gpt-oss-20b` | same | as above; answers when 120b is rate-limited (Groq's free limits are per model) |
 | Gemini (allow-listed countries only via `x-vercel-ip-country`; never EEA/CH/UK/unknown) | `gemini-3.1-flash-lite` | `gemini-3.5-flash-lite` | native schema |
 | Cloudflare Workers AI | `@cf/google/gemma-4-26b-a4b-it` (OpenAI-compatible) | same | JSON skeleton in prompt + repair + zod |
 | SambaNova | `gpt-oss-120b` | same | best-effort schema + zod |

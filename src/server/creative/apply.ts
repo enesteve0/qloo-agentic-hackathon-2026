@@ -24,18 +24,21 @@ export interface FinalizeResult {
 
 const SLOTS = ['A', 'B'] as const;
 
+/** Squish, with plain hyphens: models write U+2010/U+2011, which the ad fonts may lack. */
+const plain = (input: string | null | undefined) => squish(input).replace(/[‐‑]/g, '-');
+
 /** Trim model output so stored copy matches what was validated. */
 function tidy(v: AdVariant): AdVariant {
   return {
     nta: v.nta,
     variant: v.variant,
-    headline: squish(v.headline),
-    body: squish(v.body),
-    cta: squish(v.cta),
+    headline: plain(v.headline),
+    body: plain(v.body),
+    cta: plain(v.cta),
     references: (v.references ?? [])
       .filter((r) => typeof r?.evidenceId === 'string' && typeof r.phrase === 'string')
-      .map((r) => ({ evidenceId: r.evidenceId.trim(), phrase: squish(r.phrase) })),
-    rationale: squish(v.rationale),
+      .map((r) => ({ evidenceId: r.evidenceId.trim(), phrase: plain(r.phrase) })),
+    rationale: plain(v.rationale),
   };
 }
 

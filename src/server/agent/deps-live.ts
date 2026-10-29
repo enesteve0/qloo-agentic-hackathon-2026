@@ -32,7 +32,7 @@ import {
   type WktLocation,
 } from '@/server/qloo';
 import type { FallbackReason, StoopDataParts } from '@/shared/stream';
-import type { LiftConfig, ResolutionOutcome } from '@/shared/types';
+import type { AdVariant, CreativeSet, LiftConfig, ResolutionOutcome } from '@/shared/types';
 import type { RunDeps, StepCtx } from './deps';
 import { UserFacingError } from './errors';
 
@@ -42,6 +42,8 @@ export interface DepsOptions {
   /** `mock` uses the deterministic writer (no model calls). */
   llm: 'live' | 'mock';
   country: string | null;
+  /** Tests only: a stand-in for the model gateway that `llm` would pick. */
+  gateway?: LlmGateway;
 }
 
 /** Stage budgets (ARCHITECTURE §12); each is also cut short by the run deadline. */
@@ -204,7 +206,7 @@ function settleUnanswered(outcomes: ResolutionOutcome[]): ResolutionOutcome[] {
  */
 export function createRunDeps(o: DepsOptions): RunDeps {
   const client = qlooClient(o.qloo);
-  const gateway: LlmGateway = o.llm === 'live' ? getLlmGateway() : createFakeGateway();
+  const gateway: LlmGateway = o.gateway ?? (o.llm === 'live' ? getLlmGateway() : createFakeGateway());
   /** The run's Qloo API with this stage's deadline, so transient retries happen only when time is left. */
   const api = (ctx: StepCtx, budgetMs: number): QlooApi => {
     const runCtx = runCtxFor(ctx);
@@ -334,6 +336,8 @@ export function createRunDeps(o: DepsOptions): RunDeps {
         };
       }
       const tone = planner.tone;
+      // Answers that missed the half-way bar, in order: one per "rejected" attempt.
+      const rejected: AdVariant[][] = [];
       const r = await gateway.run({
         kind: 'creative',
         schema: creativeSchema,
@@ -350,14 +354,29 @@ export function createRunDeps(o: DepsOptions): RunDeps {
         country,
         signal: AbortSignal.any([signal, AbortSignal.timeout(CREATIVE_BUDGET_MS)]),
         maxAttempts: 3,
-        validate: (out) =>
-          finalizeCreative(out.variants, contexts, { via: 'check', tone }).failover ? ['Fewer than half of the ads passed the copy rules'] : [],
+        validate: (out) => {
+          if (!finalizeCreative(out.variants, contexts, { via: 'check', tone }).failover) return [];
+          rejected.push(out.variants);
+          return ['Fewer than half of the ads passed the copy rules'];
+        },
         onAttempt: (e) => onAttempt(toAttempt(e)),
       });
       if (r.ok) {
         const via = viaLabel(r.via, r.model);
         return { sets: finalizeCreative(r.data.variants, contexts, { via, tone }).sets, via, attempts: r.attempts.length };
       }
+      // No answer reached the bar. The best one still beats templates everywhere: its passing ads stay and
+      // templates fill the rest, keeping the reasons the model's ads failed.
+      const tried = r.attempts.filter((a) => a.outcome === 'rejected');
+      let best: { sets: CreativeSet[]; via: string; passed: number } | null = null;
+      for (const [i, variants] of rejected.entries()) {
+        const attempt = tried[i];
+        if (!attempt) continue;
+        const via = viaLabel(attempt.slot, attempt.model);
+        const f = finalizeCreative(variants, contexts, { via, tone });
+        if (!best || f.passed > best.passed) best = { sets: f.sets, via, passed: f.passed };
+      }
+      if (best) return { sets: best.sets, via: best.passed > 0 ? best.via : 'template', attempts: r.attempts.length };
       return { sets: finalizeCreative([], contexts, { via: 'template', tone }).sets, via: 'template', attempts: r.attempts.length };
     },
 

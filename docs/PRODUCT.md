@@ -100,7 +100,8 @@ Never: track, target people, audience profile, guaranteed, ROI, "AI magic", demo
 - No third-party names, logos or likenesses; no demographic references; one message per ad.
 - Headline ≤ 38 characters (≤ 6 words), body ≤ 90, call to action ≤ 22; no emoji.
 - Every local reference points to an evidence item from that neighborhood's Qloo evidence pack.
-- No other neighborhood's name; no invented numbers (digits must come from the brief's offer).
+- No other neighborhood's name; no invented numbers (digits must come from the brief: the offer or the
+  owner's own description).
 - Text contrast ≥ 7:1 on the mockup; mockups are labelled "Illustrative mockup. Not affiliated
   with LinkNYC, Intersection or CityBridge."
 - Restricted categories are refused: political, housing, employment, credit and health-claim ads.

@@ -50,3 +50,18 @@ rule that prevents it, and how to check.
   Rule: derived counts come from rows that carry the thing counted; test one-of and zero-of cases.
 - **A second independent review paid off again** (four real bugs in the design polish pass, all missed by
   unit, integration and browser tests). Rule: review every large judge-facing change before a freeze.
+- **Run the real model early.** The first live Groq runs (Thursday night, after the planned prompt freeze)
+  showed three things no mock test could: the prompt said "used in the copy" while the validator only
+  read the headline and body, so most offer-led ads were thrown away; models overshoot character limits
+  by one or two; the small model picks wrong-type and mass-market anchors. Rule: get a free model key on
+  day one, run a batch of real briefs and read why each ad failed before freezing prompts. Ask the model
+  for a margin under hard limits.
+- **Keep what passed.** A batch that missed the half-way bar was discarded whole, even ads that passed
+  every rule. With one configured provider that meant six templates. Rule: when no retry is left, keep
+  the best answer's passing parts.
+- **Compare storage drivers against the real backend.** Upstash's client decodes JSON-looking strings
+  ("123" comes back as 123); the in-memory store does not. A 30-line script running the same operations
+  on both found it in a minute.
+- **Credentials and terms need the owner.** The browser cannot sign in, accept third-party terms,
+  create API keys or search mail for keys, even with a general go-ahead. Plan these as owner steps and
+  hand over clipboard one-liners (`pbpaste` into a git-ignored file) so keys never pass through chat.

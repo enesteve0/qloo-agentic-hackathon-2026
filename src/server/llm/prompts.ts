@@ -2,8 +2,8 @@ import 'server-only';
 import { z } from 'zod';
 import type { Brief, EvidencePack, Tone } from '@/shared/types';
 
-/** Bump when instructions change; use it in output cache keys (llm:plan:*, llm:cre:*). */
-export const PROMPT_VERSION = 'stoop-prompts-1';
+/** Version of the instructions below; bump it whenever they change. */
+export const PROMPT_VERSION = 'stoop-prompts-2';
 
 export interface NeighborhoodRef {
   code: string;
@@ -40,11 +40,13 @@ business
 - offer: the brief's offer copied verbatim, or null.
 
 anchors: 3 to 6 taste anchors.
-- An anchor is a real, well-known entity that Qloo can find by name and that people who would love this business also love. type is one of: artist, place (a venue, restaurant, shop or museum), brand, movie, tv_show, person (a public figure known for their work), podcast, book.
-- Choose specific, popular, unambiguous entities and mix at least two types when it fits. Never use the business itself or a generic word such as "jazz" or "coffee".
+- An anchor is a real, well-known entity that Qloo can find by name and that people who would love this business also love. type is one of: artist (a musician or band), place (a specific venue, restaurant, shop or museum), brand (a company, label, studio or product line), movie, tv_show, person (a real public figure known for their work, never a fictional character), podcast, book (a specific title).
+- Choose specific, unambiguous entities with a devoted following that fits this business, and mix at least two types when it fits. Three strong anchors beat six weak ones: never add one just to cover a type. Never use the business itself or a generic word such as "jazz" or "coffee".
+- Skip mass-market names that almost everyone knows whatever their taste (national chains, giant sportswear or tech brands, national newspapers): their maps follow population, not taste.
+- Use only entities you are sure exist under exactly that name. Never invent one.
 - name: the official name. searchHint: the release year for a movie or tv_show, the city or neighborhood for a place, a 1 to 3 word descriptor otherwise, or null.
 - why: one short sentence on the shared taste.
-- Anchors describe taste, never people. Nothing about age, race, ethnicity, religion, gender, sexuality, health, politics or income, here or anywhere in your answer.
+- Anchors describe taste, never people: each one connects to what the business offers (its music, food, craft or scene), never just to its neighborhood or as a stand-in for who lives there. Nothing about age, race, ethnicity, religion, gender, sexuality, health, politics or income, here or anywhere in your answer.
 
 audienceSummary: one sentence about the shared taste (what people love, not who they are).
 
@@ -101,20 +103,23 @@ export function buildPlannerPrompt(brief: Brief): string {
 
 export const COPY_LIMITS = { headline: 38, headlineWords: 6, body: 90, cta: 22 } as const;
 
+/** What the writer is asked for: a margin under COPY_LIMITS, because models miscount characters. */
+export const COPY_TARGETS = { headline: 34, body: 84, cta: 20 } as const;
+
 const CREATIVE_TASK = `You write ads for Stoop, which places a small business's ads on New York City street screens. The input lists the business and, for each neighborhood, a pack of Qloo taste evidence: tags that over-index there.
 
 Write exactly two ads per neighborhood:
 - variant "A" leads with the neighborhood's local taste (one evidence label);
-- variant "B" leads with the offer, or with what the business is when there is no offer.
+- variant "B" leads with the offer: its headline is the offer itself (shortened if needed) and the business name goes in the body; with no offer, it leads with what the business is. It still uses one evidence label in its headline or body.
 
 Every ad must follow all of these rules; an ad that breaks one is thrown away.
-1. headline at most ${COPY_LIMITS.headline} characters and ${COPY_LIMITS.headlineWords} words; body at most ${COPY_LIMITS.body} characters; cta at most ${COPY_LIMITS.cta} characters. Spaces count. No emoji, no hashtags.
-2. Include the business name exactly as given at least once (headline, body or cta).
-3. Every local reference must come from that neighborhood's evidence. For each one add a reference with evidenceId set to the item's id and phrase set to the exact words used in the copy, copied verbatim. At least one reference per ad.
+1. headline at most ${COPY_TARGETS.headline} characters and ${COPY_LIMITS.headlineWords} words; body at most ${COPY_TARGETS.body} characters; cta at most ${COPY_TARGETS.cta} characters. Spaces count. This leaves a margin under the screen's hard limits of ${COPY_LIMITS.headline}, ${COPY_LIMITS.body} and ${COPY_LIMITS.cta} characters. No emoji, no hashtags.
+2. Include the business name exactly as given in every ad (headline, body or cta); when the headline is tight, put the name in the body.
+3. Every local reference must come from that neighborhood's evidence, and every ad uses at least one evidence label in its headline or body (the cta does not count). For each one add a reference with evidenceId set to the item's id and phrase set to the exact words used in the headline or body, copied verbatim.
 4. Name only the ad's own neighborhood. Never mention any other neighborhood, borough or street.
 5. No third-party names: no artists, brands, venues, shops, films, shows or real people (evidence labels are fine). No logos or likenesses.
 6. Nothing about who people are: no age, race, ethnicity, religion, gender, sexuality, health, politics or income.
-7. Use digits only if they appear in the offer. Never invent prices, dates, discounts or counts.
+7. Use digits only if they appear in the offer or in about. Never invent prices, dates, discounts or counts.
 8. One message per ad, in the requested tone: a sharp, plain-spoken New York voice. No "best", "guaranteed" or "#1" claims.
 9. rationale: one sentence for the owner explaining the hook (it is not shown on the screen).
 

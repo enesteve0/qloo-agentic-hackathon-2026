@@ -96,8 +96,10 @@ function businessForms(name: string | null): string[][] {
  * Choices beyond the letter of the spec, all in the direction of fewer false alarms on grounded copy:
  * - Mid-sentence capitalized words may also come from the brief (the owner's own words), from this
  *   pack's evidence labels, or appear elsewhere in the same copy in lower case. Third-party names
- *   (`blockedNames`) and the pack's place names are reported even at a sentence start.
- * - Digits may also come from `brief.business` and from this pack's evidence labels ("24 Hour Diner").
+ *   (`blockedNames`) and the pack's place names are reported even at a sentence start, unless that
+ *   capitalized word is one the brief itself uses ("Climb in free" when the offer is "First climb free").
+ * - Digits may also come from the brief's description and business name, and from this pack's
+ *   evidence labels ("24 Hour Diner"): the owner's own facts are not invented numbers.
  * - The business name counts as present when written in full, without "The"/"LLC"-style affixes, or
  *   by one distinctive word ("Halfnote" for "Halfnote Supper Club"). Its words never count as
  *   another neighborhood or a targeting term ("Astoria Bagel Co." may advertise in Bed-Stuy).
@@ -174,6 +176,7 @@ export function validateVariant(variant: AdVariant, ctx: CreativeContext): Groun
   const named: string[] = [];
   const namedTokens = new Set<string>();
   const blockedTokens = new Set<string>();
+  const briefWords = new Set([...words(brief.description), ...words(brief.offer), ...words(brief.business)]);
   const entities = [
     ...(ctx.blockedNames ?? []).map((name) => ({ name, kind: 'third-party name' })),
     ...pack.places.map((p) => ({ name: p.name, kind: 'local place name' })),
@@ -188,7 +191,9 @@ export function validateVariant(variant: AdVariant, ctx: CreativeContext): Groun
     );
     for (const w of distinctive) blockedTokens.add(w);
     const fullMatch = seq.length > 1 && !seq.every((w) => isCommonWord(w)) && fields.some((f) => containsSeq(f.norms, seq));
-    const tokenMatch = fields.some((f) => f.tokens.some((t) => distinctive.includes(t.norm) && isCapitalized(t.raw)));
+    const tokenMatch = fields.some((f) =>
+      f.tokens.some((t) => distinctive.includes(t.norm) && isCapitalized(t.raw) && !(t.sentenceStart && briefWords.has(t.norm))),
+    );
     if (fullMatch || tokenMatch) {
       named.push(`${kind} ${quote(squish(name))}`);
       for (const w of seq) namedTokens.add(w);
@@ -196,7 +201,7 @@ export function validateVariant(variant: AdVariant, ctx: CreativeContext): Groun
   }
 
   const allowed = new Set<string>([...bizTokens, ...ownTokens, ...words(pack.shortName), ...lexicon.regionTokens, ...labelTokens]);
-  for (const w of [...words(brief.description), ...words(brief.offer), ...words(brief.business)]) allowed.add(w);
+  for (const w of briefWords) allowed.add(w);
   // A word the copy also uses in lower case is an ordinary word, not a name.
   for (const f of fields) for (const t of f.tokens) if (!isCapitalized(t.raw)) allowed.add(t.norm);
   for (const w of blockedTokens) if (!bizTokens.has(w)) allowed.delete(w);
@@ -224,15 +229,16 @@ export function validateVariant(variant: AdVariant, ctx: CreativeContext): Groun
   }
   if (sensitive.length > 0) fail('sensitive', `targeting term ${uniq(sensitive).join(', ')}`);
 
-  // invented_number: digits must come from the offer, the business name or an evidence label ------
+  // invented_number: digits must come from the brief (offer, description, name) or an evidence label
   const allowedDigits = new Set([
     ...digitSequences(brief.offer),
+    ...digitSequences(brief.description),
     ...digitSequences(businessName),
     ...digitSequences(brief.business),
     ...pack.items.flatMap((item) => digitSequences(item.label)),
   ]);
   const invented = uniq(fields.flatMap((f) => digitSequences(f.text)).filter((d) => !allowedDigits.has(d)));
-  if (invented.length > 0) fail('invented_number', `numbers not in the offer: ${invented.join(', ')}`);
+  if (invented.length > 0) fail('invented_number', `numbers not in the brief: ${invented.join(', ')}`);
 
   // missing_business ----------------------------------------------------------------------------
   if (businessName && bizForms.length > 0) {

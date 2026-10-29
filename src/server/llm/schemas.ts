@@ -76,8 +76,9 @@ export type CreativeModelOutput = z.output<typeof creativeSchema>;
 // Post-parse normalization (limits live here, not in the schema)
 // ---------------------------------------------------------------------------------------------
 
+/** Collapse whitespace; plain hyphens, since models write U+2010/U+2011 ("Off‑White") and names go to Qloo search. */
 function clean(text: string | null | undefined): string {
-  return (text ?? '').replace(/\s+/g, ' ').trim();
+  return (text ?? '').replace(/\s+/g, ' ').replace(/[‐‑]/g, '-').trim();
 }
 
 function cleanOrNull(text: string | null | undefined): string | null {

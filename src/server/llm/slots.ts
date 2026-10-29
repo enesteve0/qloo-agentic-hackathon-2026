@@ -17,7 +17,7 @@ export type ReasoningLevel = NonNullable<GenerateTextOptions['reasoning']>;
  */
 export type ModelInstance = Exclude<LanguageModel, string>;
 
-export const SLOT_IDS = ['groq', 'gemini', 'cloudflare', 'sambanova', 'openrouter'] as const;
+export const SLOT_IDS = ['groq', 'groq-20b', 'gemini', 'cloudflare', 'sambanova', 'openrouter'] as const;
 export type SlotId = (typeof SLOT_IDS)[number];
 
 export interface SlotCallOptions {
@@ -42,7 +42,8 @@ export interface LlmSlot {
 }
 
 export const SLOT_MODELS = {
-  groq: { planner: 'openai/gpt-oss-20b', creative: 'openai/gpt-oss-120b' },
+  groq: { planner: 'openai/gpt-oss-120b', creative: 'openai/gpt-oss-120b' },
+  'groq-20b': { planner: 'openai/gpt-oss-20b', creative: 'openai/gpt-oss-20b' },
   gemini: { planner: 'gemini-3.1-flash-lite', creative: 'gemini-3.5-flash-lite' },
   cloudflare: { planner: '@cf/google/gemma-4-26b-a4b-it', creative: '@cf/google/gemma-4-26b-a4b-it' },
   sambanova: { planner: 'gpt-oss-120b', creative: 'gpt-oss-120b' },
@@ -54,7 +55,9 @@ export const OPENROUTER_FREE_FALLBACKS = ['google/gemma-3-27b-it:free', 'meta-ll
 
 /** Soft daily caps (ASSUMPTION: set below each provider's documented free-tier allowance). */
 export const DAILY_SOFT_CAPS: Record<SlotId, number> = {
-  groq: 1500,
+  // Groq allows 1,000 requests a day per model; each Groq slot uses one model.
+  groq: 900,
+  'groq-20b': 900,
   gemini: 500,
   cloudflare: 200,
   sambanova: 300,
@@ -102,18 +105,25 @@ export function buildSlots(env: SlotEnv, opts: BuildSlotsOptions = {}): LlmSlot[
 
   if (env.GROQ_API_KEY) {
     const groq = createGroq({ apiKey: env.GROQ_API_KEY, fetch });
-    const ids = SLOT_MODELS.groq;
-    slots.push({
-      id: 'groq',
-      label: 'Groq',
-      models: { planner: groq.languageModel(ids.planner), creative: groq.languageModel(ids.creative) },
-      modelIds: { ...ids },
-      // Strict json_schema = constrained decoding on gpt-oss.
-      callOptions: { reasoning: 'low', providerOptions: { groq: { structuredOutputs: true, strictJsonSchema: true } } },
-      jsonSkeleton: false,
-      geoGated: false,
-      dailySoftCap: DAILY_SOFT_CAPS.groq,
-    });
+    // One key, two slots: Groq's free limits are per model, so when 120b is out of tokens for the
+    // minute or the day, 20b answers instead of the rules.
+    for (const [id, label] of [
+      ['groq', 'Groq'],
+      ['groq-20b', 'Groq (20b)'],
+    ] as const) {
+      const ids = SLOT_MODELS[id];
+      slots.push({
+        id,
+        label,
+        models: { planner: groq.languageModel(ids.planner), creative: groq.languageModel(ids.creative) },
+        modelIds: { ...ids },
+        // Strict json_schema = constrained decoding on gpt-oss.
+        callOptions: { reasoning: 'low', providerOptions: { groq: { structuredOutputs: true, strictJsonSchema: true } } },
+        jsonSkeleton: false,
+        geoGated: false,
+        dailySoftCap: DAILY_SOFT_CAPS[id],
+      });
+    }
   }
 
   if (env.GOOGLE_GENERATIVE_AI_API_KEY) {

@@ -28,7 +28,7 @@ Built for the [Qloo Agentic Hackathon 2026](https://qloo.devpost.com/).
 |---|---|
 | Public demo | Live at [usestoop.vercel.app](https://usestoop.vercel.app) on Vercel |
 | Qloo data | Hackathon key pending activation. Until it is live, every plan uses synthetic taste data and is labelled SYNTHETIC. The client, calibration and contract checks are ready |
-| AI writers | Free-tier chain: Groq, then Gemini (only for visitors from allow-listed countries), Cloudflare Workers AI, SambaNova and OpenRouter `:free` models. Deterministic templates are the fallback, labelled TEMPLATE |
+| AI writers | Free-tier chain: Groq's `gpt-oss-120b` (its `gpt-oss-20b` when 120b is rate-limited), then Gemini (only for visitors from allow-listed countries), Cloudflare Workers AI, SambaNova and OpenRouter `:free` models. Deterministic templates are the fallback, labelled TEMPLATE |
 | Source | MIT. Public from submission day |
 
 ## One run, seven stations
@@ -114,7 +114,7 @@ quota, busy AI tiers), the visitor gets a labelled sample plan, never an error p
   maps with where 22 New York chains actually have more stores than commerce predicts (OpenStreetMap,
   ODbL). The OpenStreetMap side is built; the Qloo side runs once the key is live, and the result
   will be published at `/validation` whatever it shows.
-- **Tests.** 619 unit and integration tests and 30 browser tests run in CI on every push. The
+- **Tests.** 626 unit and integration tests and 30 browser tests run in CI on every push. The
   browser tests run on the production build and include axe accessibility checks on 11 pages. CI
   also runs a public-data audit and a gitleaks scan of the full history.
 

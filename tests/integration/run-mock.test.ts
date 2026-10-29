@@ -4,6 +4,9 @@ import { createRunDeps } from '@/server/agent/deps-live';
 import { executeRun, newRunState } from '@/server/agent/orchestrator';
 import { resetEnvForTests } from '@/server/env';
 import { MemoryKV, setKvForTests } from '@/server/kv';
+import { semanticProblems } from '@/server/llm/chain';
+import { createFakeGateway, fakeCreativeOutput } from '@/server/llm/fake';
+import type { AttemptEvent, LlmGateway } from '@/server/llm/gateway';
 import { resetQlooClientForTests } from '@/server/qloo';
 import { slotKey } from '@/server/qloo/pacing';
 import { applyPart, emptyRunView, type StoopPart } from '@/shared/stream';
@@ -123,5 +126,50 @@ describe('mock run end to end (synthetic Qloo + deterministic writer)', () => {
     expect(solaris?.status === 'resolved' && solaris.selected.id).toBe(pick.id);
     // Never a second question in the same run.
     expect(resumed.parts.some((p) => p.type === 'data-needsInput')).toBe(false);
+  });
+
+  it('keeps the ads that passed when every model answer misses the half-way bar', async () => {
+    const fake = createFakeGateway();
+    // Only the first ad keeps its copy; the other five break the length rule, so the answer is rejected.
+    const halfBroken: LlmGateway = {
+      async run(req) {
+        if (req.kind !== 'creative') return fake.run(req);
+        const out = fakeCreativeOutput(req.prompt);
+        out.variants = out.variants.map((v, i) => (i === 0 ? v : { ...v, headline: 'This headline runs far past what a street screen can hold' }));
+        const problems = semanticProblems(req.validate, out as never);
+        const event: AttemptEvent = {
+          kind: 'creative',
+          attempt: 1,
+          slot: 'test',
+          model: 'test-model',
+          outcome: problems.length ? 'rejected' : 'ok',
+          error: null,
+          status: null,
+          cooldownMs: null,
+          ms: 1,
+          detail: problems.join('; ') || null,
+        };
+        req.onAttempt?.(event);
+        return { ok: false, reason: 'exhausted', attempts: [event], skipped: [] };
+      },
+    };
+    const deps = createRunDeps({ qloo: 'mock', llm: 'mock', country: 'US', gateway: halfBroken });
+    const state = newRunState({ id: 'mockrun00003', brief: halfnote.brief, mode: 'mock', now: new Date() });
+    let { final } = await run(state, deps);
+    if (final.status === 'awaiting_input') {
+      const choices = (final.resolution?.issues ?? []).map((i) => ({ input: i.input, entityId: i.candidates[0]?.id ?? null }));
+      ({ final } = await run(final, deps, choices));
+    }
+
+    expect(final.status).toBe('done');
+    const [first, ...rest] = final.creative.flatMap((s) => s.variants);
+    expect(first).toMatchObject({ source: 'model', grounding: { ok: true, replacedByTemplate: false } });
+    expect(rest).toHaveLength(5);
+    for (const v of rest) {
+      expect(v.source).toBe('template');
+      // The template says why the model's ad was dropped.
+      expect(v.grounding.failed.map((f) => f.rule)).toContain('length');
+    }
+    expect(final.creative[0]?.via).toBe('test-model via test');
   });
 });

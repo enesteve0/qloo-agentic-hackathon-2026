@@ -61,7 +61,7 @@ describe('buildSlots', () => {
 
   it('skips slots whose keys are absent', () => {
     expect(buildSlots({})).toEqual([]);
-    expect(buildSlots({ OPENROUTER_API_KEY: 'k', GROQ_API_KEY: 'k' }).map((s) => s.id)).toEqual(['groq', 'openrouter']);
+    expect(buildSlots({ OPENROUTER_API_KEY: 'k', GROQ_API_KEY: 'k' }).map((s) => s.id)).toEqual(['groq', 'groq-20b', 'openrouter']);
     // Cloudflare needs both the account id and the token.
     expect(buildSlots({ CLOUDFLARE_API_TOKEN: 'k' })).toEqual([]);
   });
@@ -81,7 +81,9 @@ describe('buildSlots', () => {
   });
 
   it('uses the specified models', () => {
-    expect(SLOT_MODELS.groq).toEqual({ planner: 'openai/gpt-oss-20b', creative: 'openai/gpt-oss-120b' });
+    // 120b writes both steps; one Groq key also runs 20b as the next slot when 120b is rate-limited.
+    expect(SLOT_MODELS.groq).toEqual({ planner: 'openai/gpt-oss-120b', creative: 'openai/gpt-oss-120b' });
+    expect(SLOT_MODELS['groq-20b']).toEqual({ planner: 'openai/gpt-oss-20b', creative: 'openai/gpt-oss-20b' });
     expect(SLOT_MODELS.gemini).toEqual({ planner: 'gemini-3.1-flash-lite', creative: 'gemini-3.5-flash-lite' });
     expect(SLOT_MODELS.cloudflare.planner).toBe('@cf/google/gemma-4-26b-a4b-it');
     expect(SLOT_MODELS.sambanova.creative).toBe('gpt-oss-120b');
@@ -111,7 +113,7 @@ describe('provider request bodies (injected fetch, no network)', () => {
     expect(call?.url).toBe('https://api.groq.com/openai/v1/chat/completions');
     expect(call?.headers.authorization).toBe('Bearer test-groq');
     expect(call?.body).toMatchObject({
-      model: 'openai/gpt-oss-20b',
+      model: 'openai/gpt-oss-120b',
       reasoning_effort: 'low',
       max_tokens: 2000,
       response_format: { type: 'json_schema', json_schema: { strict: true, name: 'stoop_plan' } },
@@ -120,6 +122,17 @@ describe('provider request bodies (injected fetch, no network)', () => {
     expect(messages[0]).toEqual({ role: 'system', content: buildPlannerInstructions(NEIGHBORHOODS) });
     expect(messages[1]?.role).toBe('user');
     expect(String(messages[1]?.content)).toContain('<brief>');
+  });
+
+  it('Groq (20b): the same key and request shape with the smaller model', async () => {
+    const { calls, fetchFn } = recordingFetch();
+    await plannerRequest(slotById(buildSlots({ GROQ_API_KEY: 'test-groq' }, { fetch: fetchFn }), 'groq-20b'));
+    expect(calls[0]?.headers.authorization).toBe('Bearer test-groq');
+    expect(calls[0]?.body).toMatchObject({
+      model: 'openai/gpt-oss-20b',
+      reasoning_effort: 'low',
+      response_format: { type: 'json_schema', json_schema: { strict: true, name: 'stoop_plan' } },
+    });
   });
 
   it('Gemini: native JSON schema and low thinking level', async () => {
