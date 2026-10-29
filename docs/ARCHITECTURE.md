@@ -226,7 +226,7 @@ from the same eligible list — no extra model call. Metrics: overlap@5; each LL
 `L̂` (same Qloo responses ⇒ comparable); optimizer run on the LLM's neighborhoods → taste-weighted
 impressions vs ours and share of budget in below-baseline areas; "missed by the LLM" best
 neighborhood with its evidence. Always-on disclosure: scoring LLM picks on Qloo's map is circular —
-see `/proof` for the independent test.
+see `/validation` for the independent test.
 
 ## 11. Language-model chain (`src/server/llm/`)
 
@@ -405,7 +405,7 @@ available here under the Open Database License"). Publish whatever the result is
 
 ## 19. Routes
 
-Pages: `/`, `/plan/new`, `/plan/[runId]`, `/p/[slug]`, `/proof` (once validation results exist),
+Pages: `/`, `/plan/new`, `/plan/[runId]`, `/p/[slug]`, `/validation` (once validation results exist),
 `/how-it-works`, `/judges`, `/status`. API: `POST /api/runs`, `GET /api/runs/[id]`,
 `GET /api/export?run=<id>|preset=<slug>` (CSV, derived only, assumptions in header rows),
 `GET /api/ad?run=<id>|preset=<slug>&nta=<code>&v=A|B` (one ad as a 1080×1920 PNG, `next/og` with bundled

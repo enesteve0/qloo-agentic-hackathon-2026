@@ -12,8 +12,9 @@ correction in `tasks/lessons.md`.
 - [ ] Qloo key form submitted + Discord #api-help + Devpost forum post (ask for 50k quota)
 - [ ] Free LLM keys: Groq, Google AI Studio, Cloudflare Workers AI (account ID + token), SambaNova,
       OpenRouter (new key); no payment method anywhere
-- [ ] Vercel project imported from GitHub (private repo) + Upstash Redis (free) via Marketplace
-- [ ] Keys added to Vercel env (Production) and local `.env.local` (git-ignored)
+- [x] Vercel project created and connected to GitHub (2026-10-29, CLI; https://usestoop.vercel.app; pushes to master deploy)
+- [ ] Upstash Redis (free, autoUpgrade off): owner accepts Upstash terms, then provision via CLI
+- [ ] Keys added to Vercel env (Production) and local `.env.local` (git-ignored) — app secrets, modes and prefixes set 2026-10-29; Qloo and Groq keys wait for `.env.local`
 - [ ] Explicit "publish the repo" instruction on Fri Oct 30 (recorded in PROVENANCE)
 
 ## P0 — must ship (dependency order)
@@ -35,8 +36,8 @@ correction in `tasks/lessons.md`.
       grounded variants in a mock run
 - [x] 8. Optimizer + PLAN table + CSV + print/PDF + email draft — verify: optimizer tests; e2e CSV
 - [x] 9. Per-run PROOF (LLM-only comparison) — verify: integration asserts proof fields
-- [ ] 10. Guards (WAF rule, limits, slots, single-flight, banners) — verify: e2e rate-limit →
-      banner + recorded run; manual WAF test
+- [x] 10. Guards (WAF rule, limits, slots, single-flight, banners) — verify: e2e rate-limit →
+      banner + recorded run (CI); WAF rule active on the project (20/min/IP on POST /api/runs, read back via API 2026-10-29)
 - [ ] 11. Production deploy (mock + banner) → live after calibration — verify: new brief < 90 s,
       ≤ 20 fresh Qloo calls, provenance lists every request
 - [ ] 12. Calibration (`pnpm qloo:smoke --confirm`, ≤ 30 calls) applied — verify:
@@ -48,7 +49,7 @@ correction in `tasks/lessons.md`.
 
 ## P1 — in order, only after P0 is safe
 
-- [ ] OSM validation backtest + `/proof` page (summary stats only, ODbL notice, failures shown) — OSM arm done 2026-10-26 (22 chains); Qloo arm ready (44 calls), runs on key day; `/proof` page after results
+- [ ] OSM validation backtest + `/validation` page (summary stats only, ODbL notice, failures shown) — OSM arm done 2026-10-26 (22 chains); Qloo arm ready (44 calls), runs on key day; page built 2026-10-29 (404 until the report is committed)
 - [ ] Tag evidence per NTA (only if calibration shows tags vary by location)
 - [ ] Business's own Qloo entity as an anchor + one-call `filter.results.entities` anchor check
 - [ ] Anchor swap on DENSITY_ONLY flag
@@ -59,7 +60,7 @@ correction in `tasks/lessons.md`.
 
 ## Gates (Istanbul time)
 
-- [ ] G0 Mon 01:00 — real-kiosk map on Vercel; CI green
+- [x] G0 Mon 01:00 — real-kiosk map on Vercel; CI green — met late, Thu 29 11:00 (usestoop.vercel.app, mock mode)
 - [x] G1 Tue 23:00 — browser end-to-end on mocks (SYNTHETIC badge) — met Mon 26 evening: 28 Playwright specs (live run, reload, CSV/PNG, limits → sample plan, picker, axe on 11 pages) pass in CI on the production build
 - [ ] G2 Wed 23:00 — live end-to-end with ≥ 3 presets (or escalate per contingencies)
 - [ ] G3 Thu 23:00 — feature freeze (prompts + dependencies frozen 18:00)
@@ -78,6 +79,11 @@ correction in `tasks/lessons.md`.
   LinkLocal free option); an independent review of the run API found ten issues, all fixed with
   regression tests (606 unit/integration tests). Remaining blockers are owner actions: Vercel + Upstash
   (G0), the Qloo key (calibration, recorded presets), model keys (live copy).
+
+- 2026-10-29 13:20 Istanbul: production live in mock mode at https://usestoop.vercel.app (Vercel CLI,
+  GitHub-connected, WAF rule, env per environment). Design polish pass committed (error and 404 pages,
+  brief problems in one alert, honest leftover-budget note). README rewritten for submission. `/validation`
+  page ready. Blocked on owner: Upstash terms acceptance and `.env.local` with the Qloo and Groq keys.
 
 ## Review
 

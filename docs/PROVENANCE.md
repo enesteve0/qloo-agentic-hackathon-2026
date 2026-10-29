@@ -65,6 +65,24 @@
 - **Model-output caching** dropped from the plan: identical briefs are served from the saved run, so
   separate planner and creative caches add complexity without saving calls.
 
+### 2026-10-29 — deployment
+
+- **Vercel project** `stoopnyc` (Hobby, region iad1, Node 22, Fluid compute) created with the Vercel CLI
+  and connected to this GitHub repository; every push to `master` deploys to production. Public URL:
+  **https://usestoop.vercel.app** (`stoopnyc.vercel.app` belonged to another account). Preview
+  deployments stay behind Vercel Authentication.
+- **Environment:** production and preview get separate session secrets and admin tokens and separate
+  Redis key prefixes (`p:` / `pv:`). The Qloo key goes to production only. Values live in Vercel and in
+  git-ignored local files, never in the repository.
+- **Firewall:** a Vercel WAF rule rate-limits `POST /api/runs` to 20 requests per minute per IP, in
+  front of Stoop's own per-session and per-IP limits.
+- **Redis:** Upstash for Redis through the Vercel Marketplace, free plan, `autoUpgrade=false` (the
+  CLI default is true), so the database can never move to a paid plan. The owner accepts Upstash's
+  terms; the database is created after that.
+- **Removed:** the unused `SHARING_ENABLED` / `SHARE_EXPIRES_AT` settings left from the cut share page.
+- **Validation page** is `/validation` (not `/proof`, which is the PROOF station's name). It is built
+  from the committed report and does not exist until the live Qloo arm has run.
+
 ## Recording future work
 
 For every imported component, record its upstream URL, immutable commit/version, license, purpose and changes. For every material project decision, record date, rationale and source. If a baseline project is reused, identify its pre-event commit and explain the event-period work separately.

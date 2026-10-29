@@ -49,7 +49,7 @@ approves and sends.
 | WHERE | Qloo heatmap lift vs an NYC baseline, mapped onto 2,183 live ad-capable LinkNYC kiosk locations, grouped by 2020 neighborhoods | Map + ranked list; "skipped" busy-but-wrong areas (P1) |
 | WHAT | Per top neighborhood: Qloo neighborhood taste evidence → two ad variants on portrait screen mockups | Evidence sits beside the ad, never inside it |
 | PLAN | Deterministic budget optimizer with labelled assumptions | Instant recalculation, no AI or Qloo call |
-| PROOF | Same brief, same budget, same AI model — one plan had Qloo | Circularity disclosed; independent validation on `/proof` |
+| PROOF | Same brief, same budget, same AI model — one plan had Qloo | Circularity disclosed; independent validation on `/validation` |
 | SEND | Checklist, editable booking email (mailto), CSV screen list, creatives, print/PDF | "Stoop drafts. You send." Nothing is sent or bought automatically |
 
 **Why it is an agent.** It plans its own taste anchors from a plain-language brief, calls Qloo
@@ -79,7 +79,7 @@ The badge appears per run (header), per step (agent log) and per figure (impress
 | `/plan/new` | Brief form (also embedded on the landing page) |
 | `/plan/[runId]?view=where\|what\|plan\|proof\|send` | Run view: agent ticker + canvas while streaming, then the seven stations |
 | `/p/[slug]` | Preset: opens its recorded run |
-| `/proof` | Validation: do Qloo taste maps know where brands set up shop? |
+| `/validation` | Validation: do Qloo taste maps know where chains open stores? |
 | `/how-it-works` | `#method #data #privacy #limits #labels #fairness` |
 | `/judges` | 60-second path, what is live vs recorded, fair-use note |
 | `/status` | Public health: mode, Qloo reachability, AI writers, cache warmth, data snapshot dates, build SHA |
@@ -174,7 +174,7 @@ note) → Run live (watch the Qloo calls stream).
 
 **Check it in 2 minutes:** open the demo (no login) → Halfnote preset → #1 neighborhood and an
 evidence chip → PROOF → type your own brief (e.g. "Ramen counter in Astoria, $1,000, 2 weeks") and
-answer the one question if asked → open the agent log → visit `/proof`, `/how-it-works#limits`,
+answer the one question if asked → open the agent log → visit `/validation`, `/how-it-works#limits`,
 `/status`.
 
 ## 10. What Stoop will not do
