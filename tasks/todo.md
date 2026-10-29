@@ -105,9 +105,10 @@ correction in `tasks/lessons.md`.
       — 33/36 then 18/18 model ads passed (was 35/54); planner and writer on gpt-oss-120b, 20b as fallback
 - [x] Upstash driver checked against the real database under a throwaway prefix (run persists, limits,
       single-flight), then the prefix deleted
-- [ ] Production: `LLM_MODE=live` + Upstash (redeploy); health, a live run, data under `p:`
-- [ ] Qloo key-day prep: production env file for scripts (scratch, 600), commands ready
-- [ ] Docs: PROVENANCE (Upstash terms accepted by the owner, Groq key), DEPLOYMENT, README status,
+- [x] Production: `LLM_MODE=live` + Upstash (redeploy); health, a live run, data under `p:` — b5c5e7a,
+      live runs 13.7 s and 14.6 s with 6/6 model ads, run/limit/cache keys under `p:`
+- [x] Qloo key-day prep: production env file for scripts (scratch, 600), commands ready
+- [x] Docs: PROVENANCE (Upstash terms accepted by the owner, Groq key), DEPLOYMENT, README status,
       SUBMISSION, Devpost draft numbers that do not depend on Qloo
 - [x] Release audit dry run (gitleaks + trufflehog, full history) so Friday's publish is quick — both
       clean on 66 commits; repeat on the release commit

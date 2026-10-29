@@ -28,7 +28,7 @@ Built for the [Qloo Agentic Hackathon 2026](https://qloo.devpost.com/).
 |---|---|
 | Public demo | Live at [usestoop.vercel.app](https://usestoop.vercel.app) on Vercel |
 | Qloo data | Hackathon key pending activation. Until it is live, every plan uses synthetic taste data and is labelled SYNTHETIC. The client, calibration and contract checks are ready |
-| AI writers | Free-tier chain: Groq's `gpt-oss-120b` (its `gpt-oss-20b` when 120b is rate-limited), then Gemini (only for visitors from allow-listed countries), Cloudflare Workers AI, SambaNova and OpenRouter `:free` models. Deterministic templates are the fallback, labelled TEMPLATE |
+| AI writers | Live on the demo: Groq's `gpt-oss-120b` on the free tier, with `gpt-oss-20b` when 120b is rate-limited. The chain also takes Gemini (only for visitors from allow-listed countries), Cloudflare Workers AI, SambaNova and OpenRouter `:free` models when their keys are set. Deterministic templates are the last fallback, labelled TEMPLATE |
 | Source | MIT. Public from submission day |
 
 ## One run, seven stations
