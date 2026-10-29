@@ -4,7 +4,7 @@ import { cx } from '@/components/ui/cx';
 
 export const GITHUB_URL = 'https://github.com/enesteve0/qloo-agentic-hackathon-2026';
 
-export type SiteSection = 'home' | 'how-it-works' | 'judges' | 'status' | 'plan';
+export type SiteSection = 'home' | 'how-it-works' | 'judges' | 'status' | 'plan' | 'validation';
 
 export const SITE_NAV: { href: string; label: string; section?: SiteSection; external?: boolean }[] = [
   { href: '/how-it-works', label: 'How it works', section: 'how-it-works' },
