@@ -53,7 +53,7 @@ src/server/proof/        LLM-only baseline comparison
 src/server/llm/          gateway, chain, slots, cooldowns, geo-gate, schemas, prompts, fake
 src/server/agent/        orchestrator, run state, stages, event bus, narration, labels
 src/server/guard/        session, origin, limits, budget, semaphore, single-flight, sanitize, fallback
-src/server/store/        runs, shares, presets
+src/server/store/        runs and recorded presets
 src/shared/              client-safe types and stream part definitions
 src/components/          UI components
 src/data/                committed build outputs from public data (kiosks, NTA 2020, grid, NYC polygon)
@@ -192,7 +192,7 @@ neighborhood_characteristic, good_for, visit_intent, time_of_day_fit, decor, set
 customer_identity, age_range, accessibility, payments or parking — weighted `1/(1+rank)`, scored by
 share × log(1 + contrast vs the other selected neighborhoods), top 5 with support ≥2 places →
 `EvidencePack { nta, shortName, items[{ id: ev:<nta>:<tag>, kind, label, weight, support }], places[] }`.
-Place names may appear as evidence in the app but never in ad copy, share pages or CSV.
+Place names may appear as evidence in the app but never in ad copy, the PNG ads or the CSV.
 P1 (only if calibration shows location sensitivity): `filter.type=urn:tag` with
 `signal.location=<NTA polygon>` and `filter.tag.types=<music/media genres>`.
 
@@ -301,8 +301,8 @@ and fingerprint maps are re-requested through the client cache) and defaults to 
 | Key | Content | TTL |
 |---|---|---|
 | `run:{id}` | `RunState` (~35 KB, no raw Qloo) | 14 days, capped at the event data expiry |
-| `share:{id}` | derived snapshot (no Qloo IDs, raw scores, place names or images) | until 2026-11-07 |
 | `preset:{slug}` | recorded run (RECORDED) | until the event data expiry |
+| `presyn:{slug}` | synthetic sample plan used before a preset is recorded (SYNTHETIC) | 1 day |
 | `q1:{hash}` | normalized Qloo data | until event data expiry |
 | `res:{type}:{name}` | resolution outcome | same |
 | `sf:run:{briefHash}` / `done:run:{briefHash}` / `sf:resume:{id}` | single-flight lock / completed identical brief / resume lock | 150 s / 6 h / 150 s |
@@ -411,18 +411,19 @@ Pages: `/`, `/plan/new`, `/plan/[runId]`, `/p/[slug]`, `/proof` (once validation
 `GET /api/ad?run=<id>|preset=<slug>&nta=<code>&v=A|B` (one ad as a 1080×1920 PNG, `next/og` with bundled
 fonts), `GET /api/health` (public, no numbers),
 `GET /api/admin/health` and `POST /api/admin/record` (bearer `ADMIN_TOKEN`). `robots.txt` disallows
-`/api/`, `/s/`, `/plan/`.
+`/api/` and `/plan/`. There is no separate share page: a `/plan/<id>` link is the share link (unguessable
+id, `noindex`, expires with the event data).
 
 ## 20. Environment variables (server-only)
 
 `QLOO_API_KEY` (Production only; absent in Preview), `QLOO_BASE_URL`, `QLOO_MODE`
 (`mock|live|cache-only|off`), `LLM_MODE` (`mock|live`), `QLOO_RUN_RPS`, `QLOO_RUN_SLOTS`,
 `QLOO_MAX_FRESH_PER_RUN`, `QLOO_CAPS_JSON`, `EVENT_JUDGING_START`, `EVENT_JUDGING_END`,
-`EVENT_DATA_EXPIRES_AT`, `SHARE_EXPIRES_AT`, `LIVE_RUNS_PER_HOUR`, `UPSTASH_REDIS_REST_URL` /
+`EVENT_DATA_EXPIRES_AT`, `LIVE_RUNS_PER_HOUR`, `UPSTASH_REDIS_REST_URL` /
 `UPSTASH_REDIS_REST_TOKEN` (or `KV_REST_API_*`), `REDIS_PREFIX`, `REDIS_DRIVER` (`upstash|memory`),
 `GROQ_API_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`, `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`,
 `SAMBANOVA_API_KEY`, `OPENROUTER_API_KEY`, `GEMINI_ALLOWED_COUNTRIES`, `SESSION_SECRET`,
-`ADMIN_TOKEN`, `SHARING_ENABLED`, `SITE_URL`; scripts only: `OVERPASS_URL`, `OVERPASS_USER_AGENT`.
+`ADMIN_TOKEN`, `SITE_URL`; scripts only: `OVERPASS_URL`, `OVERPASS_USER_AGENT`.
 Runtime switches in Redis: `cfg:qloo:mode`, `cfg:llm:disabled`.
 
 ## 21. Tests and CI
@@ -437,5 +438,8 @@ aggregation, flags, cache keys, ledger (incl. Nov 1 DST), client status table, p
 resolution, validator (≥25 cases), optimizer, proof, schema strictness, chain error → cooldown,
 Gemini geo-gate, provider-object slots, guards. Contract: schemas vs synthetic fixtures and edge
 variants. Integration: `executeRun` end-to-end in mock mode (needs_input resume; no Qloo IDs or raw
-scores in share/CSV). E2E: preset renders; new brief streams; picker resumes; rate limit → banner +
-recorded run; share page noindex without affinity values; CSV header.
+scores in the CSV or PNG ads), the run API (start, resume, cached briefs, capacity fallbacks), admin routes.
+E2E (Playwright on the production build): a new brief streams to a finished plan that survives a reload and
+exports; restricted briefs get a reason; over the limit → labelled sample plan, not an error page; station
+rail; agent log with every Qloo request and a redacted trace; PNG and CSV downloads; ambiguity picker
+resumes; status and health expose no quotas; axe on 11 pages.

@@ -32,7 +32,6 @@ preview deployments never spend Qloo quota. Never use a `NEXT_PUBLIC_` prefix fo
 | `SESSION_SECRET` | 32+ random bytes | different value | `openssl rand -hex 32` |
 | `ADMIN_TOKEN` | 24+ random characters | different value | protects `/api/admin/*` |
 | `REDIS_PREFIX` | `p:` | `pv:` | keeps production and previews apart in one free database |
-| `SHARING_ENABLED` | `false` (enable later) | `false` | share pages are derived-only |
 
 ## 3. Firewall rule (Vercel WAF, free on Hobby)
 

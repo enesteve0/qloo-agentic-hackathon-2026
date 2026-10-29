@@ -30,7 +30,7 @@ export async function GET(req: Request) {
   ]);
   return NextResponse.json(
     {
-      modes: { qloo: env.QLOO_MODE, llm: env.LLM_MODE, redis: env.redisDriver, sharing: env.SHARING_ENABLED },
+      modes: { qloo: env.QLOO_MODE, llm: env.LLM_MODE, redis: env.redisDriver },
       qloo: ledger,
       llm,
       calibration: { ...calibration.config, location: calibration.location, decidedAt: calibration.decidedAt },

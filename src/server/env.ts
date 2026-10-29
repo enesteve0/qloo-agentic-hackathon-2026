@@ -1,10 +1,6 @@
 import 'server-only';
 import { z } from 'zod';
 
-const bool = z
-  .enum(['true', 'false', '1', '0'])
-  .transform((v) => v === 'true' || v === '1');
-
 const schema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   VERCEL_ENV: z.enum(['development', 'preview', 'production']).optional(),
@@ -37,8 +33,6 @@ const schema = z.object({
   EVENT_JUDGING_START: z.iso.datetime().default('2026-11-02T17:00:00Z'),
   EVENT_JUDGING_END: z.iso.datetime().default('2026-11-06T04:45:00Z'),
   EVENT_DATA_EXPIRES_AT: z.iso.datetime().default('2026-11-07T00:00:00Z'),
-  SHARE_EXPIRES_AT: z.iso.datetime().default('2026-11-07T00:00:00Z'),
-  SHARING_ENABLED: bool.default(false),
   SESSION_SECRET: z.string().min(32).optional(),
   ADMIN_TOKEN: z.string().min(24).optional(),
   SITE_URL: z.url().optional(),

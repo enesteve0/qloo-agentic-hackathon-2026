@@ -83,7 +83,6 @@ The badge appears per run (header), per step (agent log) and per figure (impress
 | `/how-it-works` | `#method #data #privacy #limits #labels #fairness` |
 | `/judges` | 60-second path, what is live vs recorded, fair-use note |
 | `/status` | Public health: mode, Qloo reachability, AI writers, cache warmth, data snapshot dates, build SHA |
-| `/s/[id]` | Unlisted share page (flagged, `noindex`, derived plan only, expires after the event) |
 
 **State rules (all screens).** Loading skeletons say what is happening (no bare spinners). Partial
 results stream in (heat → kiosks → list). Degraded = amber banner stating what fell back and what
