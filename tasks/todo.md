@@ -92,6 +92,11 @@ correction in `tasks/lessons.md`.
   MapLibre bundle). Groq's `openai/gpt-oss-20b`/`-120b` confirmed current (not on Groq's deprecation list).
   Still blocked on owner: Upstash terms and `.env.local`.
 
+- 2026-10-30 00:30 Istanbul: owner accepted Upstash's terms and created the Groq key; free Upstash database
+  `stoopnyc-redis` provisioned and connected; production on c675738 with the live AI writer (gpt-oss-120b,
+  20b fallback) and Upstash storage, checked with a live run (13.7 s, 6/6 model ads) — Qloo data still
+  synthetic. CI green. Blocked on owner: the Qloo key (inbox search was blocked by the permission system).
+
 ## Overnight Thu 29 → Fri 30 (owner asleep; Qloo key waits for the owner)
 
 - [x] Prompts v2: planner anchor guidance (types, no mass-market names, no invented entities); creative

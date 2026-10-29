@@ -38,6 +38,7 @@ describe('validateVariant: passing copy', () => {
     ['a one-word anchor that is a common word does not block it', { body: 'Halfnote: soul food, live music.' }, { blockedNames: ['Soul'] }],
     ['capitalized words the brief uses are allowed', { body: 'Halfnote, steps from Nostrand.' }, { description: 'Jazz club on Nostrand Ave.' }],
     ['digits from the owner\'s description', { body: 'Halfnote: live music from 7pm.' }, { description: 'A jazz supper club open from 7pm with Tuesday jam nights.' }],
+    ['a bare count from the owner\'s description', { body: 'Halfnote: 48 seats of live music.' }, { description: 'A 48-seat jazz supper club.' }],
     ['an anchor word at a sentence start that the brief also uses', { cta: 'Climb in free' }, { blockedNames: ['The Climb'], offer: 'First climb free' }],
   ];
   it.each(passing)('%s', (_name, copy, opts) => {
@@ -86,6 +87,12 @@ describe('validateVariant: failing copy', () => {
     ['third-party name, even at a sentence start', { headline: 'Robert Glasper fans?', body: 'Halfnote brings live music to Bed-Stuy.' }, 'ungrounded_proper_noun', 'third-party name "Robert Glasper"', { blockedNames: ['Robert Glasper'] }],
     ['one distinctive word of a third-party name', { body: 'Halfnote: live music for Glasper lovers.' }, 'ungrounded_proper_noun', 'third-party name "Robert Glasper"', { blockedNames: ['Robert Glasper'] }],
     ['an anchor word at a sentence start that the brief never uses', { cta: 'Climb in free' }, 'ungrounded_proper_noun', 'third-party name "The Climb"', { blockedNames: ['The Climb'] }],
+    // A name the owner writes in the description is still a name, at any clause start.
+    ['a third-party name the description mentions, leading the headline', { headline: 'Glasper fans, live music here' }, 'ungrounded_proper_noun', 'third-party name "Robert Glasper"', { blockedNames: ['Robert Glasper'], description: 'A jazz supper club for fans of Robert Glasper.' }],
+    ['a third-party name the description mentions, after a colon', { body: 'Halfnote: Glasper nights and live music.' }, 'ungrounded_proper_noun', 'third-party name "Robert Glasper"', { blockedNames: ['Robert Glasper'], description: 'A jazz supper club for fans of Robert Glasper.' }],
+    // Description numbers are facts, not prices or discounts.
+    ['a price made from a description number', { body: 'Halfnote: dinner and live music for $48.' }, 'invented_number', 'numbers not in the brief: 48', { description: 'A 48-seat jazz supper club with Tuesday jam nights.' }],
+    ['a discount made from a description number', { headline: '10% off live music' }, 'invented_number', 'numbers not in the brief: 10', { description: 'A 10-day opening run of live jazz.' }],
     ['local place name from the evidence', { body: 'Halfnote, around the corner from Bar Lunatico.' }, 'ungrounded_proper_noun', 'local place name "Bar Lunatico"', { places: ['Bar Lunatico'] }],
     ['age targeting', { body: 'Halfnote: live music for seniors.' }, 'sensitive', '"seniors" (age)'],
     ['generation label', { headline: 'Live music for Gen-Z' }, 'sensitive', '"gen z" (age)'],

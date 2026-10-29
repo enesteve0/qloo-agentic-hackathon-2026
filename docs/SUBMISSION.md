@@ -22,8 +22,9 @@ A box is ticked only with the evidence written next to it. Last updated 2026-10-
       "Run it locally", verified by CI from a clean checkout on every push. Redacted live trace: after the
       key.*
 - [ ] Publish the working demo externally and test its core journey without private invitations. *Public
-      at https://usestoop.vercel.app since 2026-10-29 (mock mode, labelled SYNTHETIC); 29 browser tests on
-      the production build in CI. Live Qloo data: after the key.*
+      at https://usestoop.vercel.app since 2026-10-29; live AI writer (Groq) and Upstash storage since
+      2026-10-30 00:05 Istanbul, checked with a live run on production; Qloo data still synthetic and
+      labelled SYNTHETIC. 30 browser tests on the production build in CI. Live Qloo data: after the key.*
 - [ ] When authorized to publish, make the source repo public and verify MIT is detected.
 - [ ] Complete the feature description; video is optional, not required.
 - [ ] Submit before October 30, 23:45 EDT / October 31, 06:45 Istanbul.

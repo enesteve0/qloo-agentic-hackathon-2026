@@ -336,8 +336,10 @@ export function createRunDeps(o: DepsOptions): RunDeps {
         };
       }
       const tone = planner.tone;
-      // Answers that missed the half-way bar, in order: one per "rejected" attempt.
-      const rejected: AdVariant[][] = [];
+      // Answers that missed the half-way bar, each with the model that wrote it. The gateway reports an
+      // attempt right after validating it, so the answer waiting in `checked` belongs to that attempt.
+      const rejected: { variants: AdVariant[]; via: string }[] = [];
+      let checked: AdVariant[] | null = null;
       const r = await gateway.run({
         kind: 'creative',
         schema: creativeSchema,
@@ -356,10 +358,14 @@ export function createRunDeps(o: DepsOptions): RunDeps {
         maxAttempts: 3,
         validate: (out) => {
           if (!finalizeCreative(out.variants, contexts, { via: 'check', tone }).failover) return [];
-          rejected.push(out.variants);
+          checked = out.variants;
           return ['Fewer than half of the ads passed the copy rules'];
         },
-        onAttempt: (e) => onAttempt(toAttempt(e)),
+        onAttempt: (e) => {
+          if (e.outcome === 'rejected' && checked) rejected.push({ variants: checked, via: viaLabel(e.slot, e.model) });
+          checked = null;
+          onAttempt(toAttempt(e));
+        },
       });
       if (r.ok) {
         const via = viaLabel(r.via, r.model);
@@ -367,12 +373,8 @@ export function createRunDeps(o: DepsOptions): RunDeps {
       }
       // No answer reached the bar. The best one still beats templates everywhere: its passing ads stay and
       // templates fill the rest, keeping the reasons the model's ads failed.
-      const tried = r.attempts.filter((a) => a.outcome === 'rejected');
       let best: { sets: CreativeSet[]; via: string; passed: number } | null = null;
-      for (const [i, variants] of rejected.entries()) {
-        const attempt = tried[i];
-        if (!attempt) continue;
-        const via = viaLabel(attempt.slot, attempt.model);
+      for (const { variants, via } of rejected) {
         const f = finalizeCreative(variants, contexts, { via, tone });
         if (!best || f.passed > best.passed) best = { sets: f.sets, via, passed: f.passed };
       }

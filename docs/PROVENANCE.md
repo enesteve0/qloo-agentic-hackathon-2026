@@ -107,6 +107,11 @@
   numbers; a capitalized word at a sentence start that the brief itself uses is not read as an
   anchor's name. When no model answer gets half its ads through, the best answer's passing ads are
   kept instead of templating all six.
+- **Independent review of the change** found three real issues, all fixed with regression tests: a
+  name the owner wrote in the description could lead a line of copy (only words the brief writes in
+  lower case count as ordinary now); description digits could become prices ("48-seat" → "$48"; now
+  bare facts only); and the two Groq slots each kept their own key cooldown and kill switch (now shared
+  per provider, and a key failure skips the provider's other slot in the same run).
 
 ## Recording future work
 

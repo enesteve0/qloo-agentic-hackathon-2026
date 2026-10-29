@@ -114,7 +114,7 @@ quota, busy AI tiers), the visitor gets a labelled sample plan, never an error p
   maps with where 22 New York chains actually have more stores than commerce predicts (OpenStreetMap,
   ODbL). The OpenStreetMap side is built; the Qloo side runs once the key is live, and the result
   will be published at `/validation` whatever it shows.
-- **Tests.** 626 unit and integration tests and 30 browser tests run in CI on every push. The
+- **Tests.** 635 unit and integration tests and 30 browser tests run in CI on every push. The
   browser tests run on the production build and include axe accessibility checks on 11 pages. CI
   also runs a public-data audit and a gitleaks scan of the full history.
 

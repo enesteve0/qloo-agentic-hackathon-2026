@@ -91,6 +91,20 @@ export function digitSequences(input: string | null | undefined): string[] {
   return (s.match(/\d+/g) ?? []).map((d) => d.replace(/^0+(?=\d)/, ''));
 }
 
+/**
+ * The digit runs of `digitSequences` that read as money or a discount: after a currency sign, or before
+ * "%", "percent" or "off" ("$48", "10% off", "20 off").
+ */
+export function pricedDigitSequences(input: string | null | undefined): string[] {
+  if (!input) return [];
+  const s = input.normalize('NFKD').replace(/(\d),(?=\d{3}(?!\d))/g, '$1');
+  const out: string[] = [];
+  for (const m of s.matchAll(/([$€£]\s*)?(\d+(?:\.\d+)?)(\s*(?:%|percent\b|off\b))?/giu)) {
+    if (m[1] || m[3]) for (const d of (m[2] ?? '').split('.')) out.push(d.replace(/^0+(?=\d)/, ''));
+  }
+  return out;
+}
+
 export function hasEmoji(input: string): boolean {
   return EMOJI.test(input);
 }

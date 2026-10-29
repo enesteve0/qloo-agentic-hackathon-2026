@@ -205,7 +205,8 @@ cta ≤22, no emoji) · ≥1 reference and every `evidenceId` from this neighbor
 phrase present in the copy · no foreign neighborhood names (lexicon of all NTA names, short names,
 aliases, boroughs) · mid-sentence proper nouns must be allow-listed (business name, this NTA,
 referenced labels, boroughs, days/months, common words) · no sensitive or demographic targeting terms ·
-digits only if present in the brief (offer, description or business name) · business name present.
+digits only if present in the offer or business name (the owner's description counts for bare facts such
+as seats or hours, never for a price or discount) · business name present.
 The writer is asked for a margin under the hard limits (headline 34, body 84, CTA 20) because models
 miscount characters. A failed variant is replaced by an evidence-filled template (reason shown); if
 fewer than half pass, the attempt fails over to the next model slot (≤3 attempts). When no slot
@@ -252,11 +253,13 @@ Schemas the model sees: `z.strictObject`, every field required, `.nullable()` in
 `.optional()`, no default/transform/refine, ≤3 levels; array lengths enforced after the call.
 Cooldowns: 429 → retry-after / Groq reset (default 60 s, max 24 h); 5xx/timeout 20–30 s;
 401/402/403 30 min; 404 6 h; OpenRouter HTTP-200 error body 30 s; 3 schema failures in 10 min →
-10 min. Keys: provider-wide `llm:cd:{slot}` for 401/402/403, per model `llm:cd:{slot}:{model}` for
+10 min. Keys: provider-wide `llm:cd:{provider}` for 401/402/403 (both Groq slots share one key, so one
+cooldown; a key failure also skips the provider's other slots for the rest of the run), per model
+`llm:cd:{slot}:{model}` for
 everything else (a 404 on one Gemini model doesn't bench the other), `llm:sf:{slot}:{model}` for the
 schema-failure breaker and `llm:use:{slot}:{UTC day}` for daily soft caps. A `validate()` rejection
 moves to the next slot with no cooldown. Per-attempt timeouts: planner 12 s, creative 15 s (three
-attempts fit the 45 s creative budget). Kill switch `cfg:llm:disabled`. Model outputs are not cached
+attempts fit the 45 s creative budget). Kill switch `cfg:llm:disabled` (slot or provider ids). Model outputs are not cached
 separately: identical briefs are served from the saved run. Budget: 2 calls per run (≤5 attempts).
 The fixed instruction prefix (including the eligible NTA list) comes first for prompt caching. Place
 names and the business address are never sent to a model.

@@ -134,16 +134,22 @@ export async function getLlmStatus(now: number = Date.now()): Promise<LlmStatus>
   const state = await readChainState(slots, now);
   return {
     mode: env.LLM_MODE,
-    slots: slots.map((slot) => ({
-      id: slot.id,
-      label: slot.label,
-      models: { ...slot.modelIds },
-      disabled: state.disabled.has(slot.id),
-      geoGated: slot.geoGated,
-      cooldownMs: Math.max(state.cooldownMs(slot.id, slot.modelIds.planner), state.cooldownMs(slot.id, slot.modelIds.creative)),
-      usedToday: state.usedToday(slot.id),
-      dailySoftCap: slot.dailySoftCap,
-    })),
+    slots: slots.map((slot) => {
+      const provider = slot.provider ?? slot.id;
+      return {
+        id: slot.id,
+        label: slot.label,
+        models: { ...slot.modelIds },
+        disabled: state.disabled.has(slot.id) || state.disabled.has(provider),
+        geoGated: slot.geoGated,
+        cooldownMs: Math.max(
+          state.cooldownMs(slot.id, slot.modelIds.planner, provider),
+          state.cooldownMs(slot.id, slot.modelIds.creative, provider),
+        ),
+        usedToday: state.usedToday(slot.id),
+        dailySoftCap: slot.dailySoftCap,
+      };
+    }),
     unconfigured: SLOT_IDS.filter((id) => !slots.some((slot) => slot.id === id)),
   };
 }

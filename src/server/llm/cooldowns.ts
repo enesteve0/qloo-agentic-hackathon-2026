@@ -238,8 +238,11 @@ interface CooldownRecord {
 
 export interface ChainState {
   disabled: ReadonlySet<string>;
-  /** Remaining cooldown for a slot's model (max of provider-wide and model-specific), ms; 0 when ready. */
-  cooldownMs(slot: string, model: string): number;
+  /**
+   * Remaining cooldown for a slot's model (max of provider-wide and model-specific), ms; 0 when ready.
+   * `provider` defaults to the slot id.
+   */
+  cooldownMs(slot: string, model: string, provider?: string): number;
   usedToday(slot: string): number;
 }
 
@@ -263,13 +266,13 @@ function remainingMs(record: unknown, now: number): number {
  * A KV outage degrades to "no state" so the language models stay usable.
  */
 export async function readChainState(
-  slots: readonly { id: string; modelIds: Readonly<Record<string, string>> }[],
+  slots: readonly { id: string; provider?: string; modelIds: Readonly<Record<string, string>> }[],
   now: number,
 ): Promise<ChainState> {
   const day = utcDay(now);
   const keys = new Set<string>([LLM_KEYS.disabled]);
   for (const slot of slots) {
-    keys.add(LLM_KEYS.providerCooldown(slot.id));
+    keys.add(LLM_KEYS.providerCooldown(slot.provider ?? slot.id));
     keys.add(LLM_KEYS.dailyUse(slot.id, day));
     for (const model of Object.values(slot.modelIds)) keys.add(LLM_KEYS.modelCooldown(slot.id, model));
   }
@@ -283,9 +286,9 @@ export async function readChainState(
   const byKey = new Map(list.map((key, i) => [key, values[i] ?? null]));
   return {
     disabled: parseDisabled(byKey.get(LLM_KEYS.disabled)),
-    cooldownMs: (slot, model) =>
+    cooldownMs: (slot, model, provider = slot) =>
       Math.max(
-        remainingMs(byKey.get(LLM_KEYS.providerCooldown(slot)), now),
+        remainingMs(byKey.get(LLM_KEYS.providerCooldown(provider)), now),
         remainingMs(byKey.get(LLM_KEYS.modelCooldown(slot, model)), now),
       ),
     usedToday: (slot) => {
@@ -295,16 +298,20 @@ export async function readChainState(
   };
 }
 
-/** Benches a slot's model (or the whole provider). Never shortens a longer cooldown set concurrently. */
+/**
+ * Benches a slot's model (or the whole provider, which defaults to the slot id). Never shortens a longer
+ * cooldown set concurrently.
+ */
 export async function setCooldown(
   slot: string,
   model: string,
   cls: Pick<ErrorClass, 'kind' | 'status' | 'cooldownMs' | 'scope'>,
   now: number,
+  provider: string = slot,
 ): Promise<void> {
   const ms = cls.cooldownMs;
   if (!ms || ms <= 0) return;
-  const key = cls.scope === 'provider' ? LLM_KEYS.providerCooldown(slot) : LLM_KEYS.modelCooldown(slot, model);
+  const key = cls.scope === 'provider' ? LLM_KEYS.providerCooldown(provider) : LLM_KEYS.modelCooldown(slot, model);
   try {
     if ((await kv().pttl(key)) > ms) return;
     const record: CooldownRecord = { until: now + ms, kind: cls.kind, status: cls.status };

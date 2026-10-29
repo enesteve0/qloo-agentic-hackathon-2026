@@ -27,6 +27,11 @@ export interface SlotCallOptions {
 
 export interface LlmSlot {
   id: string;
+  /**
+   * The account behind the slot (defaults to `id`). Slots on one provider share its key, so they share
+   * provider-wide cooldowns (auth failures) and the `cfg:llm:disabled` kill switch.
+   */
+  provider?: string;
   label: string;
   models: Record<LlmKind, ModelInstance>;
   /** Exact provider model ids (logs, labels, cooldown keys). */
@@ -114,6 +119,7 @@ export function buildSlots(env: SlotEnv, opts: BuildSlotsOptions = {}): LlmSlot[
       const ids = SLOT_MODELS[id];
       slots.push({
         id,
+        provider: 'groq',
         label,
         models: { planner: groq.languageModel(ids.planner), creative: groq.languageModel(ids.creative) },
         modelIds: { ...ids },

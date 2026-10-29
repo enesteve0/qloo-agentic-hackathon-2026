@@ -50,9 +50,10 @@ function skipFor(
   country: string | null,
   allowList: string | readonly string[],
 ): SlotSkip | null {
-  if (state.disabled.has(slot.id)) return { slot: slot.id, reason: 'disabled', remainingMs: null };
+  const provider = slot.provider ?? slot.id;
+  if (state.disabled.has(slot.id) || state.disabled.has(provider)) return { slot: slot.id, reason: 'disabled', remainingMs: null };
   if (slot.geoGated && !isGeminiAllowed(country, allowList)) return { slot: slot.id, reason: 'geo_blocked', remainingMs: null };
-  const remaining = state.cooldownMs(slot.id, model);
+  const remaining = state.cooldownMs(slot.id, model, provider);
   if (remaining > 0) return { slot: slot.id, reason: 'cooldown', remainingMs: remaining };
   if (state.usedToday(slot.id) >= slot.dailySoftCap) return { slot: slot.id, reason: 'daily_cap', remainingMs: null };
   return null;
@@ -76,6 +77,8 @@ function outcomeFor(failure: ErrorClass): AttemptOutcome {
 interface AttemptResult<T> {
   event: AttemptEvent;
   parsed: { value: T } | null;
+  /** The failure benches the whole provider (its key), not just this model. */
+  providerWide: boolean;
 }
 
 async function attempt<S extends z.ZodType>(
@@ -136,7 +139,7 @@ async function attempt<S extends z.ZodType>(
     detail = failure.detail;
     if (failure.kind !== 'aborted') {
       if (failure.cooldownMs) {
-        await setCooldown(slot.id, model, failure, now());
+        await setCooldown(slot.id, model, failure, now(), slot.provider ?? slot.id);
         cooldownMs = failure.cooldownMs;
       } else if (failure.schemaFailure) {
         cooldownMs = await recordSchemaFailure(slot.id, model, now());
@@ -156,7 +159,7 @@ async function attempt<S extends z.ZodType>(
     ms: Math.max(0, now() - started),
     detail,
   };
-  return { event, parsed };
+  return { event, parsed, providerWide: failure !== null && failure.kind !== 'aborted' && failure.scope === 'provider' };
 }
 
 /**
@@ -177,16 +180,22 @@ export function createChainGateway(options: ChainOptions): LlmGateway {
       // NaN would silently lift the limit; treat it as a single attempt.
       const maxAttempts = Number.isNaN(req.maxAttempts) ? 1 : Math.max(1, Math.floor(req.maxAttempts));
 
+      // Providers whose key failed during this run (the state above was read before it), with the cooldown.
+      const benched = new Map<string, number | null>();
       for (const slot of options.slots) {
         if (attempts.length >= maxAttempts) break;
         if (req.signal.aborted) return fail('aborted');
         const model = slot.modelIds[req.kind];
-        const skip = skipFor(slot, model, state, req.country, options.geminiAllowedCountries);
+        const provider = slot.provider ?? slot.id;
+        const skip =
+          skipFor(slot, model, state, req.country, options.geminiAllowedCountries) ??
+          (benched.has(provider) ? { slot: slot.id, reason: 'cooldown' as const, remainingMs: benched.get(provider) ?? null } : null);
         if (skip) {
           skipped.push(skip);
           continue;
         }
-        const { event, parsed } = await attempt(slot, req, attempts.length + 1, now);
+        const { event, parsed, providerWide } = await attempt(slot, req, attempts.length + 1, now);
+        if (providerWide) benched.set(provider, event.cooldownMs);
         attempts.push(event);
         try {
           req.onAttempt?.(event);

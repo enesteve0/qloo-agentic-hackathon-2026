@@ -230,6 +230,38 @@ describe('LLM chain', () => {
     expect(a.mocks.planner.doGenerateCalls).toHaveLength(0);
   });
 
+  it('the kill switch by provider id stops every slot on that key', async () => {
+    await kv().set(LLM_KEYS.disabled, ['groq']);
+    const a = { ...mockSlot('groq', { behavior: ok }), provider: 'groq' };
+    const b = { ...mockSlot('groq-20b', { behavior: ok }), provider: 'groq' };
+    const c = mockSlot('cloudflare', { behavior: ok });
+    const result = await gateway([a, b, c]).run(request().req);
+    expect(result).toMatchObject({ ok: true, via: 'cloudflare' });
+    expect(result.skipped.map((s) => [s.slot, s.reason])).toEqual([
+      ['groq', 'disabled'],
+      ['groq-20b', 'disabled'],
+    ]);
+    expect(b.mocks.planner.doGenerateCalls).toHaveLength(0);
+  });
+
+  it("a key failure benches the provider's other slots in this run and the next", async () => {
+    const a = { ...mockSlot('groq', { behavior: fail(401) }), provider: 'groq' };
+    const b = { ...mockSlot('groq-20b', { behavior: ok }), provider: 'groq' };
+    const c = mockSlot('cloudflare', { behavior: ok });
+    // Two attempts, as the planner allows: the second goes to another provider, not the same bad key.
+    const first = await gateway([a, b, c]).run(request({ maxAttempts: 2 }).req);
+    expect(first).toMatchObject({ ok: true, via: 'cloudflare' });
+    expect(first.attempts.map((e) => e.slot)).toEqual(['groq', 'cloudflare']);
+    expect(first.skipped).toEqual([{ slot: 'groq-20b', reason: 'cooldown', remainingMs: COOLDOWN_MS.auth }]);
+    expect(b.mocks.planner.doGenerateCalls).toHaveLength(0);
+    expect(await kv().pttl(LLM_KEYS.providerCooldown('groq'))).toBe(COOLDOWN_MS.auth);
+
+    const second = await gateway([a, b, c]).run(request({ maxAttempts: 2 }).req);
+    expect(second).toMatchObject({ ok: true, via: 'cloudflare' });
+    expect(second.skipped.map((s) => s.slot)).toEqual(['groq', 'groq-20b']);
+    expect(a.mocks.planner.doGenerateCalls).toHaveLength(1);
+  });
+
   it('every slot skipped → { ok: false, reason: "no_slots" }', async () => {
     await kv().set(LLM_KEYS.disabled, ['groq', 'cloudflare']);
     const result = await gateway([mockSlot('groq', { behavior: ok }), mockSlot('cloudflare', { behavior: ok })]).run(request().req);

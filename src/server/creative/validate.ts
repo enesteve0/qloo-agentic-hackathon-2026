@@ -9,6 +9,7 @@ import {
   hasEmoji,
   indexOfSeq,
   isCapitalized,
+  pricedDigitSequences,
   squish,
   tokenize,
   wordCount,
@@ -96,10 +97,12 @@ function businessForms(name: string | null): string[][] {
  * Choices beyond the letter of the spec, all in the direction of fewer false alarms on grounded copy:
  * - Mid-sentence capitalized words may also come from the brief (the owner's own words), from this
  *   pack's evidence labels, or appear elsewhere in the same copy in lower case. Third-party names
- *   (`blockedNames`) and the pack's place names are reported even at a sentence start, unless that
- *   capitalized word is one the brief itself uses ("Climb in free" when the offer is "First climb free").
- * - Digits may also come from the brief's description and business name, and from this pack's
- *   evidence labels ("24 Hour Diner"): the owner's own facts are not invented numbers.
+ *   (`blockedNames`) and the pack's place names are reported even at a sentence start, unless the brief
+ *   writes that word in lower case, as an ordinary word ("Climb in free" when the offer is "First climb
+ *   free"; never "Glasper fans" because the description names Robert Glasper).
+ * - Digits may also come from the business name and from this pack's evidence labels ("24 Hour Diner"),
+ *   and from the brief's description for bare facts ("48 seats", "from 7pm"), never for a price or a
+ *   discount ("$48", "10% off").
  * - The business name counts as present when written in full, without "The"/"LLC"-style affixes, or
  *   by one distinctive word ("Halfnote" for "Halfnote Supper Club"). Its words never count as
  *   another neighborhood or a targeting term ("Astoria Bagel Co." may advertise in Bed-Stuy).
@@ -177,6 +180,10 @@ export function validateVariant(variant: AdVariant, ctx: CreativeContext): Groun
   const namedTokens = new Set<string>();
   const blockedTokens = new Set<string>();
   const briefWords = new Set([...words(brief.description), ...words(brief.offer), ...words(brief.business)]);
+  // Words the owner writes in lower case are ordinary words; capitalized ones may be names.
+  const briefLowerWords = new Set(
+    [brief.description, brief.offer, brief.business].flatMap((text) => tokenize(text).filter((t) => !isCapitalized(t.raw)).map((t) => t.norm)),
+  );
   const entities = [
     ...(ctx.blockedNames ?? []).map((name) => ({ name, kind: 'third-party name' })),
     ...pack.places.map((p) => ({ name: p.name, kind: 'local place name' })),
@@ -192,7 +199,7 @@ export function validateVariant(variant: AdVariant, ctx: CreativeContext): Groun
     for (const w of distinctive) blockedTokens.add(w);
     const fullMatch = seq.length > 1 && !seq.every((w) => isCommonWord(w)) && fields.some((f) => containsSeq(f.norms, seq));
     const tokenMatch = fields.some((f) =>
-      f.tokens.some((t) => distinctive.includes(t.norm) && isCapitalized(t.raw) && !(t.sentenceStart && briefWords.has(t.norm))),
+      f.tokens.some((t) => distinctive.includes(t.norm) && isCapitalized(t.raw) && !(t.sentenceStart && briefLowerWords.has(t.norm))),
     );
     if (fullMatch || tokenMatch) {
       named.push(`${kind} ${quote(squish(name))}`);
@@ -229,15 +236,21 @@ export function validateVariant(variant: AdVariant, ctx: CreativeContext): Groun
   }
   if (sensitive.length > 0) fail('sensitive', `targeting term ${uniq(sensitive).join(', ')}`);
 
-  // invented_number: digits must come from the brief (offer, description, name) or an evidence label
+  // invented_number: digits must come from the brief (offer, business name; description for bare facts
+  // only) or an evidence label ------------------------------------------------------------------
   const allowedDigits = new Set([
     ...digitSequences(brief.offer),
-    ...digitSequences(brief.description),
     ...digitSequences(businessName),
     ...digitSequences(brief.business),
     ...pack.items.flatMap((item) => digitSequences(item.label)),
   ]);
-  const invented = uniq(fields.flatMap((f) => digitSequences(f.text)).filter((d) => !allowedDigits.has(d)));
+  const descriptionDigits = new Set(digitSequences(brief.description));
+  const invented = uniq(
+    fields.flatMap((f) => {
+      const priced = new Set(pricedDigitSequences(f.text));
+      return digitSequences(f.text).filter((d) => !allowedDigits.has(d) && !(descriptionDigits.has(d) && !priced.has(d)));
+    }),
+  );
   if (invented.length > 0) fail('invented_number', `numbers not in the brief: ${invented.join(', ')}`);
 
   // missing_business ----------------------------------------------------------------------------
