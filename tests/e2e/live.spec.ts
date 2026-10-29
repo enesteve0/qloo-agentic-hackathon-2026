@@ -39,6 +39,8 @@ test('briefs Stoop will not plan get a reason instead of a plan', async ({ page 
   await page.getByRole('button', { name: /Plan my campaign/i }).click();
   await expect(page.getByRole('alert').filter({ hasText: /fair-housing/i })).toBeVisible();
   await expect(page).toHaveURL(/\/plan\/new/);
+  // The refused brief stays in the form, ready to edit.
+  await expect(page.getByLabel('Business name')).toHaveValue('Park Lofts');
 });
 
 test('a visitor over the live-run limit gets a labelled sample plan, not an error page', async ({ page }) => {

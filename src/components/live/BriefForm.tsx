@@ -1,13 +1,18 @@
 'use client';
 
+import { ArrowRight } from 'lucide-react';
 import { useId, useState, type FormEvent } from 'react';
+import { buttonClass } from '@/components/ui/button';
 import { PRESETS } from '@/content/presets';
 import type { Brief } from '@/shared/types';
 
+/** Brief fields as the server names them in its validation messages. */
+export type BriefField = keyof Brief;
+
 interface Props {
   busy: boolean;
-  /** Field problems reported by the server (already in plain language). */
-  serverErrors: string[];
+  /** Fields the server rejected; the problems themselves are listed above the form. */
+  invalid?: ReadonlySet<BriefField>;
   onSubmit: (brief: Brief, presetSlug: string | null) => void;
   initialSlug?: string | null;
 }
@@ -35,12 +40,12 @@ const fromBrief = (b: Brief): Draft => ({
 });
 
 const input =
-  'w-full rounded-[3px] border-2 border-border bg-surface px-3 py-2 text-base text-text placeholder:text-muted/70 focus:border-amber focus:outline-none';
+  'w-full border-2 border-border bg-surface px-3 py-2 text-base text-text placeholder:text-muted/70 focus:border-amber focus:outline-none aria-invalid:border-danger';
 const label = 'font-display text-lg font-bold tracking-wide uppercase';
 const hint = 'text-sm text-muted';
 
 /** The brief: six questions a small-business owner can answer in a minute. Nothing here goes to Qloo. */
-export function BriefForm({ busy, serverErrors, onSubmit, initialSlug = null }: Props) {
+export function BriefForm({ busy, invalid, onSubmit, initialSlug = null }: Props) {
   const id = useId();
   const initial = initialSlug ? PRESETS.find((p) => p.slug === initialSlug) : undefined;
   const [draft, setDraft] = useState<Draft>(initial ? fromBrief(initial.brief) : EMPTY);
@@ -81,7 +86,7 @@ export function BriefForm({ busy, serverErrors, onSubmit, initialSlug = null }: 
                 setSlug(p.slug);
               }}
               aria-pressed={slug === p.slug}
-              className="min-h-9 rounded-[3px] border-2 border-surface-2 px-3 py-1 text-left text-sm hover:border-amber aria-pressed:border-amber aria-pressed:text-amber"
+              className="min-h-9 border-2 border-surface-2 px-3 py-1 text-left text-sm hover:border-amber aria-pressed:border-amber aria-pressed:text-amber"
             >
               {p.title}
             </button>
@@ -96,6 +101,7 @@ export function BriefForm({ busy, serverErrors, onSubmit, initialSlug = null }: 
         <input
           id={`${id}-business`}
           className={input}
+          aria-invalid={invalid?.has('business') || undefined}
           required
           minLength={2}
           maxLength={80}
@@ -116,6 +122,7 @@ export function BriefForm({ busy, serverErrors, onSubmit, initialSlug = null }: 
           id={`${id}-description`}
           aria-describedby={`${id}-description-hint`}
           className={`${input} min-h-28`}
+          aria-invalid={invalid?.has('description') || undefined}
           required
           minLength={12}
           maxLength={600}
@@ -131,6 +138,7 @@ export function BriefForm({ busy, serverErrors, onSubmit, initialSlug = null }: 
         <input
           id={`${id}-offer`}
           className={input}
+          aria-invalid={invalid?.has('offer') || undefined}
           maxLength={120}
           placeholder="Free first set on Tuesdays"
           value={draft.offer}
@@ -146,6 +154,7 @@ export function BriefForm({ busy, serverErrors, onSubmit, initialSlug = null }: 
           <input
             id={`${id}-budget`}
             className={input}
+            aria-invalid={invalid?.has('budgetUsd') || undefined}
             type="number"
             inputMode="numeric"
             required
@@ -160,7 +169,14 @@ export function BriefForm({ busy, serverErrors, onSubmit, initialSlug = null }: 
           <label htmlFor={`${id}-weeks`} className={label}>
             Weeks
           </label>
-          <select id={`${id}-weeks`} className={input} value={draft.weeks} onChange={(e) => set('weeks')(e.target.value)}>
+          <select
+            id={`${id}-weeks`}
+            // Same height as the text inputs beside it (a select renders a few pixels shorter).
+            className={`${input} h-11`}
+            aria-invalid={invalid?.has('weeks') || undefined}
+            value={draft.weeks}
+            onChange={(e) => set('weeks')(e.target.value)}
+          >
             {Array.from({ length: 8 }, (_, i) => String(i + 1)).map((w) => (
               <option key={w} value={w}>
                 {w}
@@ -175,6 +191,7 @@ export function BriefForm({ busy, serverErrors, onSubmit, initialSlug = null }: 
           <input
             id={`${id}-start`}
             className={input}
+            aria-invalid={invalid?.has('startDate') || undefined}
             type="date"
             value={draft.startDate}
             onChange={(e) => set('startDate')(e.target.value)}
@@ -193,6 +210,7 @@ export function BriefForm({ busy, serverErrors, onSubmit, initialSlug = null }: 
           id={`${id}-address`}
           aria-describedby={`${id}-address-hint`}
           className={input}
+          aria-invalid={invalid?.has('address') || undefined}
           maxLength={120}
           autoComplete="street-address"
           placeholder="Nostrand Av & Fulton St, Brooklyn"
@@ -201,28 +219,14 @@ export function BriefForm({ busy, serverErrors, onSubmit, initialSlug = null }: 
         />
       </div>
 
-      {serverErrors.length > 0 && (
-        <div role="alert" className="border-l-4 border-danger bg-surface p-3 text-sm">
-          <p className="font-bold">Please check the brief:</p>
-          <ul className="mt-1 list-disc pl-5">
-            {serverErrors.map((e) => (
-              <li key={e}>{e}</li>
-            ))}
-          </ul>
-        </div>
-      )}
-
       <div className="flex flex-col gap-3 border-t-2 border-surface-2 pt-5 sm:flex-row sm:items-center sm:justify-between">
         <p id={`${id}-privacy`} className={`${hint} max-w-md`}>
           Stoop sends Qloo taste anchors and neighborhood shapes, never your brief or anything about people. Emails,
           phone numbers and links are removed before any AI reads it.
         </p>
-        <button
-          type="submit"
-          disabled={busy}
-          className="sign-plate min-h-12 px-5 py-2 text-xl hover:brightness-110 disabled:cursor-wait disabled:opacity-60"
-        >
+        <button type="submit" disabled={busy} className={buttonClass('primary', 'lg', 'justify-center')}>
           {busy ? 'Planning…' : 'Plan my campaign'}
+          <ArrowRight aria-hidden="true" className="size-5" />
         </button>
       </div>
     </form>

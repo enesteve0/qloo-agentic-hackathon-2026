@@ -1,11 +1,12 @@
 import Link from 'next/link';
-import { NavLinks } from './Header';
+import { cx } from '@/components/ui/cx';
+import { NavLinks, chromeWidth } from './Header';
 
 /** Site footer: navigation, data credits and the privacy line (same credits as the original landing page). */
-export function Footer() {
+export function Footer({ narrow }: { narrow?: boolean }) {
   return (
     <footer className="border-t-2 border-surface-2 bg-bg">
-      <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 px-4 py-8 sm:px-6 lg:px-8">
+      <div className={cx('mx-auto flex w-full flex-col gap-6 py-8', chromeWidth(narrow))}>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <Link href="/" aria-label="Stoop home" className="sign-plate sign-plate-rim m-0.5 px-2 py-0.5 text-xl leading-none text-sign-text no-underline">
             Stoop

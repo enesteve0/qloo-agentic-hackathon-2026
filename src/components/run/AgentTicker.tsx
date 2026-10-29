@@ -1,6 +1,7 @@
 'use client';
 
 import { ScrollText } from 'lucide-react';
+import { Fragment } from 'react';
 import type { RunView } from '@/shared/stream';
 import type { StageId, StageInfo, StageStatus } from '@/shared/types';
 import { cx } from '@/components/ui/cx';
@@ -33,15 +34,21 @@ function StopMarker({ status }: { status: StageStatus }) {
   return <span aria-hidden="true" className={cx(base, 'border-2 border-border bg-bg')} />;
 }
 
-function counts(view: RunView): string | null {
+function counts(view: RunView): string[] | null {
   const s = view.state;
   if (!s) return null;
-  const q = s.qlooCalls.fresh + s.qlooCalls.cached;
+  // A streamed run carries its request trace but not the running totals (those arrive with the saved run),
+  // so count whichever is further along.
+  const traced = s.envelopes.flatMap((e) => e.provenance.requests);
+  const saved = s.qlooCalls.fresh + s.qlooCalls.cached;
+  const q = Math.max(saved, traced.length);
+  const cached = saved >= traced.length ? s.qlooCalls.cached : traced.filter((r) => r.cache === 'hit').length;
+  const ai = Math.max(s.llm.attempts, view.attempts.length);
   const synthetic = s.label?.kind === 'synthetic' || s.mode === 'mock';
   const parts = [`${q} ${synthetic ? 'synthetic ' : ''}Qloo call${q === 1 ? '' : 's'}`];
-  if (s.qlooCalls.cached) parts.push(`${s.qlooCalls.cached} cached`);
-  if (s.llm.attempts) parts.push(`${s.llm.attempts} AI call${s.llm.attempts === 1 ? '' : 's'}`);
-  return parts.join(' · ');
+  if (cached) parts.push(`${cached} cached`);
+  if (ai) parts.push(`${ai} AI call${ai === 1 ? '' : 's'}`);
+  return parts;
 }
 
 /**
@@ -64,8 +71,8 @@ export function AgentTicker({ view, variant = 'panel', onOpenLog, className }: A
         <p
           key={head.text}
           className={cx(
-            'led-glow min-w-0 flex-1 truncate font-display text-base font-bold tracking-[0.08em] text-[#ffb547] uppercase motion-safe:ticker-roll',
-            head.tone === 'danger' && 'text-[#ff6b5e]',
+            'led-glow min-w-0 flex-1 truncate font-display text-base font-bold tracking-[0.08em] uppercase motion-safe:ticker-roll',
+            head.tone === 'danger' ? 'text-[#ff6b5e]' : 'text-[#ffb547]',
           )}
         >
           {head.text}
@@ -84,6 +91,7 @@ export function AgentTicker({ view, variant = 'panel', onOpenLog, className }: A
     );
   }
 
+  const tally = counts(view);
   const byStage = new Map<StageId, StageInfo>((state?.stages ?? []).map((s) => [s.stage, s]));
   const decisions = state?.decisions ?? [];
   const attempts = view.attempts;
@@ -91,7 +99,7 @@ export function AgentTicker({ view, variant = 'panel', onOpenLog, className }: A
   return (
     <section aria-label="Agent" className={cx('flex flex-col', className)}>
       <div className="led-panel overflow-hidden border-2 border-[#1d1f23] p-4">
-        <p className="flex items-center gap-2 font-mono text-[11px] tracking-[0.14em] text-[#d9a24a] uppercase">
+        <p className="flex items-center gap-2 font-mono text-xs tracking-[0.14em] text-[#d9a24a] uppercase">
           <span
             aria-hidden="true"
             className={cx('size-2 shrink-0', head.tone === 'danger' ? 'bg-[#ff6b5e]' : 'bg-[#ffb547]', working && 'motion-safe:led-pulse')}
@@ -101,15 +109,22 @@ export function AgentTicker({ view, variant = 'panel', onOpenLog, className }: A
         <p
           key={head.text}
           className={cx(
-            'led-glow mt-3 font-display text-[28px] leading-[1.04] font-bold tracking-[0.05em] text-[#ffb547] uppercase motion-safe:ticker-roll',
-            head.tone === 'danger' && 'text-[#ff6b5e]',
+            'led-glow mt-3 font-display text-[28px] leading-[1.04] font-bold tracking-[0.05em] uppercase motion-safe:ticker-roll',
+            // One color class at a time: two arbitrary text colors would be settled by stylesheet order.
+            head.tone === 'danger' ? 'text-[#ff6b5e]' : 'text-[#ffb547]',
           )}
         >
           {head.text}
         </p>
-        {counts(view) ? (
-          <p className="mt-3 border-t border-[#2b2418] pt-2 font-mono text-[11px] leading-relaxed tracking-[0.08em] text-[#d9a24a] uppercase">
-            {counts(view)}
+        {tally ? (
+          <p className="mt-3 border-t border-[#2b2418] pt-2 font-mono text-xs leading-relaxed tracking-[0.08em] text-[#d9a24a] uppercase">
+            {/* Each count wraps as a unit. */}
+            {tally.map((t, k) => (
+              <Fragment key={t}>
+                {k ? ' · ' : null}
+                <span className="whitespace-nowrap">{t}</span>
+              </Fragment>
+            ))}
           </p>
         ) : null}
       </div>
@@ -143,11 +158,11 @@ export function AgentTicker({ view, variant = 'panel', onOpenLog, className }: A
                     <span className="sr-only">{`${STAGE_STATUS_TEXT[status]}: `}</span>
                     {stage?.title ?? defaultTitle(id)}
                   </p>
-                  <span className="shrink-0 font-mono text-[11px] text-muted">
+                  <span className="shrink-0 font-mono text-xs text-muted">
                     {status === 'done' || status === 'degraded' ? fmtMs(stage?.ms ?? null) : STAGE_STATUS_TEXT[status]}
                   </span>
                 </div>
-                <p className="font-mono text-[10px] tracking-[0.14em] text-muted uppercase">{STATION_LABEL[STAGE_STATION[id]]}</p>
+                <p className="font-mono text-xs tracking-[0.14em] text-muted uppercase">{STATION_LABEL[STAGE_STATION[id]]}</p>
                 {stage?.detail && status !== 'pending' ? (
                   <p className={cx('mt-1 text-sm leading-snug', status === 'error' ? 'text-danger' : status === 'degraded' ? 'text-amber-text' : 'text-muted')}>
                     {stage.detail}
@@ -165,7 +180,7 @@ export function AgentTicker({ view, variant = 'panel', onOpenLog, className }: A
                 {tries.length ? (
                   <ul className="mt-1.5 flex flex-col gap-1">
                     {tries.map((a, k) => (
-                      <li key={k} className="font-mono text-[11px] text-muted">
+                      <li key={k} className="font-mono text-xs text-muted">
                         {a.slot} · {a.ok ? 'ok' : `failed${a.reason ? `: ${a.reason}` : ''}`} · {fmtMs(a.ms)}
                       </li>
                     ))}

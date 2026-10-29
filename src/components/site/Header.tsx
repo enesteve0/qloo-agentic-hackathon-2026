@@ -44,11 +44,14 @@ export function NavLinks({ current, className }: { current?: SiteSection; classN
   );
 }
 
+/** Page width of the site chrome: `narrow` lines it up with the 6xl content column of the site pages. */
+export const chromeWidth = (narrow?: boolean) => (narrow ? 'max-w-6xl px-4 sm:px-6' : 'max-w-[1600px] px-4 sm:px-6 lg:px-8');
+
 /** Site header: the street-sign wordmark and the main navigation. */
-export function Header({ current }: { current?: SiteSection }) {
+export function Header({ current, narrow }: { current?: SiteSection; narrow?: boolean }) {
   return (
     <header className="border-b-2 border-surface-2 bg-bg">
-      <div className="mx-auto flex w-full max-w-[1600px] flex-wrap items-center justify-between gap-x-6 gap-y-1 px-4 py-3 sm:px-6 lg:px-8">
+      <div className={cx('mx-auto flex w-full flex-wrap items-center justify-between gap-x-6 gap-y-1 py-3', chromeWidth(narrow))}>
         <Link
           href="/"
           aria-label="Stoop home"

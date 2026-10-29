@@ -85,7 +85,7 @@ export default function JudgesPage() {
   const now = NOW[env.QLOO_MODE];
   return (
     <div className="flex min-h-dvh flex-col">
-      <Header current="judges" />
+      <Header current="judges" narrow />
       <main id="main" className="flex-1">
         <header className="asphalt border-b-2 border-surface-2">
           <div className="mx-auto grid w-full max-w-6xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-end">
@@ -97,7 +97,7 @@ export default function JudgesPage() {
               </p>
             </div>
             <div className="led-panel border-2 border-[#1d1f23] p-4">
-              <p className="font-mono text-[11px] tracking-[0.14em] text-[#d9a24a] uppercase">Right now</p>
+              <p className="font-mono text-xs tracking-[0.14em] text-[#d9a24a] uppercase">Right now</p>
               <p className="led-glow mt-2 font-display text-[28px] leading-none font-bold tracking-[0.05em] text-[#ffb547] uppercase">
                 {now.title}
               </p>
@@ -260,7 +260,7 @@ export default function JudgesPage() {
           </section>
         </div>
       </main>
-      <Footer />
+      <Footer narrow />
     </div>
   );
 }

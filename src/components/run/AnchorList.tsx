@@ -55,7 +55,7 @@ export function AnchorList({ outcomes, maps = [], className }: AnchorListProps) 
             <div className="min-w-0 flex-1">
               <p className="flex flex-wrap items-baseline gap-x-2">
                 <span className="font-semibold">{name}</span>
-                <span className="font-mono text-[11px] tracking-[0.1em] text-muted uppercase">{ENTITY_LABEL[o.type]}</span>
+                <span className="font-mono text-xs tracking-[0.1em] text-muted uppercase">{ENTITY_LABEL[o.type]}</span>
               </p>
               {sub ? <p className="text-sm text-muted">{sub}</p> : null}
               <p className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-[13px]">

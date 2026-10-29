@@ -50,7 +50,7 @@ export interface RunScreenProps {
   adHref?: AdHref;
   /** View to open first (`?view=`). */
   initialTab?: RunTab | null;
-  /** Where "Open a recorded plan" goes from error and limit states. */
+  /** Where "Open a sample plan" goes from error and empty states. */
   recordedHref?: string;
   /** Optional notice above the canvas. */
   notice?: ReactNode;
@@ -93,12 +93,14 @@ const PENDING: Record<RunTab, { title: string; lines: string[] }> = {
 
 function Pending({ tab, progress }: { tab: RunTab; progress: string | null }) {
   const p = PENDING[tab];
+  // The agent's progress line often repeats this title; show it only when it says something new.
+  const now = progress && !progress.toLowerCase().startsWith(p.title.toLowerCase()) ? progress : null;
   return (
     <div className="flex flex-col gap-6" aria-busy="true">
       <div>
         <p className="font-mono text-xs tracking-[0.14em] text-amber-text uppercase">{STATION_LABEL[tab]} · working</p>
         <h2 className="mt-1 font-display text-[40px] leading-[0.95] font-bold uppercase">{p.title}</h2>
-        {progress ? <p className="mt-3 text-lg text-muted">{progress}</p> : null}
+        {now ? <p className="mt-3 text-lg text-muted">Now: {now}</p> : null}
       </div>
       <ol className="flex flex-col gap-2">
         {p.lines.map((l, k) => (
@@ -123,19 +125,21 @@ function Pending({ tab, progress }: { tab: RunTab; progress: string | null }) {
 }
 
 function Banner({ tone, title, children, action }: { tone: 'amber' | 'danger'; title: string; children?: ReactNode; action?: ReactNode }) {
+  // A grid, not a wrapping row: on phones the actions drop below the text (aligned with it) instead of
+  // squeezing it into a one-word column.
   return (
     <div
       className={cx(
-        'flex flex-wrap items-start gap-x-4 gap-y-2 border-2 border-l-8 bg-surface p-4',
+        'grid grid-cols-[1.25rem_minmax(0,1fr)] items-start gap-x-4 gap-y-3 border-2 border-l-8 bg-surface p-4 md:grid-cols-[1.25rem_minmax(0,1fr)_auto]',
         tone === 'amber' ? 'border-amber' : 'border-danger',
       )}
     >
       <TriangleAlert aria-hidden="true" className={cx('mt-0.5 size-5 shrink-0', tone === 'amber' ? 'text-amber-text' : 'text-danger')} />
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0">
         <p className="font-display text-xl leading-tight font-bold tracking-[0.04em] uppercase">{title}</p>
         {children ? <div className="mt-1 text-muted">{children}</div> : null}
       </div>
-      {action ? <div className="flex flex-wrap gap-2">{action}</div> : null}
+      {action ? <div className="col-start-2 flex flex-wrap gap-2 md:col-start-3 md:row-start-1">{action}</div> : null}
     </div>
   );
 }
@@ -161,7 +165,7 @@ function BriefPanel({ state }: { state: RunState }) {
           .filter((r): r is [string, string] => Boolean(r[1]))
           .map(([k, v]) => (
             <div key={k} className="grid grid-cols-[5rem_minmax(0,1fr)] gap-3 py-2 text-sm">
-              <dt className="font-mono text-[10px] leading-5 tracking-[0.12em] text-muted uppercase">{k}</dt>
+              <dt className="font-mono text-xs leading-5 tracking-[0.12em] text-muted uppercase">{k}</dt>
               <dd>{v}</dd>
             </div>
           ))}
@@ -189,7 +193,7 @@ function TastePanel({ state }: { state: RunState }) {
           ))}
         </ul>
       ) : (
-        <p className="mt-2 text-sm text-muted">The agent proposes 2–5 anchors from your brief.</p>
+        <p className="mt-2 text-sm text-muted">The agent proposes 2–6 taste anchors from your brief.</p>
       )}
     </section>
   );
@@ -295,10 +299,10 @@ export function RunScreen({
                 Open {STATION_LABEL[t]}
               </button>
             ))}
-            {/* The error banner above already offers a recorded plan. */}
+            {/* The error banner above already offers a sample plan. */}
             {errored ? null : (
               <a href={recordedHref} className={buttonClass('outline', 'md')}>
-                Open a recorded plan
+                Open a sample plan
               </a>
             )}
           </div>
@@ -397,7 +401,9 @@ export function RunScreen({
                 {range ? ` · ${range}` : ''}
               </span>
             ) : null}
-            {state?.planner?.business.category ? <span>{state.planner.business.category}</span> : null}
+            {state?.planner?.business.category ? (
+              <span className="inline-block first-letter:uppercase">{state.planner.business.category}</span>
+            ) : null}
             {state?.where?.config.experimental ? <span className="text-amber-text">Experimental lift method</span> : null}
           </div>
         </div>
@@ -423,7 +429,7 @@ export function RunScreen({
               action={
                 view.fallback.presetSlug ? (
                   <a href={`/p/${view.fallback.presetSlug}`} className={buttonClass('secondary', 'sm')}>
-                    Open the recorded plan
+                    Open the sample plan
                   </a>
                 ) : null
               }
@@ -445,7 +451,7 @@ export function RunScreen({
                     </button>
                   ) : null}
                   <a href={recordedHref} className={buttonClass('outline', 'sm')}>
-                    Open a recorded plan
+                    Open a sample plan
                   </a>
                 </>
               }

@@ -42,7 +42,7 @@ export default function Home() {
   const mode = getEnv().QLOO_MODE;
   return (
     <div className="flex min-h-dvh flex-col">
-      <Header current="home" />
+      <Header current="home" narrow />
 
       <main id="main" className="flex flex-1 flex-col">
         <section className="asphalt">
@@ -87,9 +87,10 @@ export default function Home() {
                 [fmt.format(counts.gridCells), 'taste-map cells over the city'],
                 ['0', 'phones tracked'],
               ].map(([value, label]) => (
-                <div key={label} className="bg-bg p-4">
+                // Numbers sit on one line across a row, however the labels above them wrap.
+                <div key={label} className="flex flex-col justify-between gap-1 bg-bg p-4">
                   <dt className="text-sm text-muted">{label}</dt>
-                  <dd className="font-display text-4xl font-bold text-text">{value}</dd>
+                  <dd className="font-display text-4xl font-bold text-text tabular-nums">{value}</dd>
                 </div>
               ))}
             </dl>
@@ -150,7 +151,7 @@ export default function Home() {
                     href={`/p/${p.slug}`}
                     className="group flex w-full flex-col gap-3 border-2 border-surface-2 bg-surface p-5 text-text! no-underline transition-colors duration-[120ms] ease-sign hover:border-amber"
                   >
-                    <span className="flex items-baseline justify-between gap-3 font-mono text-[11px] tracking-[0.12em] text-muted uppercase">
+                    <span className="flex items-baseline justify-between gap-3 font-mono text-xs tracking-[0.12em] text-muted uppercase">
                       <span>{p.buyer}</span>
                       <span className="tabular-nums">
                         {usd.format(p.brief.budgetUsd)} · {p.brief.weeks} wk
@@ -158,7 +159,8 @@ export default function Home() {
                     </span>
                     <span className="font-display text-[28px] leading-[0.95] font-bold uppercase">{p.brief.business}</span>
                     <span className="text-sm text-muted">{p.title}</span>
-                    <span className="mt-auto border-t-2 border-surface-2 pt-3 text-sm">
+                    {/* Two lines reserved so the rules line up across a row of cards. */}
+                    <span className="mt-auto min-h-[calc(2lh_+_0.75rem_+_2px)] border-t-2 border-surface-2 pt-3 text-sm">
                       <span className="sr-only">Taste anchors: </span>
                       {p.anchors.map((a) => a.name).join(' · ')}
                     </span>
@@ -174,7 +176,7 @@ export default function Home() {
         </section>
       </main>
 
-      <Footer />
+      <Footer narrow />
     </div>
   );
 }

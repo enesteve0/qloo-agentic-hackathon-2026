@@ -76,7 +76,11 @@ export function StationRail({ statuses, current, available, onSelect, hrefFor, a
 
   return (
     <nav aria-label="Plan stations" className={className}>
-      <ol ref={listRef} className="relative flex snap-x items-stretch gap-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {/* The padding keeps each chip's focus ring inside the sideways scroller, which would clip it. */}
+      <ol
+        ref={listRef}
+        className="relative -m-1 flex snap-x items-stretch gap-0 overflow-x-auto p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
         {STATIONS.map((station, k) => {
           const status = statuses[station];
           const tab = isRunTab(station) ? station : null;
@@ -84,7 +88,8 @@ export function StationRail({ statuses, current, available, onSelect, hrefFor, a
           const canOpen = tab !== null && available[tab];
           const inner = (
             <>
-              <span className="font-mono text-[11px] text-muted group-aria-[current=page]:text-bg/70">{String(k + 1).padStart(2, '0')}</span>
+              {/* By `selected`, not aria-current: a selected station with no results is a plain span. */}
+              <span className={cx('font-mono text-xs', selected ? 'text-bg/70' : 'text-muted')}>{String(k + 1).padStart(2, '0')}</span>
               <span className="font-display text-base leading-none font-bold tracking-[0.08em] uppercase sm:text-lg">{STATION_LABEL[station]}</span>
               <Glyph status={status} />
               <span className="sr-only">
@@ -93,13 +98,17 @@ export function StationRail({ statuses, current, available, onSelect, hrefFor, a
               </span>
             </>
           );
-          // Colors carry `!` because globals.css styles `a` outside Tailwind's layers.
+          // Colors carry `!` because globals.css styles `a` outside Tailwind's layers. One class per property:
+          // two competing color utilities would be settled by stylesheet order, not by this list.
           const chip = cx(
             'group flex h-11 shrink-0 snap-start items-center gap-2 border-2 px-3 transition-colors duration-[120ms] ease-sign lg:flex-1 lg:justify-center',
-            selected ? 'border-text bg-text text-bg!' : 'border-surface-2 bg-surface text-text!',
-            status === 'pending' && !selected && 'text-muted!',
-            status === 'needs_input' && !selected && 'border-amber',
-            status === 'error' && !selected && 'border-danger',
+            selected
+              ? 'border-text bg-text text-bg!'
+              : cx(
+                  'bg-surface',
+                  status === 'needs_input' ? 'border-amber' : status === 'error' ? 'border-danger' : 'border-surface-2',
+                  status === 'pending' ? 'text-muted!' : 'text-text!',
+                ),
           );
           return (
             <li key={station} className={cx('flex shrink-0 items-center', k > 0 ? 'lg:flex-[1.35_1_0%]' : 'lg:flex-1')}>

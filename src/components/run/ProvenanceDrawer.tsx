@@ -47,7 +47,7 @@ function Envelope({ env, highlight }: { env: StageEnvelope; highlight: boolean }
         <h3 id={`env-${env.operation}-h`} className="font-display text-xl leading-none font-bold tracking-[0.04em] uppercase">
           {OPERATION_LABEL[env.operation]}
         </h3>
-        <span className="font-mono text-[11px] text-muted">
+        <span className="font-mono text-xs text-muted">
           {env.status} · {env.provenance.requests.length} request{env.provenance.requests.length === 1 ? '' : 's'} · {fmtMs(env.execution.duration_ms)}
         </span>
       </header>
@@ -90,7 +90,7 @@ function Envelope({ env, highlight }: { env: StageEnvelope; highlight: boolean }
               <span className="text-muted">{fmtMs(r.ms)}</span>
             </p>
             <p className="font-mono text-[11px] leading-relaxed break-all text-muted">{r.query}</p>
-            <p className="font-mono text-[10px] tracking-[0.1em] text-muted uppercase">
+            <p className="font-mono text-xs tracking-[0.1em] text-muted uppercase">
               {r.purpose} · attempt {r.attempt}
             </p>
           </li>
@@ -193,7 +193,13 @@ export function ProvenanceDrawer({ open, onClose, view, tab, onTabChange, focusO
             </button>
           </div>
         </header>
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4">
+        {/* Focusable, so the log scrolls from the keyboard even when it holds no links or buttons. */}
+        <div
+          tabIndex={0}
+          role="region"
+          aria-label={tab === 'log' ? 'Agent steps' : 'Qloo requests'}
+          className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 focus-visible:-outline-offset-2!"
+        >
           {tab === 'log' ? (
             <AgentTicker view={view} />
           ) : envelopes.length ? (

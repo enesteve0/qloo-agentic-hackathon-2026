@@ -199,10 +199,11 @@ export function SendView({ state, draft, approvals, visited, onGoTo, adHref = nu
           {draft ? (
             <>
               <p className="text-sm text-muted">
-                To: <span className="font-mono text-text">{to || 'add the seller’s address in your email app'}</span>
+                To:{' '}
+                {to ? <span className="font-mono text-text">{to}</span> : <span className="italic">add the seller’s address in your email app</span>}
               </p>
               <div className="flex flex-col gap-1.5">
-                <label htmlFor={`${id}-subject`} className="font-mono text-[10px] tracking-[0.14em] text-muted uppercase">
+                <label htmlFor={`${id}-subject`} className="font-mono text-xs tracking-[0.14em] text-muted uppercase">
                   Subject
                 </label>
                 <input
@@ -213,7 +214,7 @@ export function SendView({ state, draft, approvals, visited, onGoTo, adHref = nu
                 />
               </div>
               <div className="flex flex-col gap-1.5">
-                <label htmlFor={`${id}-body`} className="font-mono text-[10px] tracking-[0.14em] text-muted uppercase">
+                <label htmlFor={`${id}-body`} className="font-mono text-xs tracking-[0.14em] text-muted uppercase">
                   Message
                 </label>
                 <textarea

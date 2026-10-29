@@ -146,7 +146,7 @@ function VariantCard({
         fallbackPlate={short}
         theme={theme}
         label={`Variant ${v.variant} for ${short}`}
-        className="mx-auto max-w-[19rem]"
+        className="mx-auto max-w-[19rem] 2xl:max-w-[22rem]"
       />
       {downloadHref ? (
         <a
@@ -164,7 +164,7 @@ function VariantCard({
         <RuleCheck v={v} />
         {v.references.length ? (
           <div className="text-sm">
-            <p className="font-mono text-[10px] tracking-[0.14em] text-muted uppercase">Grounded in</p>
+            <p className="font-mono text-xs tracking-[0.14em] text-muted uppercase">Grounded in</p>
             <ul className="mt-1 flex flex-col gap-1">
               {v.references.map((r) => {
                 const item = pack?.items.find((i) => i.id === r.evidenceId);
@@ -246,7 +246,7 @@ function EvidencePanel({
   return (
     <aside aria-labelledby={`${id}-h`} className={cx('flex flex-col gap-4 border-2 border-surface-2 bg-surface p-4', className)}>
       <div>
-        <p className="font-mono text-[10px] tracking-[0.14em] text-muted uppercase">Qloo evidence</p>
+        <p className="font-mono text-xs tracking-[0.14em] text-muted uppercase">Qloo evidence</p>
         <h3 id={`${id}-h`} className="mt-1 font-display text-[28px] leading-none font-bold uppercase">
           What {short} loves
         </h3>
@@ -267,7 +267,7 @@ function EvidencePanel({
               >
                 <span className="flex w-full items-baseline justify-between gap-2">
                   <span className="font-display text-xl leading-none font-bold uppercase">{item.label}</span>
-                  <span className={cx('shrink-0 font-mono text-[11px]', usedIn.length ? 'text-amber-text' : 'text-muted')}>
+                  <span className={cx('shrink-0 font-mono text-xs', usedIn.length ? 'text-amber-text' : 'text-muted')}>
                     {usedIn.length ? `used in ${usedIn.join(' · ')}` : 'not used'}
                   </span>
                 </span>
@@ -414,7 +414,8 @@ export function WhatView({
         <Segmented label="Mockup style" value={theme} onChange={setTheme} options={MOCKUP_THEMES} />
       </header>
 
-      <div role="tablist" aria-label="Neighborhoods" className="relative flex gap-2 overflow-x-auto pb-1 [scrollbar-width:thin]">
+      {/* Padded so the focus ring is not clipped by the sideways scroller. */}
+      <div role="tablist" aria-label="Neighborhoods" className="relative -m-1 flex gap-2 overflow-x-auto p-1 [scrollbar-width:thin]">
         {codes.map((code, k) => {
           const n = byCode.get(code);
           const on = code === current;
@@ -458,18 +459,18 @@ export function WhatView({
           {nta ? (
             <dl className="flex flex-wrap items-end gap-x-6 gap-y-2">
               <div>
-                <dt className="font-mono text-[10px] tracking-[0.12em] text-muted uppercase">Taste signal</dt>
+                <dt className="font-mono text-xs tracking-[0.12em] text-muted uppercase">Taste signal</dt>
                 <dd className="font-display text-[40px] leading-none font-bold tabular-nums">{fmtMultiplier(nta.multiplier)}</dd>
               </div>
               <div>
-                <dt className="font-mono text-[10px] tracking-[0.12em] text-muted uppercase">Confidence</dt>
+                <dt className="font-mono text-xs tracking-[0.12em] text-muted uppercase">Confidence</dt>
                 <dd className="mt-1 text-sm">
                   <ConfidenceMeter level={nta.confidence} />
                 </dd>
               </div>
               {screens ? (
                 <div>
-                  <dt className="font-mono text-[10px] tracking-[0.12em] text-muted uppercase">Screens</dt>
+                  <dt className="font-mono text-xs tracking-[0.12em] text-muted uppercase">Screens</dt>
                   <dd className="font-display text-[28px] leading-none font-bold tabular-nums">{screens}</dd>
                 </div>
               ) : null}

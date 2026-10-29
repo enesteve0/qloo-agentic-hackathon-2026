@@ -94,7 +94,7 @@ export function AnchorPicker({ issues, onSubmit, submitting = false, className }
                     <span className="flex flex-wrap items-center gap-2">
                       <span className="font-display text-xl leading-tight font-bold uppercase">{c.name}</span>
                       {k === 0 ? (
-                        <span className="border-2 border-amber px-1.5 font-display text-[11px] leading-4 font-bold tracking-[0.08em] text-amber-text uppercase">
+                        <span className="border-2 border-amber px-1.5 font-display text-xs leading-4 font-bold tracking-[0.08em] text-amber-text uppercase">
                           Best match
                         </span>
                       ) : null}

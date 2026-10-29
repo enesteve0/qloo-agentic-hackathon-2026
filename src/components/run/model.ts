@@ -4,6 +4,8 @@
 import type {
   CopyRule,
   EntityType,
+  EvidencePack,
+  MediaPlan,
   NtaScore,
   ResultLabel,
   RunState,
@@ -147,6 +149,11 @@ export function planNeighborhoods(state: RunState | null): string[] {
   return [...codes].sort((a, b) => (ranks.get(a) ?? 999) - (ranks.get(b) ?? 999));
 }
 
+/** The first `max` distinct evidence labels: one tag can arrive under two tag types (e.g. "Late Night"). */
+export function evidenceLabels(pack: EvidencePack, max: number): string[] {
+  return [...new Set(pack.items.map((i) => i.label))].slice(0, max);
+}
+
 /** Short display name for a neighborhood code, falling back to evidence packs and the code itself. */
 export function ntaShort(state: RunState | null, code: string): string {
   return ntaMap(state).get(code)?.short ?? state?.evidence.find((e) => e.nta === code)?.shortName ?? code;
@@ -167,6 +174,27 @@ export const fmtPct = (share: number) => `${Math.round(share * 100)}%`;
 
 /** 2.62 → "2.6×". */
 export const fmtMultiplier = (m: number) => `${m.toFixed(1)}×`;
+
+/** 3 → "3 weeks", 1 → "1 week". */
+export const fmtWeeks = (weeks: number) => `${fmtInt(weeks)} week${weeks === 1 ? '' : 's'}`;
+
+const COUNT_WORD = ['no', 'one', 'two', 'three', 'four', 'five', 'six'];
+
+/**
+ * What PLAN says about the money the optimizer left unspent. With no next-best screens, every
+ * well-matched screen in the top neighborhoods is already bought, so more money has nowhere good to go.
+ */
+export function leftoverNote(plan: Pick<MediaPlan, 'assumptions' | 'byNta' | 'leftoverUsd' | 'nextBest' | 'weeks'>): string {
+  const price = plan.assumptions.pricePerKioskWeek;
+  const oneMore = Math.min(price.outer, price.manhattan) * plan.weeks;
+  if (plan.leftoverUsd < oneMore) {
+    return `Less than one more screen for ${fmtWeeks(plan.weeks)} (${fmtUsd(oneMore)}). Keep it or add a little.`;
+  }
+  if (plan.nextBest.length) return 'Room for more screens: the next best are listed here.';
+  const n = plan.byNta.length;
+  const where = n === 1 ? 'your top neighborhood' : `your top ${COUNT_WORD[n] ?? fmtInt(n)} neighborhoods`;
+  return `Every well-matched screen in ${where} is already in the plan. Stoop won’t spend the rest on poor-fit screens: keep it, or run more weeks.`;
+}
 
 export function ordinal(n: number): string {
   const v = n % 100;
@@ -315,7 +343,7 @@ export function tickerHeadline(state: RunState | null, progress: string | null):
       tone: 'amber',
     };
   }
-  if (state.status === 'done') return { text: 'Plan ready', tone: 'amber' };
+  if (state.status === 'done') return { text: state.plan ? 'Done · no screens fit this budget' : 'Plan ready', tone: 'amber' };
   const running = state.stages.find((s) => s.status === 'running');
   return { text: progress ?? running?.title ?? 'Working', tone: 'amber' };
 }

@@ -28,7 +28,7 @@ export function TasteLegend({ showLlm, selectedCount, className }: { showLlm: bo
         </p>
         <div className="w-36 shrink-0 sm:w-44">
           <div aria-hidden="true" className="h-2.5 w-full" style={{ background: HEAT_GRADIENT }} />
-          <div aria-hidden="true" className="relative mt-1 h-3.5 font-mono text-[11px] leading-none text-muted">
+          <div aria-hidden="true" className="relative mt-1 h-3.5 font-mono text-xs leading-none text-muted">
             <span className="absolute left-0">1×</span>
             <span className="absolute left-1/4 -translate-x-1/2">1.5×</span>
             <span className="absolute left-1/2 -translate-x-1/2">2×</span>
@@ -156,8 +156,8 @@ export function WhereView({ state, onOpenAds, className }: WhereViewProps) {
         <div className="relative min-w-0 border-surface-2 max-xl:border-t-2 xl:border-l-2">
           <div ref={setListEl} className="xl:absolute xl:inset-0 xl:overflow-y-auto">
             {focused ? (
-              <div className="sticky top-0 z-10 flex flex-wrap items-center gap-x-3 gap-y-2 border-b-2 border-surface-2 bg-bg px-4 py-3">
-                <span className="font-mono text-[10px] tracking-[0.14em] text-muted uppercase">On the map</span>
+              <div data-sticky-top className="sticky top-0 z-10 flex flex-wrap items-center gap-x-3 gap-y-2 border-b-2 border-surface-2 bg-bg px-4 py-3">
+                <span className="font-mono text-xs tracking-[0.14em] text-muted uppercase">On the map</span>
                 <StreetPlate name={focused.short} size="xs" />
                 <span className="font-display text-xl font-bold tabular-nums">{fmtMultiplier(focused.multiplier)}</span>
                 <ConfidenceMeter level={focused.confidence} className="text-sm text-muted" />

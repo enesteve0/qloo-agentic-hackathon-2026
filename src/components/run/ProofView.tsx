@@ -5,7 +5,7 @@ import type { NtaScore, RunState } from '@/shared/types';
 import { Segmented } from '@/components/ui/Segmented';
 import { StreetPlate } from '@/components/ui/StreetPlate';
 import { cx } from '@/components/ui/cx';
-import { fmtCompact, fmtMultiplier, fmtPct, ntaMap, ordinal, planNeighborhoods } from './model';
+import { evidenceLabels, fmtCompact, fmtMultiplier, fmtPct, ntaMap, ordinal, planNeighborhoods } from './model';
 
 export interface ProofViewProps {
   state: RunState;
@@ -14,8 +14,9 @@ export interface ProofViewProps {
 
 function Metric({ label, value, tone }: { label: string; value: string; tone?: 'good' | 'bad' }) {
   return (
-    <div className="flex flex-col gap-1">
-      <dt className="font-mono text-[10px] tracking-[0.14em] text-muted uppercase">{label}</dt>
+    // Values line up across the row even when one label wraps.
+    <div className="flex flex-col justify-between gap-1">
+      <dt className="font-mono text-xs tracking-[0.14em] text-muted uppercase">{label}</dt>
       <dd className={cx('font-display text-[40px] leading-none font-bold tabular-nums', tone === 'bad' && 'text-amber-text')}>{value}</dd>
     </div>
   );
@@ -84,7 +85,7 @@ export function ProofView({ state, className }: ProofViewProps) {
         <span className="flex flex-wrap items-center gap-2">
           <StreetPlate name={n?.short ?? code} size="xs" />
           {shared.has(code) ? (
-            <span className="border-2 border-text px-1 font-mono text-[10px] leading-4 tracking-[0.1em] uppercase">in both</span>
+            <span className="border-2 border-text px-1 font-mono text-xs leading-4 tracking-[0.1em] uppercase">in both</span>
           ) : null}
         </span>
         {extra}
@@ -93,7 +94,7 @@ export function ProofView({ state, className }: ProofViewProps) {
         <span className={cx('block font-display text-[28px] leading-none font-bold tabular-nums', n && n.multiplier < 1 && 'text-muted')}>
           {n ? fmtMultiplier(n.multiplier) : '—'}
         </span>
-        <span className="font-mono text-[10px] tracking-[0.1em] text-muted uppercase">
+        <span className="font-mono text-xs tracking-[0.1em] text-muted uppercase">
           {n ? (n.multiplier < 1 ? 'below baseline' : `${ordinal(n.fitIndex)} pct`) : 'not scored'}
         </span>
       </span>
@@ -142,7 +143,7 @@ export function ProofView({ state, className }: ProofViewProps) {
             code,
             n,
             pack?.items.length ? (
-              <span className="mt-1.5 block text-sm leading-snug text-muted">{pack.items.slice(0, 3).map((i) => i.label).join(' · ')}</span>
+              <span className="mt-1.5 block text-sm leading-snug text-muted">{evidenceLabels(pack, 3).join(' · ')}</span>
             ) : n ? (
               <span className="mt-1.5 block text-sm leading-snug text-muted">{n.name === n.short ? n.boro : n.name}</span>
             ) : null,
@@ -169,19 +170,19 @@ export function ProofView({ state, className }: ProofViewProps) {
 
       <div className="led-panel grid gap-px border-2 border-[#1d1f23] sm:grid-cols-3" role="group" aria-label="The difference">
         <div className="p-4">
-          <p className="font-mono text-[10px] tracking-[0.14em] text-[#c98f38] uppercase">Taste-weighted impressions</p>
+          <p className="font-mono text-xs tracking-[0.14em] text-[#c98f38] uppercase">Taste-weighted impressions</p>
           <p className="led-glow mt-1 font-display text-[40px] leading-none font-bold">{ratio ? `${ratio.toFixed(1)}× more` : '—'}</p>
           <p className="mt-1 text-sm text-[#d9c39a]">with Qloo, same spend</p>
         </div>
         <div className="p-4">
-          <p className="font-mono text-[10px] tracking-[0.14em] text-[#c98f38] uppercase">Budget in below-baseline areas</p>
+          <p className="font-mono text-xs tracking-[0.14em] text-[#c98f38] uppercase">Budget in below-baseline areas</p>
           <p className="led-glow mt-1 font-display text-[40px] leading-none font-bold">
             {fmtPct(proof.ours.belowBaselineShare)} vs {fmtPct(proof.llmOnly.belowBaselineShare)}
           </p>
           <p className="mt-1 text-sm text-[#d9c39a]">{words.versus}</p>
         </div>
         <div className="p-4">
-          <p className="font-mono text-[10px] tracking-[0.14em] text-[#c98f38] uppercase">Neighborhoods in common</p>
+          <p className="font-mono text-xs tracking-[0.14em] text-[#c98f38] uppercase">Neighborhoods in common</p>
           <p className="led-glow mt-1 font-display text-[40px] leading-none font-bold">{proof.overlapAt5} of 5</p>
           <p className="mt-1 text-sm text-[#d9c39a]">
             {proof.medianLlmPercentile !== null ? `${words.median}: median ${ordinal(proof.medianLlmPercentile)} percentile` : 'top-five overlap'}

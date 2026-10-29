@@ -100,7 +100,7 @@ export default function HowItWorksPage() {
   const mode = getEnv().QLOO_MODE;
   return (
     <div className="flex min-h-dvh flex-col">
-      <Header current="how-it-works" />
+      <Header current="how-it-works" narrow />
       <main id="main" className="flex-1">
         <header className="asphalt border-b-2 border-surface-2">
           <div className="mx-auto w-full max-w-6xl px-4 py-12 sm:px-6">
@@ -126,7 +126,7 @@ export default function HowItWorksPage() {
                     href={`#${t.id}`}
                     className="flex min-h-10 items-center gap-2 border-2 border-surface-2 px-3 font-display text-base font-bold tracking-[0.06em] text-text! uppercase hover:border-border lg:-ml-0.5 lg:border-0 lg:border-l-2 lg:border-transparent lg:px-4 lg:hover:border-amber"
                   >
-                    <span className="font-mono text-[11px] font-normal text-muted">{String(k + 1).padStart(2, '0')}</span>
+                    <span className="font-mono text-xs font-normal text-muted">{String(k + 1).padStart(2, '0')}</span>
                     {t.label}
                   </a>
                 </li>
@@ -360,7 +360,7 @@ export default function HowItWorksPage() {
           </div>
         </div>
       </main>
-      <Footer />
+      <Footer narrow />
     </div>
   );
 }

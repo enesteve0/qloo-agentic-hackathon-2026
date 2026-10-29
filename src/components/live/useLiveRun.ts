@@ -11,10 +11,17 @@ export type LiveRunRequest =
   | { mode: 'start'; brief: Brief; presetSlug?: string | null }
   | { mode: 'resume'; runId: string; choices: ResolutionChoice[] };
 
+/** A problem with the request itself; `restricted` names the category of a brief Stoop declines to plan. */
+export interface LiveRunError {
+  message: string;
+  details: string[];
+  restricted?: string | null;
+}
+
 export interface LiveRun {
   view: RunView;
   /** Problems with the request itself (validation, expired run); capacity problems arrive as `view.fallback`. */
-  error: { message: string; details: string[] } | null;
+  error: LiveRunError | null;
   busy: boolean;
   start: (brief: Brief, presetSlug?: string | null) => Promise<void>;
   answer: (choices: ResolutionChoice[]) => Promise<void>;
@@ -82,14 +89,20 @@ export function useLiveRun(initial: RunState | null = null): LiveRun {
         });
         const type = res.headers.get('content-type') ?? '';
         if (!type.includes('text/event-stream') || !res.body) {
-          const body = (await res.json().catch(() => ({}))) as { error?: string; errors?: string[]; runId?: string; follow?: boolean };
+          const body = (await res.json().catch(() => ({}))) as {
+            error?: string;
+            errors?: string[];
+            restricted?: string;
+            runId?: string;
+            follow?: boolean;
+          };
           // A run id means "that run exists": follow it while running, or load where it ended (e.g. a 409 after
           // the question was answered elsewhere).
           if (body.runId) {
             await follow(body.runId, controller.signal);
             return;
           }
-          setError({ message: body.error ?? 'Something went wrong. Try again.', details: body.errors ?? [] });
+          setError({ message: body.error ?? 'Something went wrong. Try again.', details: body.errors ?? [], restricted: body.restricted ?? null });
           return;
         }
         for await (const part of readUiMessageSse(res.body)) {

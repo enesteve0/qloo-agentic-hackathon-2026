@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { LivePlanner } from '@/components/live/LivePlanner';
+import { SyntheticNote } from '@/components/live/SyntheticNote';
 import { Footer } from '@/components/site/Footer';
 import { Header } from '@/components/site/Header';
 import { presetBySlug } from '@/content/presets';
@@ -16,6 +17,8 @@ export default async function NewPlanPage({ searchParams }: { searchParams: Prom
   return (
     <div className="flex min-h-dvh flex-col">
       <Header current="plan" />
+      {/* Say so before the brief is typed: in sample mode a new plan is synthetic too. */}
+      {mode === 'mock' ? <SyntheticNote>new plans use synthetic taste data until the Qloo key is live.</SyntheticNote> : null}
       <main id="main" className="flex-1">
         <LivePlanner initialSlug={slug} liveAvailable={mode === 'live'} />
       </main>
