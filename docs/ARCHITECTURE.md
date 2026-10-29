@@ -442,4 +442,5 @@ scores in the CSV or PNG ads), the run API (start, resume, cached briefs, capaci
 E2E (Playwright on the production build): a new brief streams to a finished plan that survives a reload and
 exports; restricted briefs get a reason; over the limit → labelled sample plan, not an error page; station
 rail; agent log with every Qloo request and a redacted trace; PNG and CSV downloads; ambiguity picker
-resumes; status and health expose no quotas; axe on 11 pages.
+resumes; status and health expose no quotas; tab and home-screen icons load; no sideways scrolling on a phone;
+axe on 11 pages.

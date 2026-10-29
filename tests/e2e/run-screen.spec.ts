@@ -38,6 +38,16 @@ test('the landing page leads to a plan, the samples and the judges’ tour', asy
   await expect(page.locator('a[href^="/p/"]')).not.toHaveCount(0);
 });
 
+test('pages declare tab and home-screen icons that load', async ({ page, request }) => {
+  await page.goto('/');
+  for (const rel of ['icon', 'apple-touch-icon']) {
+    const href = await page.locator(`link[rel="${rel}"]`).first().getAttribute('href');
+    const res = await request.get(href ?? '');
+    expect(res.status()).toBe(200);
+    expect(res.headers()['content-type']).toContain('image/png');
+  }
+});
+
 test.describe('on a phone', () => {
   test.use({ viewport: { width: 360, height: 800 } });
   for (const path of ['/p/halfnote', '/p/halfnote?view=plan', '/how-it-works', '/judges', '/']) {
