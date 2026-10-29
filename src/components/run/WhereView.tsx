@@ -8,7 +8,7 @@ import { Segmented } from '@/components/ui/Segmented';
 import { StreetPlate } from '@/components/ui/StreetPlate';
 import { cx } from '@/components/ui/cx';
 import { ConfidenceMeter, NeighborhoodList } from './NeighborhoodList';
-import { HEAT_GRADIENT, fmtInt, fmtMultiplier, planNeighborhoods } from './model';
+import { HEAT_GRADIENT, fmtCount, fmtInt, fmtMultiplier, planNeighborhoods } from './model';
 
 export interface WhereViewProps {
   /** A run with `where` set. */
@@ -107,8 +107,8 @@ export function WhereView({ state, onOpenAds, className }: WhereViewProps) {
               {screens ? (
                 <>
                   {' '}
-                  The plan buys <span className="font-semibold text-text">{fmtInt(screens)} screens</span> in {planCodes.length}{' '}
-                  neighborhoods.
+                  The plan buys <span className="font-semibold text-text">{fmtCount(screens, 'screen')}</span> in{' '}
+                  {fmtCount(planCodes.length, 'neighborhood')}.
                 </>
               ) : null}
             </p>

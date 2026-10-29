@@ -1,6 +1,6 @@
 import 'server-only';
 import { z } from 'zod';
-import type { Brief } from '@/shared/types';
+import { MAX_WEEKS, type Brief } from '@/shared/types';
 
 /** Strips contact details and links before a brief reaches any model (the brief never goes to Qloo). */
 export function sanitizeText(input: string): string {
@@ -26,7 +26,7 @@ export const briefSchema = z.object({
     .optional()
     .transform((v) => (v ? v : null)),
   budgetUsd: z.coerce.number().int().min(100).max(100_000),
-  weeks: z.coerce.number().int().min(1).max(8),
+  weeks: z.coerce.number().int().min(1).max(MAX_WEEKS),
   startDate: z.iso
     .date()
     .nullable()

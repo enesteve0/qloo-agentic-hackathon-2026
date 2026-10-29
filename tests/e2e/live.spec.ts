@@ -32,6 +32,22 @@ test('a new brief streams to a finished plan that survives a reload and exports'
   expect(body).not.toMatch(/urn:|entity_id|affinity/);
 });
 
+test('a budget that buys no screen says why and leads back to a new brief', async ({ page }) => {
+  await page.goto('/plan/new');
+  await page.getByLabel('Business name').fill(`Corner Bakery ${uniq()}`);
+  await page.getByLabel('What you do').fill('A neighborhood bakery with sourdough, sweet treats and a sunny window counter.');
+  await page.getByLabel(/Budget/i).first().fill('100');
+  await page.getByRole('button', { name: /Plan my campaign/i }).click();
+  await expect(page.getByText('Done · no screens fit this budget').filter({ visible: true }).first()).toBeVisible({ timeout: 60_000 });
+
+  await page.getByRole('navigation', { name: 'Plan stations' }).getByRole('link', { name: /Plan/i }).first().click();
+  await expect(page.getByRole('heading', { name: /No screens fit this budget/i })).toBeVisible();
+  // The live run rewrote the URL in place; this link must still open a fresh brief form.
+  await page.getByRole('link', { name: 'Start a new brief' }).click();
+  await expect(page).toHaveURL(/\/plan\/new$/);
+  await expect(page.getByRole('button', { name: /Plan my campaign/i })).toBeVisible();
+});
+
 test('briefs Stoop will not plan get a reason instead of a plan', async ({ page }) => {
   await page.goto('/plan/new');
   await page.getByLabel('Business name').fill('Park Lofts');

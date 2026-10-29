@@ -1,7 +1,6 @@
 'use client';
 
 import { ArrowRight, RotateCcw } from 'lucide-react';
-import Link from 'next/link';
 import { Footer } from '@/components/site/Footer';
 import { Header } from '@/components/site/Header';
 import { buttonClass } from '@/components/ui/button';
@@ -27,10 +26,11 @@ export default function PageError({ error, retry }: { error: unknown; retry: () 
               <RotateCcw aria-hidden="true" className="size-5" />
               Try again
             </button>
-            <Link href="/p/halfnote" className={buttonClass('secondary', 'lg')}>
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a full page load: the error may have happened on the sample plan itself */}
+            <a href="/p/halfnote" className={buttonClass('secondary', 'lg')}>
               Open a sample plan
               <ArrowRight aria-hidden="true" className="size-5" />
-            </Link>
+            </a>
           </div>
           {digest ? <p className="font-mono text-xs text-muted">Reference {digest}</p> : null}
         </div>

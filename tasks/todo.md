@@ -85,7 +85,7 @@ correction in `tasks/lessons.md`.
   brief problems in one alert, honest leftover-budget note). README rewritten for submission. `/validation`
   page ready. Blocked on owner: Upstash terms acceptance and `.env.local` with the Qloo and Groq keys.
 
-- 2026-10-29 19:15 Istanbul: Lighthouse on production (6 pages, desktop + mobile): accessibility 100
+- 2026-10-29 18:50 Istanbul: Lighthouse on production (6 pages, desktop + mobile): accessibility 100
   everywhere; best practices 96 (missing favicon, now fixed with generated tab and home-screen icons);
   SEO 63 only on the deliberately `noindex` pages (`/plan/*`, `/p/*`, `/status`); performance 79–100 (the
   MapLibre bundle). Groq's `openai/gpt-oss-20b`/`-120b` confirmed current (not on Groq's deprecation list).

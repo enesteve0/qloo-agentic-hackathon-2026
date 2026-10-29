@@ -37,3 +37,16 @@ rule that prevents it, and how to check.
   reproduced with throwaway tests) that unit, integration and e2e suites all missed.
 - Test mocks in route tests: scope a failure flag to the request under test, or the mock also breaks the
   fallback path that should rescue it.
+
+## 2026-10-29
+
+- **A URL rewritten with `history.replaceState` leaves the router on the old route.** After a live run moved
+  `/plan/new` to `/plan/<id>` in place, a `<Link href="/plan/new">` counted as a same-page navigation and the
+  old run stayed on screen. Rule: links that must reset client state after an in-place URL rewrite (new
+  brief, the sample plan from the error page) are plain `<a>` with a reasoned lint disable; e2e-test them in
+  the same visit, not after a reload.
+- **Count what the reader means.** The optimizer listed every top neighborhood, including ones the budget
+  could not reach, so "1 screens · 3 neighborhoods" reached the ticker, the PLAN heading and the agent log.
+  Rule: derived counts come from rows that carry the thing counted; test one-of and zero-of cases.
+- **A second independent review paid off again** (four real bugs in the design polish pass, all missed by
+  unit, integration and browser tests). Rule: review every large judge-facing change before a freeze.

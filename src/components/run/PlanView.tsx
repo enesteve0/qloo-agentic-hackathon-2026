@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { ChevronDown, Info, Minus, Plus } from 'lucide-react';
 import { Fragment, useId, useState } from 'react';
 import type { MediaPlan, PlannedScreen, RunState } from '@/shared/types';
@@ -242,7 +241,12 @@ export function PlanView({ state, places = {}, onChangeBudget, onChangeWeeks, re
   const range = fmtDateRange(state.brief.startDate, plan.weeks);
   const order = new Map(plan.screens.map((s, k) => [s.i, k + 1]));
   const numberOf = (s: PlannedScreen) => order.get(s.i) ?? 0;
-  const cheapest = Math.min(plan.assumptions.pricePerKioskWeek.outer, plan.assumptions.pricePerKioskWeek.manhattan);
+  // The cheapest eligible screen for the whole flight (null: none is eligible, so money won't help).
+  // Runs saved before the optimizer reported it fall back to the cheaper price tier.
+  const minimum =
+    plan.cheapestScreenUsd !== undefined
+      ? plan.cheapestScreenUsd
+      : Math.min(plan.assumptions.pricePerKioskWeek.outer, plan.assumptions.pricePerKioskWeek.manhattan) * plan.weeks;
 
   if (plan.infeasibleReason || plan.screens.length === 0) {
     return (
@@ -255,56 +259,64 @@ export function PlanView({ state, places = {}, onChangeBudget, onChangeWeeks, re
         </div>
         <div className="flex max-w-2xl flex-col gap-4 border-2 border-amber bg-surface p-5">
           <p className="text-lg">{plan.infeasibleReason ?? 'The budget does not cover a single screen-week.'}</p>
-          <p className="text-muted">Ways to fix it:</p>
-          <ul className="flex flex-col gap-2">
-            {onChangeBudget ? (
-              <li>
-                <button
-                  type="button"
-                  onClick={() => onChangeBudget(Math.max(plan.budgetUsd, cheapest * plan.weeks))}
-                  className="font-display text-lg font-bold tracking-[0.04em] text-link uppercase underline-offset-4 hover:underline"
-                >
-                  Raise the budget to {fmtUsd(cheapest * plan.weeks)}
-                </button>
-              </li>
-            ) : (
-              <li className="text-muted">
-                Raise the budget to at least {fmtUsd(cheapest * plan.weeks)} for {fmtWeeks(plan.weeks)}.
-              </li>
-            )}
-            {onChangeWeeks && plan.weeks > 1 ? (
-              <li>
-                <button
-                  type="button"
-                  onClick={() => onChangeWeeks(1)}
-                  className="font-display text-lg font-bold tracking-[0.04em] text-link uppercase underline-offset-4 hover:underline"
-                >
-                  Run for one week instead
-                </button>
-              </li>
-            ) : (
-              <li className="text-muted">Run for fewer weeks: one screen-week costs about {fmtUsd(cheapest)}.</li>
-            )}
-            {onEditBrief ? (
-              <li>
-                <button
-                  type="button"
-                  onClick={onEditBrief}
-                  className="font-display text-lg font-bold tracking-[0.04em] text-link uppercase underline-offset-4 hover:underline"
-                >
-                  Edit the brief
-                </button>
-              </li>
-            ) : null}
-          </ul>
+          {minimum === null && !onEditBrief ? null : (
+            <>
+              <p className="text-muted">Ways to fix it:</p>
+              <ul className="flex flex-col gap-2">
+                {minimum === null ? null : onChangeBudget ? (
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => onChangeBudget(Math.max(plan.budgetUsd, minimum))}
+                      className="font-display text-lg font-bold tracking-[0.04em] text-link uppercase underline-offset-4 hover:underline"
+                    >
+                      Raise the budget to {fmtUsd(minimum)}
+                    </button>
+                  </li>
+                ) : (
+                  <li className="text-muted">
+                    Raise the budget to at least {fmtUsd(minimum)} for {fmtWeeks(plan.weeks)}.
+                  </li>
+                )}
+                {minimum === null || plan.weeks <= 1 ? null : onChangeWeeks ? (
+                  <li>
+                    <button
+                      type="button"
+                      onClick={() => onChangeWeeks(1)}
+                      className="font-display text-lg font-bold tracking-[0.04em] text-link uppercase underline-offset-4 hover:underline"
+                    >
+                      Run for one week instead
+                    </button>
+                  </li>
+                ) : (
+                  <li className="text-muted">Run for fewer weeks: one screen-week costs about {fmtUsd(minimum / plan.weeks)}.</li>
+                )}
+                {onEditBrief ? (
+                  <li>
+                    <button
+                      type="button"
+                      onClick={onEditBrief}
+                      className="font-display text-lg font-bold tracking-[0.04em] text-link uppercase underline-offset-4 hover:underline"
+                    >
+                      Edit the brief
+                    </button>
+                  </li>
+                ) : null}
+              </ul>
+            </>
+          )}
           {onEditBrief ? null : (
+            // Full page loads: a live run rewrites the URL with history.replaceState, so the router can
+            // still think it is on /plan/new (or the sample) and would keep the old run on screen.
             <div className="flex flex-wrap gap-3 pt-1">
-              <Link href="/plan/new" className={buttonClass('primary', 'md')}>
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a full page load (see above) */}
+              <a href="/plan/new" className={buttonClass('primary', 'md')}>
                 Start a new brief
-              </Link>
-              <Link href="/p/halfnote" className={buttonClass('outline', 'md')}>
+              </a>
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a full page load (see above) */}
+              <a href="/p/halfnote" className={buttonClass('outline', 'md')}>
                 Open a sample plan
-              </Link>
+              </a>
             </div>
           )}
         </div>

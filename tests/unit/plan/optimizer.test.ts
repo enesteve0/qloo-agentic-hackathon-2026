@@ -101,12 +101,10 @@ describe('buildMediaPlan', () => {
     const p = plan([{ nta: 'BK1', fit: 80 }], { weeks: 3, budgetUsd: 500 });
     expect(p.screens).toEqual([{ i: 0, siteId: 'bk1-000', nta: 'BK1', fit: 80, weeklyImpressions: 3_500, cost: 120 }]);
     expect(p.totals).toEqual({ spend: 120, impressions: 10_500, tasteWeightedImpressions: 8_400, screens: 1 });
-    expect(p.byNta).toEqual([
-      { nta: 'BK1', screens: 1, spend: 120, tasteWeightedImpressions: 8_400 },
-      { nta: 'BK2', screens: 0, spend: 0, tasteWeightedImpressions: 0 },
-      { nta: 'MN1', screens: 0, spend: 0, tasteWeightedImpressions: 0 },
-    ]);
+    // Only neighborhoods that got screens: BK2 and MN1 have no candidates here.
+    expect(p.byNta).toEqual([{ nta: 'BK1', screens: 1, spend: 120, tasteWeightedImpressions: 8_400 }]);
     expect(p.leftoverUsd).toBe(380);
+    expect(p.cheapestScreenUsd).toBe(120);
     expect(p.assumptions).toEqual(DEFAULT_ASSUMPTIONS);
     expect(p.assumptions).not.toBe(DEFAULT_ASSUMPTIONS);
   });
@@ -206,12 +204,30 @@ describe('buildMediaPlan', () => {
     const multi = plan([{ nta: 'BK1', fit: 90 }], { budgetUsd: 100, weeks: 3 });
     expect(multi.infeasibleReason).toBe('Minimum $40 for one screen-week ($120 for 3 weeks)');
     expect(multi.screens).toEqual([]);
+    expect(multi.byNta).toEqual([]);
+    expect(multi.cheapestScreenUsd).toBe(120);
+  });
+
+  it('prices the minimum from the screens that qualify, not the cheaper tier', () => {
+    // Only Manhattan screens qualify: $100 buys no $120 screen-week, and the plan says so.
+    const p = plan([{ nta: 'MN1', fit: 90 }, { nta: 'MN1', fit: 80 }, { nta: 'BK1', fit: 10 }], { budgetUsd: 100, weeks: 3 });
+    expect(p.infeasibleReason).toBe('Minimum $120 for one screen-week ($360 for 3 weeks)');
+    expect(p.cheapestScreenUsd).toBe(360);
+  });
+
+  it('leaves out top neighborhoods the budget cannot reach', () => {
+    // $50 buys one $40 screen: BK1 gets it; BK2 is a top neighborhood with a candidate but no screen.
+    const p = plan([{ nta: 'BK1', fit: 90 }, { nta: 'BK2', fit: 85 }], { budgetUsd: 50 });
+    expect(p.totals.screens).toBe(1);
+    expect(p.byNta.map((b) => b.nta)).toEqual(['BK1']);
+    expect(p.nextBest.map((s) => s.nta)).toEqual(['BK2']);
   });
 
   it('explains plans with no qualifying screens or no weeks', () => {
     expect(plan([{ nta: 'BK1', fit: 10 }]).infeasibleReason).toBe('No screens with a taste fit of 50 or more in the selected neighborhoods.');
     expect(plan([{ nta: 'BK1', fit: -1 }], { minFit: 0 }).infeasibleReason).toBe('No scored screens in the selected neighborhoods.');
     expect(plan([{ nta: 'BK1', fit: 90 }], { weeks: 0 }).infeasibleReason).toBe('Set a campaign length of more than zero weeks.');
+    expect(plan([{ nta: 'BK1', fit: 10 }]).cheapestScreenUsd).toBeNull();
   });
 
   it('counts money in cents with fractional prices and weeks', () => {
@@ -254,6 +270,7 @@ describe('buildMediaPlan', () => {
       const cost = (k: Kiosk) => cents((k.boro === 'Manhattan' ? 120 : 40) * weeks);
       const mean = candidates.reduce((s, k) => s + cost(k), 0) / candidates.length;
       const cap = Math.max(1, Math.ceil(0.5 * Math.floor(cents(budgetUsd) / mean)));
+      for (const b of p.byNta) expect(b.screens, ctx).toBeGreaterThan(0);
       for (const b of p.byNta) expect(b.screens, ctx).toBeLessThanOrEqual(cap);
 
       // Every top neighborhood with candidates gets a screen when the budget covers one in each.

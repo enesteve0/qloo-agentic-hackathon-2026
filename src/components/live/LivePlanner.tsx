@@ -75,9 +75,10 @@ function BriefProblem({ error }: { error: LiveRunError }) {
         ) : (
           <p className="mt-1 text-muted">
             <span className="text-text">{error.message}</span>{' '}
-            <Link href="/p/halfnote" className="underline underline-offset-4">
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- a full page load: "Run live" on the sample plan leaves the router on /p/halfnote */}
+            <a href="/p/halfnote" className="underline underline-offset-4">
               Open a sample plan
-            </Link>
+            </a>
           </p>
         )}
       </div>

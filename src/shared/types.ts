@@ -308,11 +308,14 @@ export interface MediaPlan {
   weeks: number;
   assumptions: PricingAssumptions;
   screens: PlannedScreen[];
+  /** The neighborhoods that got screens, in rank order. */
   byNta: { nta: string; screens: number; spend: number; tasteWeightedImpressions: number }[];
   totals: { spend: number; impressions: number; tasteWeightedImpressions: number; screens: number };
   leftoverUsd: number;
   nextBest: PlannedScreen[];
   infeasibleReason: string | null;
+  /** Cost of the cheapest eligible screen for the whole flight; null when none is eligible (absent in older saved runs). */
+  cheapestScreenUsd?: number | null;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -334,6 +337,9 @@ export interface Proof {
 // ---------------------------------------------------------------------------------------------
 // Brief, planner output, labels and run state
 // ---------------------------------------------------------------------------------------------
+
+/** Longest campaign a brief can ask for, in weeks. */
+export const MAX_WEEKS = 8;
 
 export interface Brief {
   business: string;

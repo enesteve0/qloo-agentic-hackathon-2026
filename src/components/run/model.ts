@@ -14,6 +14,7 @@ import type {
   StageOperation,
   StageStatus,
 } from '@/shared/types';
+import { MAX_WEEKS } from '@/shared/types';
 import type { RunTab, StationId, StationStatus } from './types';
 
 // ---------------------------------------------------------------------------------------------
@@ -175,25 +176,31 @@ export const fmtPct = (share: number) => `${Math.round(share * 100)}%`;
 /** 2.62 → "2.6×". */
 export const fmtMultiplier = (m: number) => `${m.toFixed(1)}×`;
 
+/** (1, "screen") → "1 screen", (3, "screen") → "3 screens". */
+export const fmtCount = (n: number, word: string) => `${fmtInt(n)} ${word}${n === 1 ? '' : 's'}`;
+
 /** 3 → "3 weeks", 1 → "1 week". */
-export const fmtWeeks = (weeks: number) => `${fmtInt(weeks)} week${weeks === 1 ? '' : 's'}`;
+export const fmtWeeks = (weeks: number) => fmtCount(weeks, 'week');
 
 const COUNT_WORD = ['no', 'one', 'two', 'three', 'four', 'five', 'six'];
 
 /**
  * What PLAN says about the money the optimizer left unspent. With no next-best screens, every
  * well-matched screen in the top neighborhoods is already bought, so more money has nowhere good to go.
+ * A next-best screen the leftover could pay for was held back by the per-neighborhood cap.
  */
-export function leftoverNote(plan: Pick<MediaPlan, 'assumptions' | 'byNta' | 'leftoverUsd' | 'nextBest' | 'weeks'>): string {
-  const price = plan.assumptions.pricePerKioskWeek;
-  const oneMore = Math.min(price.outer, price.manhattan) * plan.weeks;
-  if (plan.leftoverUsd < oneMore) {
-    return `Less than one more screen for ${fmtWeeks(plan.weeks)} (${fmtUsd(oneMore)}). Keep it or add a little.`;
+export function leftoverNote(plan: Pick<MediaPlan, 'byNta' | 'leftoverUsd' | 'nextBest' | 'weeks'>): string {
+  if (!plan.nextBest.length) {
+    const n = plan.byNta.length;
+    const where = n === 1 ? 'your top neighborhood' : `your top ${COUNT_WORD[n] ?? fmtInt(n)} neighborhoods`;
+    const longer = plan.weeks < MAX_WEEKS ? ', or run more weeks' : '';
+    return `Every well-matched screen in ${where} is already in the plan. Stoop won’t spend the rest on poor-fit screens: keep it${longer}.`;
   }
-  if (plan.nextBest.length) return 'Room for more screens: the next best are listed here.';
-  const n = plan.byNta.length;
-  const where = n === 1 ? 'your top neighborhood' : `your top ${COUNT_WORD[n] ?? fmtInt(n)} neighborhoods`;
-  return `Every well-matched screen in ${where} is already in the plan. Stoop won’t spend the rest on poor-fit screens: keep it, or run more weeks.`;
+  const next = Math.min(...plan.nextBest.map((s) => s.cost));
+  if (plan.leftoverUsd < next) {
+    return `Not enough for the next best screen (${fmtUsd(next)} for ${fmtWeeks(plan.weeks)}). Keep it or add a little.`;
+  }
+  return 'Enough for another screen, but the best remaining ones are in neighborhoods that already have their share: no neighborhood gets more than half the screens. A bigger budget raises that limit.';
 }
 
 export function ordinal(n: number): string {
@@ -337,9 +344,9 @@ export function tickerHeadline(state: RunState | null, progress: string | null):
   if (state.status === 'error') return { text: 'Stopped. Your brief is saved', tone: 'danger' };
   if (state.status === 'awaiting_input') return { text: 'One quick check before the map', tone: 'amber' };
   if (state.status === 'done' && state.plan && !state.plan.infeasibleReason) {
-    const n = state.plan.byNta.length;
+    const { byNta, totals } = state.plan;
     return {
-      text: `Plan ready · ${state.plan.totals.screens} screens · ${n} neighborhood${n === 1 ? '' : 's'} · ${fmtUsd(state.plan.totals.spend)}`,
+      text: `Plan ready · ${fmtCount(totals.screens, 'screen')} · ${fmtCount(byNta.length, 'neighborhood')} · ${fmtUsd(totals.spend)}`,
       tone: 'amber',
     };
   }

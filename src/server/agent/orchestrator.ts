@@ -237,7 +237,8 @@ export async function executeRun(state: RunState, emit: Emit, deps: RunDeps, opt
       if (plan.infeasibleReason) {
         setStage('optimize', 'degraded', plan.infeasibleReason);
       } else {
-        decide('optimize', `${plan.totals.screens} screens in ${plan.byNta.length} neighborhoods for $${fmt.format(plan.totals.spend)}.`);
+        const [s, n] = [plan.totals.screens, plan.byNta.length];
+        decide('optimize', `${s} screen${s === 1 ? '' : 's'} in ${n} neighborhood${n === 1 ? '' : 's'} for $${fmt.format(plan.totals.spend)}.`);
       }
       return plan;
     });

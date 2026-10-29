@@ -112,21 +112,19 @@ export function buildMediaPlan(input: MediaPlanInput): MediaPlan {
     spent -= c.costCents;
   };
 
+  const cheapest = candidates.length ? candidates.reduce((m, c) => (c.costCents < m.costCents ? c : m)) : null;
   let infeasibleReason: string | null = null;
   if (weeks <= 0) {
     infeasibleReason = 'Set a campaign length of more than zero weeks.';
-  } else if (candidates.length === 0) {
+  } else if (!cheapest) {
     infeasibleReason =
       minFit > 0 ? `No screens with a taste fit of ${minFit} or more in the selected neighborhoods.` : 'No scored screens in the selected neighborhoods.';
-  } else {
-    const cheapest = candidates.reduce((m, c) => (c.costCents < m.costCents ? c : m));
-    if (budgetCents < cheapest.costCents) {
-      const perWeek = formatUsd(cheapest.costCents / 100 / weeks);
-      infeasibleReason =
-        weeks === 1
-          ? `Minimum ${perWeek} for one screen-week`
-          : `Minimum ${perWeek} for one screen-week (${formatUsd(cheapest.costCents / 100)} for ${formatWeeks(weeks)})`;
-    }
+  } else if (budgetCents < cheapest.costCents) {
+    const perWeek = formatUsd(cheapest.costCents / 100 / weeks);
+    infeasibleReason =
+      weeks === 1
+        ? `Minimum ${perWeek} for one screen-week`
+        : `Minimum ${perWeek} for one screen-week (${formatUsd(cheapest.costCents / 100)} for ${formatWeeks(weeks)})`;
   }
 
   if (!infeasibleReason) {
@@ -173,8 +171,10 @@ export function buildMediaPlan(input: MediaPlanInput): MediaPlan {
     .sort((a, b) => a.ntaRank - b.ntaRank || byValuePerCost(a, b));
   const screens = picked.map(toScreen);
   const twi = (c: Candidate) => Math.round(c.value);
-  const byNta = tops.map((nta) => {
+  // Only neighborhoods that got screens: a small budget can leave some top neighborhoods out.
+  const byNta = tops.flatMap((nta) => {
     const mine = picked.filter((c) => c.nta === nta);
+    if (mine.length === 0) return [];
     return {
       nta,
       screens: mine.length,
@@ -201,5 +201,6 @@ export function buildMediaPlan(input: MediaPlanInput): MediaPlan {
       .slice(0, 3)
       .map(toScreen),
     infeasibleReason,
+    cheapestScreenUsd: cheapest ? cheapest.costCents / 100 : null,
   };
 }
