@@ -139,6 +139,7 @@ describe('templateVariant', () => {
         }
       }
       expect(failures).toEqual([]);
-    });
+      // Thousands of validator runs: 2–3 s alone, past vitest's 5 s default on a busy machine.
+    }, 30_000);
   });
 });
