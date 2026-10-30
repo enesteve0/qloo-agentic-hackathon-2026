@@ -116,7 +116,7 @@ quota, busy AI tiers), the visitor gets a labelled sample plan, never an error p
   working key, and its result will be published at `/validation` whatever it shows.
 - **Copy rules with the live writer.** In the six recorded sample plans, `gpt-oss-120b` wrote all 36
   ads and all 36 passed the eight copy rules (on synthetic evidence).
-- **Tests.** 635 unit and integration tests and 30 browser tests run in CI on every push. The
+- **Tests.** 636 unit and integration tests and 30 browser tests run in CI on every push. The
   browser tests run on the production build and include axe accessibility checks on 11 pages. CI
   also runs a public-data audit and a gitleaks scan of the full history.
 
