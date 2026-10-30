@@ -129,6 +129,10 @@ correction in `tasks/lessons.md`.
 - [x] Synthetic note no longer claims the live agent uses real Qloo data when no key is active — bb7cabb
       (30/30 browser tests)
 - [x] Repo About set while private: description, homepage https://usestoop.vercel.app, topics; MIT detected
+- [x] Independent fact-check of the Devpost draft and README against the code; every overstatement fixed
+      in README, docs, the app's own text and the draft; `.env.example` copy no longer breaks startup
+- [x] Demo video (84 s, 1080p, captions disclose synthetic data) in `.private/devpost-assets/` — optional;
+      needs the owner's YouTube upload
 - [x] Gallery + thumbnail re-shot on production (synthetic labels visible) — bb7cabb; thumbnail tagged
       SYNTHETIC SAMPLE DATA; phone shots scroll to the map and an ad; files in `.private/devpost-assets/`
 - [x] Judge path checked on production: landing → sample plan (all five views, agent log) → own brief, desktop and phone

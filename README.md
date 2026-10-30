@@ -38,8 +38,8 @@ Built for the [Qloo Agentic Hackathon 2026](https://qloo.devpost.com/).
 | **Brief** | Business, offer, budget, weeks, optional address. The address stays on Stoop's side | Owner |
 | **Taste** | The agent proposes 2–6 taste anchors and matches them in Qloo search. If a name is ambiguous ("Soul": which one?), it asks one question | Model proposes, Qloo resolves |
 | **Where** | A Qloo heatmap for each anchor, compared with an NYC baseline (rank-based lift), scored onto every live ad-capable kiosk in 106 eligible 2020 neighborhoods | Qloo measures, code ranks |
-| **What** | For each top neighborhood, Qloo place evidence inside that neighborhood's polygon. Then two ads per neighborhood, every local phrase traced to an evidence item and checked against eight copy rules | Model writes, code verifies |
-| **Plan** | The strongest screens per dollar, capped so no neighborhood takes more than half. Every price and impression figure is labelled ASSUMPTION. Also the six best free screens for LinkNYC's LinkLocal program | Code |
+| **What** | For each top neighborhood, Qloo place evidence inside that neighborhood's polygon. Then two ads per neighborhood; each cites that evidence and is checked against eight copy rules (names and numbers must come from the brief or the evidence) | Model writes, code verifies |
+| **Plan** | The strongest screens per dollar, capped so no neighborhood gets more than about half the screens the budget buys. Every price and impression figure is labelled ASSUMPTION. Also the six best free screens for LinkNYC's LinkLocal program | Code |
 | **Proof** | The same brief planned by the same AI without Qloo, scored on the same map, with the circularity stated next to it | Code |
 | **Send** | Checklist, CSV screen list, each ad as a print-ready 1080×1920 PNG, and a booking email that unlocks only after the owner confirms review | Owner |
 
@@ -52,23 +52,25 @@ trace.
 | Step | Request | Why |
 |---|---|---|
 | Resolve anchors | `GET /search?query=…&types=urn:entity:<type>&take=5` (places: within 25 mi of NYC) | Exact, semantic or ambiguous match; at most one question per run |
-| Taste maps | `GET /v2/insights?filter.type=urn:heatmap&filter.location=<NYC polygon>&signal.interests.entities=<anchor>` | One map per anchor, plus a calibrated baseline |
+| Taste maps | `GET /v2/insights?filter.type=urn:heatmap&filter.location=<NYC polygon>&signal.interests.entities=<anchor>` | One map per anchor. Until calibration picks a baseline, each map's own popularity layer is the baseline (no extra call) |
 | Local evidence | `GET /v2/insights?filter.type=urn:entity:place&filter.location=<neighborhood polygon>&signal.interests.entities=<anchors>&feature.explainability=true` | What local places share with the anchors, for the ad copy |
 
-Raw heatmap affinity mostly tracks popularity, so Stoop ranks by **lift**. Each map is rank-normalized
-over the city grid, z = Φ⁻¹((rank − ½)/n), and the baseline map is subtracted:
+Raw heatmap affinity can mostly track popularity (other participants reported this), so Stoop ranks by
+**lift**. Each map is rank-normalized over the city grid, z = Φ⁻¹((rank − ½)/n), and the baseline is
+subtracted:
 
 $$\ell_a(g) = z_a(g) - z_b(g), \qquad L(g) = \frac{\sum_a w_a \, \ell_a(g)}{\sum_a w_a}$$
 
 Before combining maps, the engine flags three problems and narrates each decision in the agent log:
 
-- Qloo's generic "no data" map (detected by fingerprint, then excluded);
+- Qloo's generic "no data" map (excluded once calibration has stored its fingerprint);
 - maps that only follow density (down-weighted);
 - thin maps (weighted by coverage).
 
-Neighborhood scores use land-weighted aggregation, empirical-Bayes shrinkage and a confidence level.
+Neighborhood scores use land-weighted aggregation, shrinkage toward the baseline for neighborhoods
+with few cells, and a confidence level.
 
-Qloo quirks the client handles:
+Qloo behaviour other participants reported, which the client guards against:
 
 - **"New York" resolves to the state.** Stoop sends a city polygon instead.
 - **4xx responses count against quota.** Every parameter is allow-listed locally first.
@@ -105,8 +107,9 @@ else is deterministic and tested:
 - the proof.
 
 The run streams to the browser as typed data parts, keeps going if the visitor disconnects, and can
-pause for the one question and resume. When any capacity limit is reached (fair-use limits, Qloo
-quota, busy AI tiers), the visitor gets a labelled sample plan, never an error page.
+pause for the one question and resume. Past a fair-use limit or the Qloo quota, the visitor gets a
+labelled sample plan, never an error page; when every free AI tier is busy, labelled templates write
+the ads in the same run.
 
 ## Does it work?
 
@@ -116,9 +119,10 @@ quota, busy AI tiers), the visitor gets a labelled sample plan, never an error p
   working key, and its result will be published at `/validation` whatever it shows.
 - **Copy rules with the live writer.** In the six recorded sample plans, `gpt-oss-120b` wrote all 36
   ads and all 36 passed the eight copy rules (on synthetic evidence).
-- **Tests.** 636 unit and integration tests and 30 browser tests run in CI on every push. The
-  browser tests run on the production build and include axe accessibility checks on 11 pages. CI
-  also runs a public-data audit and a gitleaks scan of the full history.
+- **Tests.** 638 unit and integration tests and 30 browser tests run in CI on every push. The
+  browser tests run on the production build and include axe accessibility checks on 11 page views.
+  CI also runs a public-data audit and gitleaks on every push; a full-history gitleaks and trufflehog
+  audit was clean on 2026-10-30.
 
 ## Privacy and what Stoop will not do
 
@@ -152,6 +156,7 @@ runbook.
 ```bash
 pnpm typecheck && pnpm lint
 pnpm test                                  # unit + integration (mock pipeline, run API, admin)
+pnpm exec playwright install chromium      # once, for the browser tests
 pnpm build && pnpm exec playwright test    # browser tests on the production build
 pnpm audit:public                          # secrets, Qloo data and private paths
 pnpm qloo:smoke --dry-run                  # first-key calibration plan (26 calls, hard stop 30)
@@ -162,7 +167,8 @@ pnpm backtest:run --dry-run                # validation backtest plan (about 2 Q
 
 Next.js 16 (App Router) on Vercel, Vercel AI SDK 7, Upstash Redis, MapLibre GL on OpenFreeMap tiles,
 zod, Vitest and Playwright. The Qloo client calls the REST API directly from the server. Street screens
-and neighborhoods come from NYC Open Data and are processed at build time. Built solo during the event
+and neighborhoods come from NYC Open Data, processed by a script (`pnpm geo:build`) into committed data.
+Built solo during the event
 with AI coding agents.
 
 ## Documentation
@@ -178,7 +184,8 @@ with AI coding agents.
   synthetic data and say nothing about real New York taste.
 - New York City only. Screen locations are an open-data snapshot; whether a screen can be bought,
   and when, is up to the seller.
-- Taste maps are relative signals at roughly block resolution, not foot traffic, visits or population.
+- Taste maps are relative signals on city-grid cells of about 0.9 × 0.6 km, not foot traffic, visits or
+  population.
 - The PROOF comparison is scored on the same maps Stoop optimizes, so it is partly circular; the
   validation backtest is the independent check.
 - Prices and impressions are assumptions, not quotes. No campaign has run yet.
@@ -189,7 +196,8 @@ with AI coding agents.
 Street screens and neighborhoods come from NYC Open Data (LinkNYC Locations `s4kf-3yrf`, 2020
 Neighborhood Tabulation Areas `9nt8-h7nd`, Borough Boundaries `gthc-hcne`). The basemap is
 OpenFreeMap / OpenMapTiles, © OpenStreetMap contributors. Taste data comes from the Qloo Insights API
-at run time; no Qloo response data is stored in this repository. The validation uses OpenStreetMap
+at run time (synthetic in the demo until a key works); no Qloo response data is stored in this
+repository. The validation uses OpenStreetMap
 data under the ODbL and publishes summary statistics only. Stoop is not affiliated with LinkNYC,
 Intersection, CityBridge or the City of New York.
 

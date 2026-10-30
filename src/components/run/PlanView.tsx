@@ -344,7 +344,7 @@ export function PlanView({ state, places = {}, onChangeBudget, onChangeWeeks, re
           </h2>
           <p className="mt-3 text-lg text-muted">
             Fit to your budget by rules, not by the AI: the strongest screens per dollar, capped so no neighborhood gets more
-            than half the screens.{range ? ` Runs ${range}.` : ''}
+            than about half the screens the budget buys.{range ? ` Runs ${range}.` : ''}
           </p>
         </div>
         <Assumptions plan={plan} />

@@ -437,7 +437,8 @@ Runtime switches in Redis: `cfg:qloo:mode`, `cfg:llm:disabled`.
 CI runs with `REDIS_DRIVER=memory`, `QLOO_MODE=mock`, `LLM_MODE=mock` (no secrets): frozen install →
 typecheck → lint → vitest → build → `audit:public` (bundle grep for key shapes; no `affinity_rank` /
 `entity_id` outside synthetic fixtures and tests; synthetic UUID prefix enforced; `.private/` and
-`data/raw/` untracked) → Playwright e2e → gitleaks on full history.
+`data/raw/` untracked) → Playwright e2e → gitleaks on the pushed commits (the full history is
+audited with gitleaks and trufflehog before publishing).
 
 Unit: grid/projection, rank-z, lift (planted-bump recovery precision@5 ≥0.6 vs raw ≤0.3),
 aggregation, flags, cache keys, ledger (incl. Nov 1 DST), client status table, param allow-list,

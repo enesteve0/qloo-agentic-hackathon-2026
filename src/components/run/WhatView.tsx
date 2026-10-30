@@ -251,7 +251,7 @@ function EvidencePanel({
           What {short} loves
         </h3>
         <p className="mt-2 text-sm leading-snug text-muted">
-          The most distinctive tags among local places that fit these anchors. Every local word in the ads points here.
+          The most distinctive tags among local places that fit these anchors. Every ad cites at least one of them.
         </p>
       </div>
       <ul className="flex flex-col gap-2">

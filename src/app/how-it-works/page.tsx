@@ -42,7 +42,7 @@ const STATIONS: { name: string; what: string; who: string }[] = [
   },
   {
     name: 'What',
-    what: 'Local Qloo place evidence for the top neighborhoods, then two ads per neighborhood. Every local phrase points to an evidence item and passes eight copy rules.',
+    what: 'Local Qloo place evidence for the top neighborhoods, then two ads per neighborhood. Every ad cites that evidence and passes eight copy rules.',
     who: 'Model writes, code checks',
   },
   { name: 'Plan', what: 'The strongest screens per dollar under per-neighborhood caps. Every price and impression figure is a labelled assumption.', who: 'Code' },
@@ -293,7 +293,7 @@ export default function HowItWorksPage() {
               <ul className="flex list-disc flex-col gap-3 pl-5 marker:text-muted">
                 <li>New York City only. Screen locations come from an open-data snapshot; whether a screen can be bought, and when, is up to the seller.</li>
                 <li>
-                  Taste maps are relative signals at roughly neighborhood-block resolution. Thin anchors make noisy maps; Stoop flags
+                  Taste maps are relative signals on city-grid cells of about 0.9 × 0.6 km. Thin anchors make noisy maps; Stoop flags
                   them and lowers their weight.
                 </li>
                 <li>The multiplier is a display scale. It is not visits, foot traffic or population.</li>

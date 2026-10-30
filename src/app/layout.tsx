@@ -14,7 +14,7 @@ const mono = IBM_Plex_Mono({ subsets: ['latin'], weight: ['400'], variable: '--f
 export const metadata: Metadata = {
   title: { default: 'Stoop — AI media planner for NYC street screens', template: '%s · Stoop' },
   description:
-    'Most ad tech knows where phones go. Stoop knows what neighborhoods love. An AI agent that picks New York street screens with Qloo taste maps and writes each block its own ad. No tracking.',
+    'Most ad tech knows where phones go. Stoop knows what neighborhoods love. An AI agent that picks New York street screens with Qloo taste maps and writes each neighborhood its own ads. No tracking.',
   applicationName: 'Stoop',
 };
 

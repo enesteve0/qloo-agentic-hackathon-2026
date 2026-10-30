@@ -194,8 +194,8 @@ answer the one question if asked → open the agent log → visit `/validation`,
 neighborhoods love; the business chooses the anchors; restricted categories are blocked.
 
 **Known limitations.** NYC only; kiosk locations come from an NYC Open Data snapshot (availability
-and per-screen buying depend on the seller); heatmaps are relative signals at roughly
-neighborhood-block resolution and thin anchors produce noisy maps (flagged in the UI); copy checks
+and per-screen buying depend on the seller); heatmaps are relative signals on city-grid
+cells of about 0.9 × 0.6 km and thin anchors produce noisy maps (flagged in the UI); copy checks
 catch rule violations, not blandness; free AI tiers can run out (templates take over); validation is
 small and partly circular for each brand's own map; no campaign has run yet.
 

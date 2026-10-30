@@ -137,6 +137,19 @@
   that only repeats earlier words (matching ignores case, so the reference still holds). The striped
   note on synthetic plans said "the live agent uses real Qloo data" even with no key active; it now says
   the key is not active yet whenever the deployment runs on synthetic data.
+- **Independent fact-check of the write-up.** A separate review of the Devpost draft and README against
+  the code found claims that went further than the code. Corrected in README, the app's own text and the
+  draft: the budget cap limits each neighborhood to about half the screens the budget buys (not half the
+  spend; one neighborhood can take most of a small budget); ads cite evidence and names and numbers must
+  come from the brief or the evidence (not "every local phrase points to evidence"); the grid cells are
+  about 0.9 × 0.6 km (not block resolution); the default baseline is each map's own popularity layer
+  until calibration; the "no data" map flag needs calibration's fingerprint; shrinkage uses a fixed κ (not
+  empirical Bayes); busy AI tiers give labelled templates in the same run (sample plans are for fair-use
+  and quota limits); CI's gitleaks scans pushed commits (the full history is audited separately); the
+  quirks about popularity, "New York" and Retry-After are other participants' reports. Two real issues
+  fixed in code: empty `KEY=` lines from a copied `.env.example` made every route fail validation (now
+  treated as unset, with a test), and the README now installs the Playwright browser before the browser
+  tests.
 - **Release audit:** gitleaks, trufflehog and `pnpm audit:public` clean at 80e9854 (69 commits). Official
   rules text unchanged from 2026-10-29; deadline unchanged.
 

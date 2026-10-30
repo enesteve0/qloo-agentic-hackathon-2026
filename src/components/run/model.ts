@@ -200,7 +200,7 @@ export function leftoverNote(plan: Pick<MediaPlan, 'byNta' | 'leftoverUsd' | 'ne
   if (plan.leftoverUsd < next) {
     return `Not enough for the next best screen (${fmtUsd(next)} for ${fmtWeeks(plan.weeks)}). Keep it or add a little.`;
   }
-  return 'Enough for another screen, but the best remaining ones are in neighborhoods that already have their share: no neighborhood gets more than half the screens. A bigger budget raises that limit.';
+  return 'Enough for another screen, but the best remaining ones are in neighborhoods that already have their share: no neighborhood gets more than about half the screens the budget buys. A bigger budget raises that limit.';
 }
 
 export function ordinal(n: number): string {
