@@ -1,4 +1,5 @@
 import { ArrowRight } from 'lucide-react';
+import { unstable_cache } from 'next/cache';
 import Link from 'next/link';
 import MapClient from '@/components/map/MapClient';
 import { Footer } from '@/components/site/Footer';
@@ -8,12 +9,27 @@ import { StreetPlate } from '@/components/ui/StreetPlate';
 import { PRESETS } from '@/content/presets';
 import meta from '@/data/meta.json';
 import { getEnv } from '@/server/env';
+import { loadPreset } from '@/server/store/runs';
 
 // Static, refreshed every few minutes so the status line follows the deployment's Qloo mode.
 export const revalidate = 300;
 
 const fmt = new Intl.NumberFormat('en-US');
 const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
+
+/** The taste anchors each sample plan actually used: its recording's, else the preset's own hints. */
+const sampleAnchors = unstable_cache(
+  async (): Promise<string[][]> =>
+    Promise.all(
+      PRESETS.map(async (p) => {
+        const run = await loadPreset(p.slug).catch(() => null);
+        const used = run?.resolution?.outcomes.flatMap((o) => (o.status === 'resolved' ? [o.selected.name] : [])) ?? [];
+        return used.length > 0 ? used : p.anchors.map((a) => a.name);
+      }),
+    ),
+  ['landing-sample-anchors'],
+  { revalidate: 300 },
+);
 
 const STATUS: Record<'mock' | 'live' | 'cache-only' | 'off', string> = {
   mock: 'Sample mode: plans use labelled synthetic taste data until the Qloo key is live',
@@ -37,9 +53,10 @@ const STEPS: { plate: string; title: string; text: string }[] = [
   { plate: 'Send', title: 'You approve and send', text: 'A budget plan with labelled assumptions and a booking email. Stoop never buys anything.' },
 ];
 
-export default function Home() {
+export default async function Home() {
   const { counts } = meta;
   const mode = getEnv().QLOO_MODE;
+  const anchors = await sampleAnchors();
   return (
     <div className="flex min-h-dvh flex-col">
       <Header current="home" narrow />
@@ -145,7 +162,7 @@ export default function Home() {
               Fictional businesses with real taste anchors. Each opens a full plan: map, ads, budget, proof and the booking email.
             </p>
             <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {PRESETS.map((p) => (
+              {PRESETS.map((p, i) => (
                 <li key={p.slug} className="flex">
                   <Link
                     href={`/p/${p.slug}`}
@@ -162,7 +179,7 @@ export default function Home() {
                     {/* Two lines reserved so the rules line up across a row of cards. */}
                     <span className="mt-auto min-h-[calc(2lh_+_0.75rem_+_2px)] border-t-2 border-surface-2 pt-3 text-sm">
                       <span className="sr-only">Taste anchors: </span>
-                      {p.anchors.map((a) => a.name).join(' · ')}
+                      {anchors[i]?.join(' · ')}
                     </span>
                     <span className="inline-flex items-center gap-1.5 font-display text-sm font-bold tracking-[0.06em] text-amber-text uppercase">
                       Open the plan
