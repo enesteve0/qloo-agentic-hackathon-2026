@@ -131,8 +131,11 @@ correction in `tasks/lessons.md`.
 - [x] Repo About set while private: description, homepage https://usestoop.vercel.app, topics; MIT detected
 - [x] Independent fact-check of the Devpost draft and README against the code; every overstatement fixed
       in README, docs, the app's own text and the draft; `.env.example` copy no longer breaks startup
-- [x] Demo video (84 s, 1080p, captions disclose synthetic data) in `.private/devpost-assets/` — optional;
+- [x] Demo video (1080p, captions disclose synthetic data) in `.private/devpost-assets/` — optional;
       needs the owner's YouTube upload
+- [x] Brand-safety guard: a fresh "Jazz supper club" run picked The Cosby Show as an anchor → listed names
+      are set aside before resolve and logged — 416b717 (641 unit/integration, 30 browser tests); the six
+      recorded sample plans contain no listed name
 - [x] Gallery + thumbnail re-shot on production (synthetic labels visible) — bb7cabb; thumbnail tagged
       SYNTHETIC SAMPLE DATA; phone shots scroll to the map and an ad; files in `.private/devpost-assets/`
 - [x] Judge path checked on production: landing → sample plan (all five views, agent log) → own brief, desktop and phone
