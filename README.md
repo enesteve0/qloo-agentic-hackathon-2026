@@ -27,7 +27,7 @@ Built for the [Qloo Agentic Hackathon 2026](https://qloo.devpost.com/).
 | | |
 |---|---|
 | Public demo | Live at [usestoop.vercel.app](https://usestoop.vercel.app) on Vercel |
-| Qloo data | Hackathon key pending activation. Until it is live, every plan uses synthetic taste data and is labelled SYNTHETIC. The client, calibration and contract checks are ready |
+| Qloo data | No working hackathon key yet, so every plan uses synthetic taste data and is labelled SYNTHETIC. The six sample plans are recorded runs of the live AI planner and writer on that synthetic data. The Qloo client has not been run against the live API; its 5-call contract check and 26-call calibration are ready for the first key |
 | AI writers | Live on the demo: Groq's `gpt-oss-120b` on the free tier, with `gpt-oss-20b` when 120b is rate-limited. The chain also takes Gemini (only for visitors from allow-listed countries), Cloudflare Workers AI, SambaNova and OpenRouter `:free` models when their keys are set. Deterministic templates are the last fallback, labelled TEMPLATE |
 | Source | MIT. Public from submission day |
 
@@ -110,10 +110,12 @@ quota, busy AI tiers), the visitor gets a labelled sample plan, never an error p
 
 ## Does it work?
 
-- **Validation against real stores.** A backtest declared before any Qloo call compares Qloo taste
-  maps with where 22 New York chains actually have more stores than commerce predicts (OpenStreetMap,
-  ODbL). The OpenStreetMap side is built; the Qloo side runs once the key is live, and the result
-  will be published at `/validation` whatever it shows.
+- **Validation against real stores: not run yet.** A backtest declared before any Qloo call compares
+  Qloo taste maps with where 22 New York chains actually have more stores than commerce predicts
+  (OpenStreetMap, ODbL). The OpenStreetMap side is built; the Qloo side needs about 44 calls and a
+  working key, and its result will be published at `/validation` whatever it shows.
+- **Copy rules with the live writer.** In the six recorded sample plans, `gpt-oss-120b` wrote all 36
+  ads and all 36 passed the eight copy rules (on synthetic evidence).
 - **Tests.** 635 unit and integration tests and 30 browser tests run in CI on every push. The
   browser tests run on the production build and include axe accessibility checks on 11 pages. CI
   also runs a public-data audit and a gitleaks scan of the full history.
@@ -172,6 +174,8 @@ with AI coding agents.
 
 ## Known limitations
 
+- No live Qloo data yet. Until a key works, the demo's neighborhoods, evidence and comparison come from
+  synthetic data and say nothing about real New York taste.
 - New York City only. Screen locations are an open-data snapshot; whether a screen can be bought,
   and when, is up to the seller.
 - Taste maps are relative signals at roughly block resolution, not foot traffic, visits or population.

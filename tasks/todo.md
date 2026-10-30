@@ -113,6 +113,23 @@ correction in `tasks/lessons.md`.
 - [x] Release audit dry run (gitleaks + trufflehog, full history) so Friday's publish is quick — both
       clean on 66 commits; repeat on the release commit
 
+## Submission day Fri 30 (no Qloo key: submit on labelled synthetic data)
+
+- [x] Key status checked: no key email in the owner's inbox; owner requesting one (form, Devpost forum
+      thread 45475, Discord, ian@qloo.com) and asking whether a late key may be switched on in judging
+- [x] Release audit at 80e9854: gitleaks, trufflehog, `pnpm audit:public` clean (69 commits)
+- [x] Six sample plans recorded on production with the live AI on synthetic data (labelled SYNTHETIC);
+      Drop Day re-recorded, Halfnote's first take kept — 36/36 model ads pass the copy rules
+- [x] Landing cards list each recording's anchors — 7a3d3e7, static with a 5-min refresh, CI green,
+      production checked (no stale anchors)
+- [x] Devpost draft for the no-key case (`.private/DEVPOST_DRAFT.md`) with the "if the key goes live" swaps
+- [x] README, SUBMISSION (kit guide mapped), RESEARCH, PROVENANCE updated for the no-key state
+- [ ] Gallery + thumbnail re-shot on production (synthetic labels visible)
+- [ ] Judge path checked on production: landing → sample plan (all five views, agent log) → own brief, desktop and phone
+- [ ] Owner: "make the repo public" → release audit on the release commit → public, MIT in About,
+      description, URL, topics, secret scanning
+- [ ] Owner submits on Devpost; tag `v1.0.0-submission`; PROVENANCE submission record
+
 ## Review
 
 _Filled in at submission: what shipped, what was cut, measured numbers, open issues._

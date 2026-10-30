@@ -113,6 +113,28 @@
   bare facts only); and the two Groq slots each kept their own key cooldown and kill switch (now shared
   per provider, and a key failure skips the provider's other slot in the same run).
 
+### 2026-10-30 — submission day without a Qloo key
+
+- **No working Qloo key.** On the morning of the deadline the owner's inbox held only Devpost's starter
+  and reminder emails, no key email. The owner is requesting a key through the form, the Devpost forum
+  thread where Qloo staff answer key requests, Discord and ian@qloo.com, and asking whether a key that
+  arrives after the deadline may be switched on during judging. Rules §5 allows no changes to a
+  submission after the deadline, so live Qloo data after it needs Qloo's written permission.
+- **Submit on labelled synthetic data.** The deployed demo runs the real agent (live AI planner and
+  writer) on the synthetic Qloo transport, and every plan says SYNTHETIC. README, the Devpost text and the
+  checklist say there is no working key and that the Qloo client has not been run against the live API.
+- **Sample plans re-recorded with the live AI.** The six presets were recorded through
+  `/api/admin/record` on production (Qloo synthetic, AI live, labelled SYNTHETIC) instead of the on-the-fly
+  synthetic runs whose rule-based stand-in writer produced lines like "Bed-Stuy loves Morning". Drop Day
+  was recorded again because its first anchors included a celebrity unsuited to a judge demo; Halfnote's
+  second take was discarded for its first (fewer awkward lines). In the six kept plans the model wrote all
+  36 ads and all 36 passed the eight copy rules. Recordings stay in the private store only.
+- **Landing cards follow the recordings.** The sample cards listed each preset's anchor hints, which
+  could disagree with the anchors the AI chose in the recorded plan; they now list the recording's
+  anchors (cached five minutes; hints when nothing is recorded).
+- **Release audit:** gitleaks, trufflehog and `pnpm audit:public` clean at 80e9854 (69 commits). Official
+  rules text unchanged from 2026-10-29; deadline unchanged.
+
 ## Recording future work
 
 For every imported component, record its upstream URL, immutable commit/version, license, purpose and changes. For every material project decision, record date, rationale and source. If a baseline project is reused, identify its pre-event commit and explain the event-period work separately.

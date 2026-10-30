@@ -65,3 +65,7 @@ rule that prevents it, and how to check.
 - **Credentials and terms need the owner.** The browser cannot sign in, accept third-party terms,
   create API keys or search mail for keys, even with a general go-ahead. Plan these as owner steps and
   hand over clipboard one-liners (`pbpaste` into a git-ignored file) so keys never pass through chat.
+- **Verify the critical-path credential itself, not a statement about it.** "I have it" about the Qloo
+  key stood for four days; on deadline morning the inbox held no key email. Rule: on day one, ask for
+  the artifact (the key pasted into the git-ignored file, checked by length) or the request date and
+  email, and escalate the same day if neither exists.

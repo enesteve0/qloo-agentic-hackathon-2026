@@ -55,7 +55,9 @@ Multiple submissions must be substantially different. [Rules §3–4](https://ql
 - API key via the Google form linked from the
   [developer guide](https://docs.qloo.com/reference/qloo-llm-hackathon-developer-guide) (same form as
   the Devpost Resources page). Keys are issued manually by email from hackathon@qloo.com, usually
-  within a few business days; check spam; resubmit if nothing arrives.
+  within a few business days; check spam; resubmit if nothing arrives. In the Devpost forum
+  ("API access not yet gotten"), Qloo staff answered missing-key posts within about a day and sometimes
+  found the key had already been sent, then resent it (checked 2026-10-30).
 - Base URL `https://hackathon.api.qloo.com`; header `X-Api-Key`; `GET /v2/insights` (query-string
   parameters, `filter.type` required), `/search`, `/v2/tags`, entity endpoints. Invalid parameters are
   silently ignored. Keys have rate and monthly quotas (raise via Discord #api-help); keys stay active
@@ -66,6 +68,10 @@ Multiple submissions must be substantially different. [Rules §3–4](https://ql
 - Official kit: [qloo-hackathon-kit](https://github.com/qloo/qloo-hackathon-kit) with the
   `@qloo/qloo-harness` package (`qloo explore | exec | api | mcp`). `qloo mcp` is a local stdio server;
   "Serverless functions are not a supported route." Hosted Qloo API MCP endpoints are excluded.
+- Kit [submission guide](https://github.com/qloo/qloo-hackathon-kit/blob/main/docs/SUBMISSION.md)
+  (checked 2026-10-30): a problem statement; the Qloo workflow or tools used and why; a redacted
+  request-to-result explanation; a demo or screenshots without credentials or personal data;
+  clean-environment setup; known limitations. Mapped in [the checklist](SUBMISSION.md#kit-submission-guide).
 - Safe use: results describe aggregate affinities; never send personal data to Qloo; do not infer
   identity, health, finances or politics; show source and limits.
   [SAFE_USE](https://github.com/qloo/qloo-hackathon-kit/blob/main/docs/SAFE_USE.md)
