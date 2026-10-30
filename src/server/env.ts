@@ -42,10 +42,13 @@ export type Env = z.infer<typeof schema> & { redisDriver: 'upstash' | 'memory' }
 
 let cached: Env | undefined;
 
-/** Parsed, validated server environment. Throws with a readable message on invalid values. */
+/**
+ * Parsed, validated server environment. Throws with a readable message on invalid values. Empty values
+ * (`KEY=` lines in a copy of .env.example) count as unset.
+ */
 export function getEnv(): Env {
   if (cached) return cached;
-  const parsed = schema.safeParse(process.env);
+  const parsed = schema.safeParse(Object.fromEntries(Object.entries(process.env).filter(([, v]) => v !== '')));
   if (!parsed.success) {
     const issues = parsed.error.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; ');
     throw new Error(`Invalid environment: ${issues}`);
