@@ -150,6 +150,12 @@
   fixed in code: empty `KEY=` lines from a copied `.env.example` made every route fail validation (now
   treated as unset, with a test), and the README now installs the Playwright browser before the browser
   tests.
+- **Brand-safety guard for anchors.** Recording the demo video with the "Jazz supper club" example brief
+  produced a fresh live run whose planner picked The Cosby Show as a taste anchor (an earlier Drop Day
+  run picked Kanye West), despite the prompt's rule against anchors that stand in for who lives
+  somewhere. The orchestrator now sets aside any anchor on a short brand-safety list of names advertisers
+  widely avoid before anything reaches Qloo, and logs each one; tests cover the list and the run. The
+  general rule stays in the prompt.
 - **Release audit:** gitleaks, trufflehog and `pnpm audit:public` clean at 80e9854 (69 commits). Official
   rules text unchanged from 2026-10-29; deadline unchanged.
 

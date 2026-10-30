@@ -10,6 +10,7 @@ import type {
   StageInfo,
   StageStatus,
 } from '@/shared/types';
+import { isBrandSafe } from './brand-safety';
 import type { ResolvedAnchor, RunDeps, StepCtx } from './deps';
 import { toUserMessage, UserFacingError } from './errors';
 
@@ -148,12 +149,15 @@ export async function executeRun(state: RunState, emit: Emit, deps: RunDeps, opt
       });
       await timed('plan', async () => {
         progress('Choosing taste anchors');
-        const { output, via, attempts } = await deps.planner({ brief: state.brief, country: opts.country, signal, onAttempt });
+        const { output: proposed, via, attempts } = await deps.planner({ brief: state.brief, country: opts.country, signal, onAttempt });
+        const setAside = proposed.anchors.filter((a) => !isBrandSafe(a.name));
+        const output = setAside.length ? { ...proposed, anchors: proposed.anchors.filter((a) => isBrandSafe(a.name)) } : proposed;
         state.planner = output;
         state.llm.via.push(via);
         state.llm.attempts = Math.max(state.llm.attempts, attempts);
         const list = output.anchors.map((a) => `${a.name} (${a.type.replace('_', ' ')})`).join(', ');
         decide('plan', output.fallback ? `No AI writer was free, so rules picked the anchors: ${list}.` : `Anchors for this audience: ${list}.`);
+        for (const a of setAside) decide('plan', `Set aside “${a.name}”: it is on Stoop’s brand-safety list.`);
         if (output.fallback) setStage('plan', 'degraded', 'Rule-based anchors (AI capacity busy)');
       });
     }

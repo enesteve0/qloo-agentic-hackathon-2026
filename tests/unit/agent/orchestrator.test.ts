@@ -140,6 +140,29 @@ const collect = () => {
 };
 
 describe('executeRun', () => {
+  it('sets aside a brand-unsafe anchor before Qloo sees it, and says so', async () => {
+    const base = fakeDeps();
+    let sent: string[] = [];
+    const deps = fakeDeps({
+      planner: async () => ({
+        output: { ...planner, anchors: [...planner.anchors, { name: 'The Cosby Show', type: 'tv_show', searchHint: null, why: 'x' }] },
+        via: 'groq/gpt-oss-120b',
+        attempts: 1,
+      }),
+      resolve: async (input) => {
+        sent = input.anchors.map((a) => a.name);
+        return base.resolve(input);
+      },
+    });
+    const state = await executeRun(newRunState({ id: 'r2', brief, mode: 'mock', now: new Date('2026-10-28T15:00:00Z') }), () => {}, deps, {
+      country: 'US',
+      persist: async () => {},
+    });
+    expect(sent).toEqual(['Robert Glasper', 'Soul', 'Blue Note Jazz Club']);
+    expect(state.planner?.anchors.map((a) => a.name)).not.toContain('The Cosby Show');
+    expect(state.decisions.map((d) => d.text)).toContain('Set aside “The Cosby Show”: it is on Stoop’s brand-safety list.');
+  });
+
   it('pauses for one question, then resumes to a finished plan', async () => {
     const deps = fakeDeps();
     const saved: string[] = [];

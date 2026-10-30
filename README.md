@@ -119,7 +119,7 @@ the ads in the same run.
   working key, and its result will be published at `/validation` whatever it shows.
 - **Copy rules with the live writer.** In the six recorded sample plans, `gpt-oss-120b` wrote all 36
   ads and all 36 passed the eight copy rules (on synthetic evidence).
-- **Tests.** 638 unit and integration tests and 30 browser tests run in CI on every push. The
+- **Tests.** 641 unit and integration tests and 30 browser tests run in CI on every push. The
   browser tests run on the production build and include axe accessibility checks on 11 page views.
   CI also runs a public-data audit and gitleaks on every push; a full-history gitleaks and trufflehog
   audit was clean on 2026-10-30.
@@ -133,6 +133,7 @@ the ads in the same run.
 - Plan political, housing, employment, credit, health-claim, tobacco, weapons, adult or gambling ads.
   Choosing neighborhoods by taste could exclude people along lines the law protects.
 - Put a real person's name or face, or another brand's mark, in an ad.
+- Let a name from its short brand-safety list steer a plan. The agent log says when one is set aside.
 - Buy media or send email by itself.
 - Promise results. All prices and impressions are labelled assumptions.
 

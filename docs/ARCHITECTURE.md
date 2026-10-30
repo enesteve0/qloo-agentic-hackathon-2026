@@ -266,6 +266,9 @@ names and the business address are never sent to a model.
 
 Planner output: `{ business {name, category, offer}, audienceSummary, anchors[{ name, type,
 searchHint, why }] (≤6), tone, llmOnlyNeighborhoods[{ ntaCode, reason }] (5), budgetUsd, weeks }`.
+Before resolve, the orchestrator sets aside any anchor on a short brand-safety list of names advertisers
+widely avoid (`agent/brand-safety.ts`, compared like Qloo matches) and logs a decision for each; the
+prompt's rule that anchors describe taste, never who lives somewhere, still carries the general case.
 
 ## 12. Orchestrator and streaming (`src/server/agent/`)
 
