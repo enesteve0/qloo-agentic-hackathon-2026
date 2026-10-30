@@ -24,15 +24,21 @@ A box is ticked only with the evidence written next to it. Last updated 2026-10-
       "Run it locally", verified by CI from a clean checkout on every push. Every plan's agent log copies a
       redacted trace of its Qloo requests; the Devpost text quotes the Halfnote sample plan's (requests as the
       live client sends them, answers synthetic, and it says so).*
-- [ ] Publish the working demo externally and test its core journey without private invitations. *Public
+- [x] Publish the working demo externally and test its core journey without private invitations. *Public
       at https://usestoop.vercel.app since 2026-10-29; live AI writer (Groq) and Upstash storage since
       2026-10-30 00:05 Istanbul, checked with a live run on production; Qloo data still synthetic and
       labelled SYNTHETIC. The six sample plans were recorded on 2026-10-30 with the live AI planner and
       writer on synthetic data (36 of 36 model-written ads passed the copy rules). 30 browser tests on the
       production build in CI. Live Qloo data: after a key.*
-- [ ] When authorized to publish, make the source repo public and verify MIT is detected.
-- [ ] Complete the feature description; video is optional, not required.
-- [ ] Submit before October 30, 23:45 EDT / October 31, 06:45 Istanbul.
+- [x] When authorized to publish, make the source repo public and verify MIT is detected. *Owner's
+      instruction 2026-10-30 17:49 Istanbul (recorded in [provenance](PROVENANCE.md)); public after the
+      release audit; logged out: page 200, `private: false`, MIT; secret scanning and push protection on.*
+- [x] Complete the feature description; video is optional, not required. *Devpost About (no-key version),
+      thumbnail, 10 captioned gallery images, 17 "Built with" tags, demo and repo links, additional info.
+      No video at submission (the owner has no YouTube channel yet).*
+- [x] Submit before October 30, 23:45 EDT / October 31, 06:45 Istanbul. *Submitted 2026-10-30 at about
+      17:58 Istanbul (10:58 ET):
+      https://devpost.com/software/stoop-ai-media-planner-for-nyc-street-screens*
 - [ ] Keep demo access working through the later published judging end: November 5, 23:45 EST.
 
 ## Release review
@@ -43,13 +49,15 @@ A box is ticked only with the evidence written next to it. Last updated 2026-10-
 - [x] Replace planning status with an accurate description of what actually works. *README rewritten
       2026-10-29; 2026-10-30: status row, validation line and limitations say there is no working key and
       the data is synthetic.*
-- [ ] Verify instructions from a clean checkout and test the demonstrated user journey. *CI does both on
-      mocks; repeat on the live demo before submitting.*
-- [ ] Audit source and full Git history for secrets, private data and unlicensed assets. *gitleaks,
-      trufflehog and `pnpm audit:public` clean on 2026-10-30 at 80e9854 (69 commits); repeat on the release
-      commit.*
-- [ ] Check source visibility and judge access against the event requirements.
-- [ ] Record the submitted commit/tag, demo URL and artifact URLs in provenance.
+- [x] Verify instructions from a clean checkout and test the demonstrated user journey. *CI runs the README
+      setup from a clean checkout and 30 browser tests on every push (green on 65d2d20); the judge path was
+      checked on production on 2026-10-30 (sample plan, all five views, agent log, a fresh live brief).*
+- [x] Audit source and full Git history for secrets, private data and unlicensed assets. *gitleaks,
+      trufflehog and `pnpm audit:public` clean on 2026-10-30 at 6c0333c (79 commits), before publication.*
+- [x] Check source visibility and judge access against the event requirements. *Logged out on 2026-10-30
+      17:59 Istanbul: public repository (MIT), demo without login and the Devpost page all return 200.*
+- [x] Record the submitted commit/tag, demo URL and artifact URLs in provenance. *[Submission
+      record](PROVENANCE.md#submission-record): tag `v1.0.0-submission` → 65d2d20.*
 - [x] Check the applicable post-deadline edit restrictions and availability period. *Rules §5: no changes to
       the Submission after the submission period, except material Qloo and Devpost ask to remove; the project
       must stay free and unrestricted until the judging period ends (November 5, 23:45 ET). Turning on live

@@ -173,5 +173,24 @@ For every imported component, record its upstream URL, immutable commit/version,
 - **Release audit before publication** at 6c0333c (79 commits): gitleaks on the full history found no
   leaks; trufflehog (verified and unknown results) found 0 secrets; `pnpm audit:public` passed (268 tracked
   files, 23 bundle files); no co-author or "generated with" trailers anywhere in the history.
-- Submission URL, tag, video URL, access checks and freeze: recorded below once submitted. No secrets or
-  private judge passwords go here.
+- **Repository public** at about 17:50 Istanbul, after the audit: visibility switched with `gh repo edit`; GitHub
+  secret scanning and push protection enabled. Logged out: the repository page returns 200, the API reports
+  `private: false` and license MIT, with the description and homepage set.
+- **Submitted** on 2026-10-30 at about 17:58 Istanbul (10:58 ET) to the Qloo Agentic Hackathon, from the
+  owner's Devpost account at the owner's instruction:
+  - Devpost: https://devpost.com/software/stoop-ai-media-planner-for-nyc-street-screens
+  - Demo: https://usestoop.vercel.app (production build 65d2d20; Qloo data synthetic, AI live)
+  - Code: https://github.com/enesteve0/qloo-agentic-hackathon-2026, tag `v1.0.0-submission` → 65d2d20 (CI
+    passed on it)
+  - Entry: the no-key write-up (its status box says the taste data is synthetic), a thumbnail labelled
+    SYNTHETIC SAMPLE DATA, 10 captioned gallery images, 17 "Built with" tags, both links, and additional
+    info (work began October 26, 2026; not an existing project)
+  - Video: not attached at submission. The owner's Google account has no YouTube channel yet, and creating
+    one means accepting YouTube's terms, which is the owner's step.
+- **Access checks**, logged out at 17:59 Istanbul: the Devpost page returns 200 and names the hackathon;
+  the demo returns 200 and `/api/health` reports build 65d2d20; the repository returns 200.
+- **Freeze.** Devpost allows edits until the deadline (October 30, 23:45 ET = October 31, 06:45 Istanbul).
+  After it, rules §5 allows no changes to the submission, and the demo stays free and unrestricted through
+  the judging period (ends November 5, 23:45 ET). From then on, only configuration switches or critical
+  fixes that keep the demo working, each logged here. Live Qloo data only with Qloo's written permission.
+  No secrets or private judge passwords go in this record.

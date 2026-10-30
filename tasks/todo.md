@@ -15,7 +15,7 @@ correction in `tasks/lessons.md`.
 - [x] Vercel project created and connected to GitHub (2026-10-29, CLI; https://usestoop.vercel.app; pushes to master deploy)
 - [ ] Upstash Redis (free, autoUpgrade off): owner accepts Upstash terms, then provision via CLI
 - [ ] Keys added to Vercel env (Production) and local `.env.local` (git-ignored) — app secrets, modes and prefixes set 2026-10-29; Qloo and Groq keys wait for `.env.local`
-- [ ] Explicit "publish the repo" instruction on Fri Oct 30 (recorded in PROVENANCE)
+- [x] Explicit "publish the repo" instruction on Fri Oct 30 (recorded in PROVENANCE) — 17:49 Istanbul
 
 ## P0 — must ship (dependency order)
 
@@ -45,8 +45,9 @@ correction in `tasks/lessons.md`.
       `docs/CALIBRATION.md` + `cfg:calibration`; each anchor's top-10 NTAs sanity-checked
 - [ ] 13. ≥ 4 recorded presets — verify: landing cards open RECORDED runs
 - [ ] ~~14. Share page (flagged, noindex, derived only)~~ — cut 2026-10-26: `/plan/<id>` links are the share links (unguessable ids, noindex, robots-excluded, expire with the event data)
-- [ ] 15. Docs + Devpost assets + public audit + owner-authorized publication + submission —
-      verify: audit clean, MIT detected, submission URL recorded in PROVENANCE
+- [x] 15. Docs + Devpost assets + public audit + owner-authorized publication + submission —
+      verify: audit clean, MIT detected, submission URL recorded in PROVENANCE (2026-10-30: audit clean at
+      6c0333c, public with MIT, submitted 17:58 Istanbul, record in PROVENANCE)
 
 ## P1 — in order, only after P0 is safe
 
@@ -65,7 +66,7 @@ correction in `tasks/lessons.md`.
 - [x] G1 Tue 23:00 — browser end-to-end on mocks (SYNTHETIC badge) — met Mon 26 evening: 28 Playwright specs (live run, reload, CSV/PNG, limits → sample plan, picker, axe on 11 pages) pass in CI on the production build
 - [ ] G2 Wed 23:00 — live end-to-end with ≥ 3 presets (or escalate per contingencies)
 - [ ] G3 Thu 23:00 — feature freeze (prompts + dependencies frozen 18:00)
-- [ ] G4 Fri 18:00 — submitted; tag `v1.0.0-submission`
+- [x] G4 Fri 18:00 — submitted; tag `v1.0.0-submission` — met 17:58 (on synthetic Qloo data; tag → 65d2d20)
 
 ## Progress notes
 
@@ -141,10 +142,32 @@ correction in `tasks/lessons.md`.
 - [x] Judge path checked on production: landing → sample plan (all five views, agent log) → own brief, desktop and phone
       — screenshots of every view at 1800×1200 and 390×844 on bb7cabb, read by eye; own brief streamed to done
       (ramen, 12.2 s); CI's 30 browser tests cover the same path on mocks
-- [ ] Owner: "make the repo public" → release audit on the release commit → public, MIT in About,
-      description, URL, topics, secret scanning
-- [ ] Owner submits on Devpost; tag `v1.0.0-submission`; PROVENANCE submission record
+- [x] Owner: "make the repo public" → release audit on the release commit → public, MIT in About,
+      description, URL, topics, secret scanning — audit clean at 6c0333c (79 commits); public at about
+      17:50; logged out 200, `private: false`, MIT; secret scanning and push protection on
+- [x] Submitted on Devpost at the owner's instruction (owner approved the rules/terms box); tag
+      `v1.0.0-submission`; PROVENANCE submission record — 17:58 Istanbul,
+      https://devpost.com/software/stoop-ai-media-planner-for-nyc-street-screens; logged-out checks 200
+- [ ] Demo video on YouTube (unlisted) and its link on Devpost — waits for the owner to create a YouTube
+      channel (YouTube's terms); Devpost edits close Sat 06:45 Istanbul
 
 ## Review
 
-_Filled in at submission: what shipped, what was cut, measured numbers, open issues._
+Submitted Fri Oct 30, 17:58 Istanbul, ahead of the 18:00 target and 12 h 47 min before the deadline.
+
+- **Shipped:** Stoop at https://usestoop.vercel.app. The seven stations run in one streamed flow (brief,
+  taste, where, what, plan, proof, send). The planner and writer are live AI (gpt-oss-120b on Groq's free
+  tier, gpt-oss-20b when 120b is rate-limited, labelled templates after that). The plans cover 2,183 real
+  street screens in 106 eligible neighborhoods. Six recorded sample plans have 36 of 36 model-written ads
+  passing the eight copy rules. Also shipped: restricted categories, a brand-safety guard for anchors,
+  fair-use guards (WAF rule, session and IP limits, sample-plan fallback), exports (CSV, PNG ads, print,
+  booking email draft), mobile layouts and accessibility checks. The repo is public under MIT.
+- **Measured:** fresh live briefs on production finished in 12.2–14.6 s with 6 of 6 model-written ads;
+  641 unit and integration tests and 30 browser tests (axe on 11 page views) pass in CI; Lighthouse
+  accessibility 100 on six pages; the release audit is clean on 79 commits.
+- **Not done (no Qloo key):** live Qloo data, calibration (12), live recorded presets (13, recorded on
+  synthetic data instead), the validation backtest's Qloo arm, and every P1 item that needs real maps. Cut
+  for scope: the separate share page and the other P1 items listed above.
+- **Open:** a key that arrives after the deadline needs Qloo's written permission before going live (rules
+  §5); the demo video waits for the owner's YouTube channel; judging-week checks (Nov 2–5); rotate the Groq
+  key after judging (it was pasted in chat); run data expires 2026-11-07.
