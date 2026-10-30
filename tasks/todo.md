@@ -124,8 +124,16 @@ correction in `tasks/lessons.md`.
       production checked (no stale anchors)
 - [x] Devpost draft for the no-key case (`.private/DEVPOST_DRAFT.md`) with the "if the key goes live" swaps
 - [x] README, SUBMISSION (kit guide mapped), RESEARCH, PROVENANCE updated for the no-key state
-- [ ] Gallery + thumbnail re-shot on production (synthetic labels visible)
-- [ ] Judge path checked on production: landing → sample plan (all five views, agent log) → own brief, desktop and phone
+- [x] Fresh brief on production (ramen, Astoria): 12.2 s, 6/6 model ads, SYNTHETIC — found an echoed
+      evidence label in 2 ads → e3afc95 drops echoed closing sentences (test added, 636 pass)
+- [x] Synthetic note no longer claims the live agent uses real Qloo data when no key is active — bb7cabb
+      (30/30 browser tests)
+- [x] Repo About set while private: description, homepage https://usestoop.vercel.app, topics; MIT detected
+- [x] Gallery + thumbnail re-shot on production (synthetic labels visible) — bb7cabb; thumbnail tagged
+      SYNTHETIC SAMPLE DATA; phone shots scroll to the map and an ad; files in `.private/devpost-assets/`
+- [x] Judge path checked on production: landing → sample plan (all five views, agent log) → own brief, desktop and phone
+      — screenshots of every view at 1800×1200 and 390×844 on bb7cabb, read by eye; own brief streamed to done
+      (ramen, 12.2 s); CI's 30 browser tests cover the same path on mocks
 - [ ] Owner: "make the repo public" → release audit on the release commit → public, MIT in About,
       description, URL, topics, secret scanning
 - [ ] Owner submits on Devpost; tag `v1.0.0-submission`; PROVENANCE submission record

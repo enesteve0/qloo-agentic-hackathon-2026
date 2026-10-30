@@ -132,6 +132,11 @@
 - **Landing cards follow the recordings.** The sample cards listed each preset's anchor hints, which
   could disagree with the anchors the AI chose in the recorded plan; they now list the recording's
   anchors (cached five minutes; hints when nothing is recorded).
+- **Two fixes from checking production.** A fresh brief showed the writer appending the evidence label
+  to copy it verbatim ("…perfect for Date Night. Date Night."); model copy now drops a closing sentence
+  that only repeats earlier words (matching ignores case, so the reference still holds). The striped
+  note on synthetic plans said "the live agent uses real Qloo data" even with no key active; it now says
+  the key is not active yet whenever the deployment runs on synthetic data.
 - **Release audit:** gitleaks, trufflehog and `pnpm audit:public` clean at 80e9854 (69 commits). Official
   rules text unchanged from 2026-10-29; deadline unchanged.
 
