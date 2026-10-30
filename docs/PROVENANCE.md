@@ -165,4 +165,13 @@ For every imported component, record its upstream URL, immutable commit/version,
 
 ## Submission record
 
-No submission exists yet. At submission, record the exact source commit/tag, official submission URL, demo/video URLs, access checks and applicable freeze period. Do not put secrets or private judge passwords here.
+- **Publication instruction.** 2026-10-30, 17:49 Istanbul (10:49 ET): the owner asked in chat for the
+  Devpost form to be filled in and the project submitted. Asked whether to make this repository public for
+  Devpost's required "public code repo" link, the owner answered "Yes, make it public". In the same answer
+  the owner approved ticking Devpost's rules and terms box at submission and uploading the demo video to
+  their YouTube channel as unlisted.
+- **Release audit before publication** at 6c0333c (79 commits): gitleaks on the full history found no
+  leaks; trufflehog (verified and unknown results) found 0 secrets; `pnpm audit:public` passed (268 tracked
+  files, 23 bundle files); no co-author or "generated with" trailers anywhere in the history.
+- Submission URL, tag, video URL, access checks and freeze: recorded below once submitted. No secrets or
+  private judge passwords go here.
