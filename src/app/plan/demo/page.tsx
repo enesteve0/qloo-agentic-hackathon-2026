@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { syntheticReason } from '@/components/live/SyntheticNote';
 import { isRunTab } from '@/components/run/types';
 import { Footer } from '@/components/site/Footer';
 import { Header } from '@/components/site/Header';
@@ -34,7 +35,7 @@ export default async function DemoPlanPage({ searchParams }: { searchParams: Pro
           <span aria-hidden="true" className="hazard h-5 w-10 shrink-0" />
           <p className="min-w-0 flex-1 text-sm">
             <span className="font-display text-base font-bold tracking-[0.06em] uppercase">Synthetic demo data</span>
-            <span className="text-muted"> — the live agent uses real Qloo data. </span>
+            <span className="text-muted"> — {syntheticReason()} </span>
             <Link href="/how-it-works#labels" className="whitespace-nowrap underline underline-offset-4">
               What the labels mean
             </Link>

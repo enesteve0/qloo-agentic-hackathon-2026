@@ -34,7 +34,7 @@ export default async function PresetPage({ params, searchParams }: Params) {
     <div className="flex min-h-dvh flex-col">
       <Header current="plan" />
       {run.label?.kind === 'synthetic' ? (
-        <SyntheticNote>{live ? 'press Run live to plan this brief with real Qloo data.' : 'the live agent uses real Qloo data.'}</SyntheticNote>
+        <SyntheticNote>{live ? 'press Run live to plan this brief with real Qloo data.' : null}</SyntheticNote>
       ) : null}
       <main id="main" className="flex-1">
         <LivePlanner
