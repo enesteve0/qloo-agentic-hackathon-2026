@@ -1,6 +1,6 @@
 import 'server-only';
 import type { AdVariant, CreativeSet, CreativeVariant, GroundingResult, Tone } from '@/shared/types';
-import { squish } from './text';
+import { normalizeText, squish } from './text';
 import { templateVariant } from './templates';
 import { validateVariant, type CreativeContext } from './validate';
 
@@ -27,13 +27,24 @@ const SLOTS = ['A', 'B'] as const;
 /** Squish, with plain hyphens: models write U+2010/U+2011, which the ad fonts may lack. */
 const plain = (input: string | null | undefined) => squish(input).replace(/[‐‑]/g, '-');
 
+/**
+ * Drop a closing sentence that only repeats words already said ("…perfect for Date Night. Date Night."):
+ * models append the evidence label to copy it verbatim, but phrase matching ignores case.
+ */
+function dropEchoedTail(text: string): string {
+  const m = /^(.*[.!?])\s+([^.!?]+)[.!?]?$/u.exec(text);
+  if (!m?.[1] || !m[2]) return text;
+  const tail = normalizeText(m[2]);
+  return tail && ` ${normalizeText(m[1])} `.includes(` ${tail} `) ? m[1] : text;
+}
+
 /** Trim model output so stored copy matches what was validated. */
 function tidy(v: AdVariant): AdVariant {
   return {
     nta: v.nta,
     variant: v.variant,
     headline: plain(v.headline),
-    body: plain(v.body),
+    body: dropEchoedTail(plain(v.body)),
     cta: plain(v.cta),
     references: (v.references ?? [])
       .filter((r) => typeof r?.evidenceId === 'string' && typeof r.phrase === 'string')

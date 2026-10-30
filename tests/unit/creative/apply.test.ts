@@ -117,6 +117,19 @@ describe('finalizeCreative', () => {
     expect(a).toMatchObject({ source: 'model', headline: 'Live music, Bed-Stuy style.', body: 'Halfnote brings live music to Bed-Stuy.' });
   });
 
+  it('drops a closing sentence that only repeats the body, whatever its case', () => {
+    const body = (text: string) => {
+      const variants = allGood();
+      variants[0] = good(BK, 'A', { body: text });
+      return finalizeCreative(variants, contexts(), { via: 'groq' }).sets[0]?.variants[0];
+    };
+    expect(body('Halfnote brings live music to Bed-Stuy. Live Music.')).toMatchObject({ source: 'model', body: 'Halfnote brings live music to Bed-Stuy.' });
+    expect(body('Halfnote: live music tonight! live music')).toMatchObject({ source: 'model', body: 'Halfnote: live music tonight!' });
+    // A closing sentence that adds anything stays.
+    expect(body('Halfnote brings live music to Bed-Stuy. Live music nightly.')?.body).toBe('Halfnote brings live music to Bed-Stuy. Live music nightly.');
+    expect(body('Live music at Halfnote. Bed-Stuy, come early.')?.body).toBe('Live music at Halfnote. Bed-Stuy, come early.');
+  });
+
   it('reports template failures too when even the template cannot pass', () => {
     const ctx = { [BK]: ctxFor(BK, { labels: [] }) };
     const a = finalizeCreative([], ctx, { via: 'template' }).sets[0]?.variants[0];
